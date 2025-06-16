@@ -421,7 +421,7 @@ def main():
                 with open(out_file, "w", encoding="utf-8") as f:
                     f.write("\n".join(high_risk_urls))
                 st.success(f"✅ 偵測到高風險網址 {len(high_risk_urls)} 筆，已儲存至 {out_file}")
-               st.download_button(
+                st.download_button(
         label="📥 下載高風險網址清單",
         data="\n".join(high_risk_urls),
         file_name="google_high_risk_urls.txt",
