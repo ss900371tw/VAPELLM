@@ -199,7 +199,7 @@ def is_blacklisted_url(url: str) -> bool:
 
 # -------------------- 9. Streamlit 主程式 --------------------
 def main():
-    st.title("電子菸 / 管制藥品網站偵測系統 - OpenAI 版")
+    st.title("電子菸網站偵測系統 - OpenAI 版")
 
     llm_text = ChatOpenAI(api_key=openai_api_key, model="gpt-4o", temperature=0)
     llm_image = ChatOpenAI(api_key=openai_api_key, model="gpt-4o", temperature=0)
