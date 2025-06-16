@@ -278,7 +278,7 @@ def main():
                 st.download_button(
         label="📥 下載高風險網址清單",
         data="\n".join(high_risk_urls),
-        file_name="google_high_risk_urls.txt",
+        file_name="high_risk_urls.txt",
         mime="text/plain"
     )
             else:
