@@ -239,7 +239,7 @@ def is_blacklisted_url(url: str) -> bool:
 # ---------------------------------------------------------------------------
 
 def main():
-    st.title("電子菸 / 管制藥品網站偵測系統 - 合併版")
+    st.title("電子菸網站偵測系統")
 
     # 準備 LLM
     model = ChatGroq(api_key=api_key, model_name='gemma2-9b-it')
