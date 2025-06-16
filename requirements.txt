@@ -1,0 +1,9 @@
+beautifulsoup4
+bs4
+dotenv 
+langchain_core
+langchain_groq
+langchain
+bs4
+ollama-python
+googleapiclient
