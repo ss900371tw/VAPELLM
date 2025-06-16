@@ -316,11 +316,12 @@ def main():
                 with open("google_high_risk_urls.txt", "w", encoding="utf-8") as f:
                     f.write("\n".join(high_risk_urls))
                 st.success(f"✅ 偵測到高風險網址 {len(high_risk_urls)} 筆，已儲存至 google_high_risk_urls.txt")
+                st.download_button(label="📥 下載高風險網址清單",data="\n".join(high_risk_urls),file_name="google_high_risk_urls.txt",mime="text/plain")
+
             else:
                 st.info("未偵測到高風險網址")
             # ✅ 提供下載按鈕
-            st.download_button(label="📥 下載高風險網址清單",data="\n".join(high_risk_urls),file_name="google_high_risk_urls.txt",mime="text/plain")
-
+                  
 if __name__ == "__main__":
     main()
 
