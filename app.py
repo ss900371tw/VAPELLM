@@ -268,8 +268,9 @@ def main():
             if not image_urls:
                 st.write("(未找到圖片)")
             else:
-                for img in random.sample(image_urls, 2):
-                    img_result = classify_image(img, model1)
+                sample_size = min(2, len(image_urls))  # 最多只抽現有數量的圖片
+                for img in random.sample(image_urls, sample_size):
+                    img_result = classify_image(img, llm_image)
                     st.image(img, caption=f"分類結果: {img_result}")
                     if "Warning" in img_result:
                         flagged_images += 1
@@ -309,11 +310,12 @@ def main():
 
                 image_urls = crawl_images(url)
                 flagged_images = 0
+
                 if not image_urls:
                     st.write("(未找到圖片)")
                 else:
-                    for img in image_urls[:2]:
-                        img_result = classify_image(img, model1)
+                    for img in image_urls[:2]:  # 最多兩張
+                        img_result = classify_image(img, llm_image)
                         st.image(img, caption=f"分類結果: {img_result}")
                         if "Warning" in img_result:
                             flagged_images += 1
@@ -395,8 +397,8 @@ def main():
                 if not image_urls:
                     st.write("(未找到圖片)")
                 else:
-                    for img in random.sample(image_urls, 2):
-                        img_result = classify_image(img, model1)
+                    for img in image_urls[:2]:  # 最多兩張
+                        img_result = classify_image(img, llm_image)
                         st.image(img, caption=f"分類結果: {img_result}")
                         if "Warning" in img_result:
                             flagged_images += 1
