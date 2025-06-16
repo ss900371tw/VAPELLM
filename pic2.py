@@ -18,8 +18,7 @@ from googleapiclient.discovery import build
 
 # -------------------- 1. 環境變數 --------------------
 load_dotenv()
-openai_api_key = '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'
-
+api_key = os.getenv("OPENAI_API_KEY", "")
 # -------------------- 2. Prompt --------------------
 text_template = """
 As an expert classifier of e-cigarette and controlled-substance-selling websites,
