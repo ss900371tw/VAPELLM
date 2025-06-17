@@ -174,7 +174,14 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
                     return html[:50]
 
 
-
+def crawl_all_text(url: str):
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        return soup.get_text(separator="\n", strip=True)[:50]
+    except requests.exceptions.RequestException as e:
+        return f"[Request failed]: {e}"
 
 
 # ---------------------------------------------------------------------------
