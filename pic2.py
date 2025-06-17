@@ -444,8 +444,16 @@ def main():
 
                         # 顯示圖片與結果
                         for img in image_urls[:2]:
-                            img_result = classify_image(img, llm_image)
-                            st.image(img, caption=f"分類結果：{img_result}", use_container_width =True)
+                            img_result = classify_image(img, llm_image)                       
+                            # 用 image + markdown 模擬卡片內顯示
+                            st.markdown(f"""
+            <div style="background-color:#ffffff;padding:0.8rem 1rem;
+                        margin:0.8rem 0;border-radius:10px;
+                        box-shadow:0 2px 4px rgba(0,0,0,0.08);">
+                <img src="{img}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
+                <div><b>分類結果：</b> {img_result}</div>
+            </div>
+            """, unsafe_allow_html=True)                            
                             if "Warning" in img_result:
                                 flagged_images += 1
     
