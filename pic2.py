@@ -26,6 +26,11 @@ from PIL import Image
 from io import BytesIO
 from langchain_core.messages import HumanMessage
 from langchain_core.messages import AIMessage
+import setuptools
+
+import sys
+
+sys.modules['distutils'] = setuptools.distutils
 # -------------------- 1. 環境變數 --------------------
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY","")
