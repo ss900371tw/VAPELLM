@@ -201,7 +201,7 @@ def classify_image(img_url: str, model: ChatOpenAI):
         response.raise_for_status()
         img = Image.open(BytesIO(response.content))
 
-        # 使用帶圖片的 HumanMessage
+        # 傳送圖片網址給 GPT-4-Vision 分析
         message = HumanMessage(
             content=[
                 {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，並只回傳：\n🚨 Warning 或 ✅ Safe"},
@@ -213,7 +213,7 @@ def classify_image(img_url: str, model: ChatOpenAI):
         return result.content
     except Exception as e:
         return f"圖片讀取或分析失敗: {e}"
-
+        
 # -------------------- 7. Google Search --------------------
 def google_search(query, count=10):
     api_key = os.getenv("GOOGLE_API_KEY")
