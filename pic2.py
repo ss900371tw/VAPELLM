@@ -201,7 +201,7 @@ def is_blacklisted_url(url: str) -> bool:
 
 # -------------------- 9. Streamlit 主程式 --------------------
 def main():
-    st.title("電子菸網站偵測系統 - OpenAI 版")
+    st.title("##🧠  電子菸網站偵測系統")
 
     st.markdown("""
     <style>
@@ -230,8 +230,6 @@ def main():
     </style>
 """, unsafe_allow_html=True)
 
-
-    st.markdown("## 🧠 電子菸網站偵測系統")
     st.markdown("# > 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站")
     
     llm_text = ChatOpenAI(api_key=openai_api_key, model="gpt-4o", temperature=0)
