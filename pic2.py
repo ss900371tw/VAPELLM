@@ -491,7 +491,12 @@ def main():
 """, unsafe_allow_html=True)
                 with col2:
                     if not image_urls:
-                        st.write("(未找到圖片)")
+                        st.markdown(f"""
+<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
+    <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+    <div style="font-size:0.9rem;"><b>(未找到圖片)</b></div>
+</div>
+""", unsafe_allow_html=True)
                     else:
                         sample_size = min(2, len(image_urls))
                         for img in random.sample(image_urls, sample_size):
@@ -581,7 +586,12 @@ def main():
 """, unsafe_allow_html=True)
                 with col2:
                     if not image_urls:
-                        st.write("(未找到圖片)")
+                        st.markdown(f"""
+<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
+    <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+    <div style="font-size:0.9rem;"><b>(未找到圖片)</b></div>
+</div>
+""", unsafe_allow_html=True)
                     else:
                         sample_size = min(2, len(image_urls))
                         for img in random.sample(image_urls, sample_size):
