@@ -175,7 +175,7 @@ def crawl_images(url: str):
         soup = BeautifulSoup(response.text, 'html.parser')
         img_tags = soup.find_all("img")
 
-        valid_keywords = [".jpg", ".jpeg", ".png", ".webp", "img", "image]
+        valid_keywords = [".jpg", ".jpeg", ".png", ".webp", "img", "image"]
         seen = set()
         img_urls = []
 
