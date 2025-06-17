@@ -198,12 +198,13 @@ def get_image_prompt(img_url: str) -> str:
 Image URL: {img_url}
 """
 
-def classify_image(image_input, model: ChatOpenAI):
+def classify_image(image_input, model):
     """
     image_input 可以是：
     - 圖片網址 (str)
-    - BytesIO 圖片資料
+    - BytesIO 圖片資料（目前不支援）
     - 本地檔案路徑 (str)
+    model: ChatOpenAI 類型模型（如 gpt-4-vision-preview）
     """
     try:
         # 如果是網址
@@ -214,9 +215,7 @@ def classify_image(image_input, model: ChatOpenAI):
                     {"type": "image_url", "image_url": {"url": image_input}},
                 ]
             )
-        # 如果是 BytesIO 或圖片物件（你下載的）
         elif isinstance(image_input, BytesIO):
-            # 無法直接用 LangChain 分析，要用 OpenAI SDK（見下方備選解法）
             raise ValueError("LangChain 不支援 BytesIO 圖片輸入，請改用 OpenAI SDK")
         else:
             raise TypeError("不支援的圖片輸入類型")
