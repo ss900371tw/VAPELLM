@@ -206,7 +206,7 @@ def main():
     st.markdown("""
     <style>
         .stApp {
-        background-image: url("https://images.unsplash.com/photo-1559757175-5700dde67548?auto=format&fit=crop&w=1920&q=80");
+        background-image: url("https://th.bing.com/th/id/OIP.jQQTWOERat-i59d8LNIkLwHaE7?o=7rm=3&rs=1&pid=ImgDetMain");
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
