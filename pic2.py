@@ -421,9 +421,7 @@ def main():
     </pre>
 </div>
 """, unsafe_allow_html=True)
-
-
-               with col2:
+                with col2:
                     st.markdown("#### 📷 圖像分析結果")
                     if not image_urls:
                         st.write("(未找到圖片)")
