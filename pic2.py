@@ -206,7 +206,7 @@ def main():
     st.markdown("""
     <style>
         .stApp {
-        background-image: url("https://th.bing.com/th/id/OIP.jQQTWOERat-i59d8LNIkLwHaE7?o=7rm=3&rs=1&pid=ImgDetMain");
+        background-image: url("https://static.vecteezy.com/system/resources/previews/011/819/931/original/forbidden-electronic-cigarette-black-silhouette-icon-vaping-prohibited-stop-vaporizer-smoking-red-stop-symbol-ban-liquid-vape-pictogram-non-vape-warning-sign-isolated-illustration-vector.jpg");
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
