@@ -422,19 +422,20 @@ def main():
 </div>
 """, unsafe_allow_html=True)
                 with col2:
-                    st.markdown("""
-        <div style="background-color:transparent;padding:1.2rem 1.5rem;
-                    margin-bottom:1rem;">
-            <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-        </div>
-        """, unsafe_allow_html=True)
                     if not image_urls:
                         st.write("(未找到圖片)")
                     else:
                         sample_size = min(2, len(image_urls))
                         for img in random.sample(image_urls, sample_size):
                             img_result = classify_image(img, llm_image)
-                            st.image(img, caption=f"分類結果: {img_result}")
+                            st.markdown("""
+<div style="background-color:transparent;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
+    <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+    <pre style="white-space:pre-wrap;font-size:0.92rem;font-family:inherit;">
+    {img} f"分類結果: {img_result}"
+            </pre>
+</div>
+""", unsafe_allow_html=True)
                             if "Warning" in img_result:
                                 flagged_images += 1
 
