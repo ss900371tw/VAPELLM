@@ -297,7 +297,7 @@ def main():
     st.markdown("## 🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站")
     
     llm_text = ChatOpenAI(api_key=openai_api_key, model="gpt-4o", temperature=0)
-    llm_image = ChatOpenAI(api_key=openai_api_key, model="gpt-4-vision-preview", temperature=0)
+    llm_image = ChatOpenAI(api_key=openai_api_key, model="gpt-4.1", temperature=0)
     parser = StrOutputParser()
     chain = prompt | llm_text | parser
 
