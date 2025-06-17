@@ -434,7 +434,7 @@ def main():
         """, unsafe_allow_html=True)
                     else:
                         image_html = ""
-                         for img in image_urls[:2]:
+                        for img in image_urls[:2]:
                             img_result = classify_image(img, llm_image)
                             image_html += f"""
                 <div style="margin-bottom:1.2rem;">
