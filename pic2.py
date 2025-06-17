@@ -23,65 +23,103 @@ openai_api_key = os.getenv("OPENAI_API_KEY","")
 
 # -------------------- 2. Prompt --------------------
 text_template = """
-As an expert classifier of e-cigarette and controlled-substance-selling websites,
-you are equipped to analyze the following HTML and categorize it as either:
-(1) an e-cigarette/controlled-substance-selling website,
-(2) not such a website.
+作為一位專業的電子菸交易網站分類器，
+你具備辨識下列 HTML 內容並將其分類的能力：
 
-Because there are infinitely many potential products, brand names, or references, you will use
-general indicators rather than item-specific keywords. In particular, consider the following:
+請依據以下兩類進行分類：
 
-1) **Context of Use or Claims**:
-   - Look for explicit or subtle references to psychoactive, mind-altering, or illicit effects.
-   - Check if the product or substance is described as mood-altering, giving a "high," 
-     relieving stress in an excessive/unusual manner, or otherwise hinting at controlled-substance properties.
+(1) 為電子菸／管制藥品銷售網站
 
-2) **Transactional Cues**:
-   - Mentions of pricing, "contact me directly," "secret formula," "LINE for details," or 
-     "discrete shipping" may suggest illicit or regulated products.
-   - Any site that allows **adding a controlled substance to cart**, submitting a **quick order**, or browsing a **product catalog** must be treated with caution, regardless of the overall appearance of legitimacy.
+(2) 非此類網站
 
-3) **Legal Categorization or Warnings**:
-   - Check for restricted sale notes, age gating, disclaimers limiting sale to licensed buyers, or regional restrictions.
-   - Be cautious of disclaimers that are vague or contradictory.
+由於產品名稱、品牌或提及方式無窮無盡，請勿依賴特定關鍵字，
+而應根據通用指標判斷，特別注意以下幾點：
 
-4) **Product or Service Type**:
-   - **If a product is a known controlled substance or prescription medication** (e.g., Zopiclone, Diazepam, Fentanyl, Ketamine, Alprazolam, Tramadol, etc.), and is shown alongside features like:
-     - "Add to Cart"
-     - "Quick Order"
-     - SKU or catalog number
-     - Price lookup
-     - Purchase instructions
-     
-     → **You must classify it as (1)** — even if the site appears scientific, medical, or intended for research.
+1）使用情境或宣稱內容
+留意明示或暗示具精神活性、致幻效果、或非法用途的描述。
 
-   - **⚠️ Scientific context or professional branding does NOT override the fact that the product is a controlled substance offered for sale.**
+若產品標榜改變情緒、帶來快感、強力舒壓等非一般性用途，可能暗示其具管制屬性。
 
-   - E-cigarette devices and e-liquids should also be classified as (1).
+2）交易性線索
+提及價格、像是「私訊我」、「祕密配方」、「加 LINE 詳談」、「隱密出貨」等措辭，
+可能與非法或受限產品有關。
 
-   - If the product is a non-controlled supplement, traditional medicine, or harmless herbal product, classify as (2).
+若網站提供：
 
-5) **Critical Thought**:
-   - Do NOT rely solely on appearance, branding, or stated purpose.
-   - Prioritize the **actual product type** and **whether the website facilitates ordering** of a controlled substance.
+加入購物車
 
-6) Informational or Educational Context:
-   - If the website only provides reference information about a drug (such as usage, side effects, interactions, dosages), and does not offer any purchase, order, or contact mechanism, it should be classified as (2).
-   - These may include medical encyclopedias, health information platforms, government resources, or pharmacy guides (e.g., drugs.com, WebMD, NIH, or Mayo Clinic).
-   - Even if controlled substances are discussed, the absence of ordering capability, pricing, product SKUs, or transactional elements indicates a non-commercial, informative nature.
+快速下單
 
-🧠 Be especially cautious not to misclassify informational reference sites as sellers.
+產品型錄瀏覽
 
----
-HTML content to classify:
+→ 即便表面合法，也應提高警覺，可能屬於非法販售網站。
+
+3）法律分類或警示訊息
+檢查是否有限制販售、年齡驗證、僅限持證人購買、或地區性銷售限制等。
+
+對於模糊不清或自相矛盾的聲明也要保持警惕。
+
+4）產品或服務類型
+若產品為已知管制藥品或處方藥品（如：佐沛眠、地西泮、芬太尼、K他命、贊安諾、曲馬多等），
+且搭配以下功能：
+
+加入購物車
+
+快速購買
+
+SKU 或型號顯示
+
+查詢價格
+
+提供購買說明
+
+→ 無論該網站看起來多麼專業、科學或醫療，均應判定為 (1)
+
+⚠️ 注意：專業外觀與科學用語無法掩蓋其銷售管制物質的事實。
+
+電子菸裝置與煙油（e-liquid）同樣屬於 (1)。
+
+若產品為非管制補品、中藥材、或無害草本產品，則可歸為 (2)。
+
+5）關鍵思考
+不要只看外觀或品牌包裝，更重要的是產品屬性與是否提供下單購買機制。
+
+重點在於：
+
+實際販售的產品是否為管制物質
+
+網站是否具有購買功能或引導購買行為
+
+6）資訊性或教育性網站
+若網站僅提供參考資訊（如：用途、副作用、交互作用、劑量說明），
+且無提供購買、下單、聯絡方式等功能，應歸為 (2)。
+
+這類網站包含：
+
+醫學百科
+
+健康資訊平台
+
+政府資源
+
+藥品資料庫（如：drugs.com、WebMD、NIH、Mayo Clinic）
+
+即使有提及管制藥品，只要無交易、價格、型號或訂購資訊，就屬資訊性用途。
+
+🧠 特別注意：請勿錯判教育性網站為販售網站。
+
+🔎【待分類 HTML 內容】：
+
 {html}
 
----
-Comprehensive Report:
-- Final classification: (1) or (2)
-- What general indicators led to your conclusion (based on sections 1–6)?
-- If there are any ambiguities (e.g., controlled substance on a professional-looking website), explain how you resolved them.
-- **Emphasize the product type and orderability over context or appearance.**
+📋 綜合報告：
+最終分類：（1）電子菸／管制藥品銷售網站  或（2）非此類網站
+
+導致此分類的通用判斷依據（根據上面 1～6 條）
+
+若有任何模糊處（例如看起來很專業但其實有販售行為），請說明你的處理方式。
+
+
 """
 prompt = PromptTemplate.from_template(template=text_template)
 
@@ -133,19 +171,25 @@ def download_image(img_url, save_path="images"):
 # -------------------- 6. 分析圖片 --------------------
 def get_image_prompt(img_url: str) -> str:
     return f"""
-Analyze this image and determine whether it contains any of the following:
-🚨 **If the image contains ANY of the following, classify it as "Warning: Contains restricted items"** 🚨
+請提供實際的圖片或圖片網址 {img_url}，我才能分析其中是否包含以下任何受限物品或符號：
 
-- **E-cigarettes, vape pens, e-liquids, or any part of a vaping device** (including mouthpiece, tank, battery compartment, or any identifiable section of an e-cigarette).
-- **Brand names or logos of vaping-related products** (even if not shown in promotional content).
-- **Vape-related smoke effects** (clouds of vapor that indicate the presence of vaping activity).
-- **Controlled substances** (such as marijuana, cocaine, heroin, pills, stimulants, or hallucinogens).
-- **Paraphernalia associated with substance use** (rolling papers, bongs, syringes, grinders, etc.).
-- **Psychoactive substances** (such as psychedelics, mushrooms, LSD, or DMT).
-- **Visual elements commonly associated with drug culture** (e.g., "420" references, 🍁 symbols, psychedelic visuals).
-- **Marketing materials promoting vaping products** (ads, discounts, promo banners, or promotional product displays).
+電子菸裝置或其零件
 
-✅ **If NONE of the above are present, classify it as "Safe".**
+電子煙品牌標誌
+
+吸煙煙霧效果
+
+管制藥品或其用具
+
+與藥物文化相關的視覺元素
+
+推廣電子菸的行銷內容等
+
+📷 請上傳圖片，或提供有效的圖片連結，我會立即為你判定是：
+
+🚨 "Warning: Contains restricted items"
+
+✅ "Safe"
 
 Image URL: {img_url}
 """
