@@ -429,8 +429,8 @@ def main():
                         for img in random.sample(image_urls, sample_size):
                             img_result = classify_image(img, llm_image)
                             st.markdown(f"""
-<div style="background-color:#fff;padding:1rem;border-radius:12px;
-            box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-bottom:1rem;">
+<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
+    <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
     <img src="{img}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
     <div style="font-size:0.9rem;"><b>分類結果：</b>{img_result}</div>
 </div>
