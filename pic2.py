@@ -466,28 +466,34 @@ def main():
 
 
                     with col1:
-                        st.markdown("""
-    <div style="background-color:#f7f9fc;padding:1rem 1.2rem;border-radius:12px;border-left:6px solid #1f77b4;">
-        <h4 style="margin-bottom:0.5rem;">📄 文字分類結果</h4>
-    </div>
-    """, unsafe_allow_html=True)
-                        st.write(text_result)
+                        st.markdown(f"""
+<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
+    <h4 style="margin-bottom:0.8rem;">📄 文字分類結果</h4>
+    <pre style="white-space:pre-wrap;font-size:0.92rem;font-family:inherit;">
+{text_result}
+    </pre>
+</div>
+""", unsafe_allow_html=True)
 
 
                     with col2:
-                        st.markdown("""
-    <div style="background-color:#f7f9fc;padding:1rem 1.2rem;border-radius:12px;border-left:6px solid #ff7f0e;">
-        <h4 style="margin-bottom:0.5rem;">📷 圖像分析結果</h4>
-    </div>
-    """, unsafe_allow_html=True)
-                        if not image_urls:
-                            st.write("(未找到圖片)")
-                        else:
-                            for img in image_urls[:2]:
-                                img_result = classify_image(img, llm_image)
-                                st.image(img, caption=f"分類結果: {img_result}")
-                                if "Warning" in img_result:
-                                    flagged_images += 1
+                        image_html = ""
+for img in image_urls[:2]:
+    img_result = classify_image(img, llm_image)
+    image_html += f"""
+        <div style="margin-bottom:1rem;">
+            <img src="{img}" style="max-width:100%; border-radius:8px;"><br>
+            <b>分類結果：</b> {img_result}
+        </div>
+    """
+
+st.markdown(f"""
+<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
+    <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+    {image_html}
+</div>
+""", unsafe_allow_html=True)
+
 
                 # 綜合結論
                 if "(1)" in text_result and flagged_images > 0:
