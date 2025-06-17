@@ -140,7 +140,6 @@ prompt = PromptTemplate.from_template(template=text_template)
 
 
 
-from playwright.sync_api import sync_playwright
 
 
 
