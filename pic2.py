@@ -434,31 +434,30 @@ def main():
         </div>
         """, unsafe_allow_html=True)
                     else:
-                        # 開始外框
-                        st.markdown("""
-        <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;
-                    border-radius:12px;border-left:6px solid #ff7f0e;
-                    margin-bottom:1rem;">
-            <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-        """, unsafe_allow_html=True)
-
-                        # 顯示圖片與結果
+                        image_cards_html = ""
                         for img in image_urls[:2]:
-                            img_result = classify_image(img, llm_image)                       
-                            # 用 image + markdown 模擬卡片內顯示
-                            st.markdown(f"""
-            <div style="background-color:#ffffff;padding:0.8rem 1rem;
+                            img_result = classify_image(img, llm_image)
+                            image_cards_html += f"""
+                            <div style="background-color:#ffffff;padding:0.8rem 1rem;
                         margin:0.8rem 0;border-radius:10px;
                         box-shadow:0 2px 4px rgba(0,0,0,0.08);">
                 <img src="{img}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
                 <div><b>分類結果：</b> {img_result}</div>
             </div>
-            """, unsafe_allow_html=True)                            
+            """
                             if "Warning" in img_result:
                                 flagged_images += 1
-    
-                        # 結束外框
-                        st.markdown("</div>", unsafe_allow_html=True)
+        
+                        # ✅ 一次性丟進 markdown，整體嵌套成功
+                        st.markdown(f"""
+        <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;
+                    border-radius:12px;border-left:6px solid #ff7f0e;
+                    margin-bottom:1rem;">
+            <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+            {image_cards_html}
+        </div>
+        """, unsafe_allow_html=True)
+
             st.markdown("---")
             st.subheader("📋 綜合結論")
             if "(1)" in text_result and flagged_images > 0:
