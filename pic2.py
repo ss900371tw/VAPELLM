@@ -206,8 +206,10 @@ def main():
     st.markdown("""
     <style>
         .stApp {
-            background-color: #fce4ec; /* 柔亮的香蕉黃 */
-            padding-top: 2rem;
+        background-image: url("https://images.unsplash.com/photo-1559757175-5700dde67548?auto=format&fit=crop&w=1920&q=80");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
         }
         h1, h2, h3 {
             color: #00FFFF; /* Electric Blue */
