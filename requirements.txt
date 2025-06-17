@@ -10,3 +10,4 @@ langchain-openai>=0.1.6
 langchain-groq>=0.0.6
 google-api-python-client>=2.110
 undetected-chromedriver==3.5.5
+distutils
