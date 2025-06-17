@@ -10,4 +10,3 @@ langchain-groq
 google-api-python-client
 langchain_openai
 undetected_chromedriver 
-distutils
