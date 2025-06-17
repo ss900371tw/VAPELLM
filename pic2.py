@@ -198,37 +198,32 @@ def get_image_prompt(img_url: str) -> str:
 Image URL: {img_url}
 """
 
-def classify_image(img_url: str):
+def classify_image(image_input, model: ChatOpenAI):
+    """
+    image_input 可以是：
+    - 圖片網址 (str)
+    - BytesIO 圖片資料
+    - 本地檔案路徑 (str)
+    """
     try:
-        # 下載圖片並轉為 base64
-        response = requests.get(img_url, timeout=10)
-        response.raise_for_status()
-        img_bytes = BytesIO(response.content)
-        base64_image = base64.b64encode(img_bytes.read()).decode('utf-8')
+        # 如果是網址
+        if isinstance(image_input, str) and image_input.startswith("http"):
+            message = HumanMessage(
+                content=[
+                    {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
+                    {"type": "image_url", "image_url": {"url": image_input}},
+                ]
+            )
+        # 如果是 BytesIO 或圖片物件（你下載的）
+        elif isinstance(image_input, BytesIO):
+            # 無法直接用 LangChain 分析，要用 OpenAI SDK（見下方備選解法）
+            raise ValueError("LangChain 不支援 BytesIO 圖片輸入，請改用 OpenAI SDK")
+        else:
+            raise TypeError("不支援的圖片輸入類型")
 
-        # 傳送給 GPT-4-Vision 分析
-        result = openai.chat.completions.create(
-            model="gpt-4-vision-preview",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，並只回傳：\n🚨 Warning 或 ✅ Safe"
-                        },
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
-                            }
-                        }
-                    ]
-                }
-            ],
-            max_tokens=50
-        )
-        return result.choices[0].message.content
+        result = model.invoke([message])
+        return result.content
+
     except Exception as e:
         return f"圖片讀取或分析失敗: {e}"
         
