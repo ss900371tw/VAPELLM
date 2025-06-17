@@ -425,44 +425,43 @@ def main():
 
                 with col2:
                     if not image_urls:
-                        # ❌ 沒有圖片 → 顯示橘色提示框（淺灰底 + 左框線）
+                        # ❌ 沒有圖片 → 顯示提示框
                         st.markdown("""
                         <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;
-                    border-radius:12px;border-left:6px solid #ff7f0e;
-                    margin-bottom:1rem;">
-            <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-            <p>(未找到圖片)</p>
-        </div>
-        """, unsafe_allow_html=True)
+                        border-radius:12px;border-left:6px solid #ff7f0e;
+                        margin-bottom:1rem;">
+                        <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+                    <p>(未找到圖片)</p>
+                        </div>
+                """, unsafe_allow_html=True)
                     else:
-                         # 📷 圖像分析標題區塊（只保留上圓角）
-                        st.markdown("""
-        <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;
-                    border-radius:12px 12px 0 0;border-left:6px solid #ff7f0e;
-                    margin-bottom:0px;">
-            <h4 style="margin-bottom:0.3rem;">📷 圖像分析結果</h4>
-        </div>
-        """, unsafe_allow_html=True)
-
+                        # ✅ 一次組合整個 HTML（標題 + 多張圖）
+                        image_cards_html = ""
                         for i, img in enumerate(image_urls[:2]):
                             img_result = classify_image(img, llm_image)
 
-                            # ✅ 第一張圖貼住上面的框，其他維持正常間距
-                            top_margin = "0" if i == 0 else "0.8rem"
+                            separator = "" if i == len(image_urls[:2]) - 1 else "border-bottom:1px solid #ddd;"
 
-                            st.markdown(f"""
-            <div style="background-color:#ffffff;padding:0.8rem 1rem;
-                        margin-top:{top_margin};margin-bottom:0.8rem;
-                        border-radius:0 0 12px 12px;
-                        box-shadow:0 2px 4px rgba(0,0,0,0.08);">
-                <img src="{img}" style="max-width:100%;
-                        border-radius:8px;margin-bottom:0.5rem;">
+                            image_cards_html += f"""
+            <div style="padding:0.8rem 0; {separator}">
+                <img src="{img}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
                 <div><b>分類結果：</b> {img_result}</div>
             </div>
-            """, unsafe_allow_html=True)
+            """
 
-                            if "Warning" in img_result:
-                                flagged_images += 1
+                        if "Warning" in img_result:
+                            flagged_images += 1
+
+                        # 📦 一次包裝整體區塊（橘色框 + 所有圖片）
+                        st.markdown(f"""
+        <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;
+                    border-radius:12px;border-left:6px solid #ff7f0e;
+                    margin-bottom:1rem;">
+            <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+            {image_cards_html}
+        </div>
+        """, unsafe_allow_html=True)
+
 
 
             st.markdown("---")
