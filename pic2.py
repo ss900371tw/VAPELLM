@@ -171,7 +171,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
                     html = page.content()
                     browser.close()
-                    return html[:50]
+                return html[:50]
 
 
 
