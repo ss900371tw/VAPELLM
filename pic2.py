@@ -423,9 +423,9 @@ def main():
 """, unsafe_allow_html=True)
 
 
-                    with col2:
-                        if not image_urls:
-                            st.markdown("""
+                with col2:
+                   if not image_urls:
+                        st.markdown("""
         <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;
                     border-radius:12px;border-left:6px solid #ff7f0e;
                     margin-bottom:1rem;">
@@ -433,24 +433,24 @@ def main():
             <p>(未找到圖片)</p>
         </div>
         """, unsafe_allow_html=True)
-                        else:
-                            # 開始外框
-                            st.markdown("""
+                   else:
+                        # 開始外框
+                        st.markdown("""
         <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;
                     border-radius:12px;border-left:6px solid #ff7f0e;
                     margin-bottom:1rem;">
             <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
         """, unsafe_allow_html=True)
 
-                            # 顯示圖片與結果
-                            for img in image_urls[:2]:
-                                img_result = classify_image(img, llm_image)
-                                st.image(img, caption=f"分類結果：{img_result}", use_container_width =True)
-                                if "Warning" in img_result:
-                                    flagged_images += 1
+                      # 顯示圖片與結果
+                        for img in image_urls[:2]:
+                            img_result = classify_image(img, llm_image)
+                            st.image(img, caption=f"分類結果：{img_result}", use_container_width =True)
+                            if "Warning" in img_result:
+                                flagged_images += 1
     
-                            # 結束外框
-                            st.markdown("</div>", unsafe_allow_html=True)
+                        # 結束外框
+                        st.markdown("</div>", unsafe_allow_html=True)
 
             st.markdown("---")
             st.subheader("📋 綜合結論")
