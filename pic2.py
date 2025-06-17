@@ -225,6 +225,7 @@ def classify_image(image_input, model):
 
     except Exception as e:
         return f"圖片讀取或分析失敗: {e}"
+
         
 # -------------------- 7. Google Search --------------------
 def google_search(query, count=10):
