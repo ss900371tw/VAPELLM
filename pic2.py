@@ -144,6 +144,70 @@ def crawl_all_text(url: str):
     except requests.exceptions.RequestException as e:
         return f"[Request failed]: {e}"
 
+
+def crawl_all_text(url: str, cookie_file: str = "cookies.pkl") -> str:
+    try:
+        # 優先嘗試使用 requests 抓取內容
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/114.0.0.0 Safari/537.36"
+            )
+        }
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code == 403:
+            raise requests.exceptions.HTTPError("403 Forbidden")
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        return soup.get_text(separator="\n", strip=True)
+
+    except requests.exceptions.HTTPError as e:
+        if "403" in str(e):
+            print("🔁 Detected 403. Switching to Selenium with cookies...")
+
+            try:
+                options = uc.ChromeOptions()
+                options.add_argument("--start-maximized")
+                driver = uc.Chrome(options=options)
+
+                driver.get("https://www.jkvapeking.com")
+                time.sleep(3)
+
+                with open(cookie_file, "rb") as f:
+                    cookies = pickle.load(f)
+                    for cookie in cookies:
+                        if 'domain' not in cookie:
+                            cookie['domain'] = ".jkvapeking.com"
+                        try:
+                            driver.add_cookie(cookie)
+                        except Exception as err:
+                            print("⚠️ 忽略某個 cookie:", err)
+
+                driver.get(url)
+                time.sleep(8)
+
+                soup = BeautifulSoup(driver.page_source, "html.parser")
+                driver.quit()
+
+                for script in soup(["script", "style"]):
+                    script.decompose()
+
+                body_text = soup.get_text(separator="\n", strip=True)
+                if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
+                    return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
+
+                return body_text
+
+            except Exception as se:
+                return f"[Selenium failed]: {se}"
+        else:
+            return f"[HTTP Error]: {e}"
+
+    except Exception as e:
+        return f"[Request failed]: {e}"
+
+
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
 # ---------------------------------------------------------------------------
