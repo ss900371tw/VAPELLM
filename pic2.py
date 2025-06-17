@@ -15,7 +15,6 @@ from langchain.prompts import PromptTemplate
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-import undetected_chromedriver as uc
 import time
 import pickle
 from bs4 import BeautifulSoup
