@@ -175,7 +175,7 @@ def crawl_images(url: str):
         soup = BeautifulSoup(response.text, 'html.parser')
         img_tags = soup.find_all("img")
 
-        valid_extensions = {".jpg", ".jpeg", ".png", ".webp"}
+        valid_keywords = [".jpg", ".jpeg", ".png", ".webp", "img", "image]
         seen = set()
         img_urls = []
 
@@ -196,11 +196,11 @@ def crawl_images(url: str):
                 full_url = urljoin(url, src)
                 lower_url = full_url.lower()
 
-                # 有副檔名直接接受
-                if any(lower_url.endswith(ext) for ext in valid_extensions):
+                # 只要 URL 中包含任何圖片關鍵字
+                if any(ext in lower_url for ext in valid_keywords):
                     img_urls.append(full_url)
                     break
-                # 無副檔名的圖片，靠 HEAD 判斷
+                # 或 Content-Type 是圖片
                 elif is_image_url(full_url):
                     img_urls.append(full_url)
                     break
@@ -209,6 +209,7 @@ def crawl_images(url: str):
     except Exception as e:
         print(f"[crawl_images error]: {e}")
         return []
+
 
 
 
