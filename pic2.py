@@ -379,7 +379,7 @@ def main():
     ]
 )
 
-    if mode == "單一網址分析":
+    if "單一網址分析" in mode:
         st.markdown("### 🔗 單一網址分析")
         url = st.text_input("請輸入網址：")
 
@@ -426,7 +426,7 @@ def main():
             else:
                 st.success("✅ 安全網站：未偵測出高風險內容")
 
-    elif mode == "批量網址分析":
+    elif "批量網址分析" in mode:
         st.markdown("### 📂 批量網址分析")
         uploaded_file = st.file_uploader("請上傳 `.txt` 檔案（每行一個網址）", type=["txt"])
 
