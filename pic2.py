@@ -435,22 +435,28 @@ def main():
         </div>
         """, unsafe_allow_html=True)
                     else:
+                         # 📷 圖像分析標題區塊（只保留上圓角）
                         st.markdown("""
         <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;
-                    border-radius:12px;border-left:6px solid #ff7f0e;
-                    margin-bottom:0.5rem;">
+                    border-radius:12px 12px 0 0;border-left:6px solid #ff7f0e;
+                    margin-bottom:0px;">
             <h4 style="margin-bottom:0.3rem;">📷 圖像分析結果</h4>
         </div>
         """, unsafe_allow_html=True)
-                        # ✅ 有圖片 → 每張圖用單獨卡片顯示，不包在橘色框裡
-                        for img in image_urls[:2]:
+
+                        for i, img in enumerate(image_urls[:2]):
                             img_result = classify_image(img, llm_image)
+
+                            # ✅ 第一張圖貼住上面的框，其他維持正常間距
+                            top_margin = "0" if i == 0 else "0.8rem"
 
                             st.markdown(f"""
             <div style="background-color:#ffffff;padding:0.8rem 1rem;
-                        margin:0.8rem 0;border-radius:10px;
+                        margin-top:{top_margin};margin-bottom:0.8rem;
+                        border-radius:0 0 12px 12px;
                         box-shadow:0 2px 4px rgba(0,0,0,0.08);">
-                <img src="{img}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
+                <img src="{img}" style="max-width:100%;
+                        border-radius:8px;margin-bottom:0.5rem;">
                 <div><b>分類結果：</b> {img_result}</div>
             </div>
             """, unsafe_allow_html=True)
