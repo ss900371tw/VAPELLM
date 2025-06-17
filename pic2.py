@@ -146,32 +146,6 @@ from playwright.sync_api import sync_playwright
 
 
 
-def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
-    try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        return soup.get_text(separator="\n", strip=True)[:50]
-
-    except requests.exceptions.RequestException as e:
-        if "403" in str(e):
-            print("⚠️ HTTP 403 Forbidden - 切換為 Selenium 爬蟲繞過驗證")
-
-            try:
-                with sync_playwright() as p:
-                    browser = p.chromium.launch(headless=False)
-                    context = browser.new_context()
-                    page = context.new_page()
-
-                    page.goto("https://www.jkvapeking.com", timeout=30000)
-                    page.wait_for_timeout(3000)
-
-                    page.goto(url, timeout=30000)
-                    page.wait_for_timeout(8000)
-
-                    html = page.content()
-                    browser.close()
-                    return html[:50]
 
 
 def crawl_all_text(url: str):
