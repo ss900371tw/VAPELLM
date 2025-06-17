@@ -32,7 +32,7 @@ text_template = """
 
 請依據以下兩類進行分類：
 
-(1) 為電子菸銷售網站
+(1) 電子菸銷售網站
 
 (2) 非此類網站
 
@@ -117,7 +117,7 @@ SKU 或型號顯示
 {html}
 
 📋 綜合報告：
-最終分類：（1）電子菸銷售網站  或（2）非此類網站
+最終分類：(1) 電子菸銷售網站  或 (2) 非此類網站
 
 導致此分類的通用判斷依據（根據上面 1～6 條）
 
@@ -343,9 +343,9 @@ def main():
             # 綜合結論
             st.markdown("---")
             st.subheader("📋 綜合結論")
-            if "電子菸銷售網站" in text_result and flagged_images > 0:
+            if "(1)" in text_result and flagged_images > 0:
                 st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
-            if "電子菸銷售網站" in text_result:
+            if "(1)" in text_result:
                 st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
             else:
                 st.success("✅ 安全網站：未偵測出高風險內容")
@@ -394,10 +394,10 @@ def main():
                                     flagged_images += 1
 
                 # 綜合結論
-                if "電子菸銷售網站" in text_result and flagged_images > 0:
+                if "(1)" in text_result and flagged_images > 0:
                     high_risk_urls.append(url)
                     st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
-                if "電子菸銷售網站" in text_result:
+                if "(1)" in text_result:
                     high_risk_urls.append(url)
                     st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
                 else:
@@ -482,10 +482,10 @@ def main():
                                     flagged_images += 1
 
                 # 綜合判斷
-                if "電子菸銷售網站" in text_result and flagged_images > 0:
+                if "(1)" in text_result and flagged_images > 0:
                     high_risk_urls.append(url)
                     st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
-                if "電子菸銷售網站" in text_result:
+                if "(1)" in text_result:
                     high_risk_urls.append(url)
                     st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
                 else:
