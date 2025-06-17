@@ -367,7 +367,17 @@ def main():
     parser = StrOutputParser()
     chain = prompt | llm_text | parser
 
-    mode = st.radio("# 選擇模式：", ["單一網址分析", "批量網址分析", "GOOGLE 自動搜尋 & 分析"])
+    st.markdown("## 🎛️ 模式選擇")
+    st.markdown("請選擇您想使用的分析方式，系統將自動分析網站文字與圖片是否涉及電子煙販售。")
+
+    mode = st.selectbox(
+    "📌 請選擇模式",
+    [
+        "🔍 單一網址分析 - 分析單一網頁內容與圖片",
+        "📂 批量網址分析 - 上傳多個網址進行批次分析",
+        "🌐 GOOGLE 自動搜尋 & 分析 - 自動搜尋高風險網站進行分類"
+    ]
+)
 
     if mode == "單一網址分析":
         st.markdown("### 🔗 單一網址分析")
