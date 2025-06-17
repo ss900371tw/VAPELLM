@@ -200,16 +200,16 @@ Image URL: {img_url}
 
 def classify_image(img_url: str, model: ChatOpenAI):
     try:
-        # 下載圖片並轉成 PIL 格式
+        # 下載圖片並轉為二進位格式
         response = requests.get(img_url, timeout=10)
         response.raise_for_status()
-        img = Image.open(BytesIO(response.content))
+        img_bytes = BytesIO(response.content)
 
-        # 傳送圖片網址給 GPT-4-Vision 分析
+        # 送出圖像本體（非網址）給模型
         message = HumanMessage(
             content=[
                 {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，並只回傳：\n🚨 Warning 或 ✅ Safe"},
-                {"type": "image_url", "image_url": {"url": img_url}},
+                {"type": "image", "image": img_bytes},  # 傳送本地圖片
             ]
         )
 
