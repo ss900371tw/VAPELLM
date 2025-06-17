@@ -15,7 +15,11 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 
 from googleapiclient.discovery import build
-
+from PIL import Image
+import requests
+from io import BytesIO
+from langchain_core.messages import HumanMessage
+from langchain_core.messages import AIMessage
 # -------------------- 1. 環境變數 --------------------
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY","")
