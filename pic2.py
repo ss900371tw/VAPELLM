@@ -30,7 +30,7 @@ import setuptools
 
 import sys
 
-sys.modules['distutils'] = setuptools.distutils
+
 # -------------------- 1. 環境變數 --------------------
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY","")
