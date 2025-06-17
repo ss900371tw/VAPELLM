@@ -13,7 +13,13 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 from googleapiclient.discovery import build
 from PIL import Image
 import requests
@@ -150,6 +156,8 @@ def crawl_all_text(url: str):
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
 # ---------------------------------------------------------------------------
+
+
 def is_image_url(url):
     try:
         head = requests.head(url, timeout=5)
@@ -199,6 +207,7 @@ def crawl_images(url: str):
     except Exception as e:
         print(f"[crawl_images error]: {e}")
         return []
+
 
 
 # -------------------- 5. 下載圖片 --------------------
