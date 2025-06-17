@@ -198,23 +198,37 @@ def get_image_prompt(img_url: str) -> str:
 Image URL: {img_url}
 """
 
-def classify_image(img_url: str, model: ChatOpenAI):
+def classify_image(img_url: str):
     try:
-        # 下載圖片並轉為二進位格式
+        # 下載圖片並轉為 base64
         response = requests.get(img_url, timeout=10)
         response.raise_for_status()
         img_bytes = BytesIO(response.content)
+        base64_image = base64.b64encode(img_bytes.read()).decode('utf-8')
 
-        # 送出圖像本體（非網址）給模型
-        message = HumanMessage(
-            content=[
-                {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，並只回傳：\n🚨 Warning 或 ✅ Safe"},
-                {"type": "image", "image": img_bytes},  # 傳送本地圖片
-            ]
+        # 傳送給 GPT-4-Vision 分析
+        result = openai.chat.completions.create(
+            model="gpt-4-vision-preview",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，並只回傳：\n🚨 Warning 或 ✅ Safe"
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_image}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            max_tokens=50
         )
-
-        result = model.invoke([message])
-        return result.content
+        return result.choices[0].message.content
     except Exception as e:
         return f"圖片讀取或分析失敗: {e}"
         
