@@ -423,44 +423,17 @@ def main():
 """, unsafe_allow_html=True)
 
 
-                with col2:
+               with col2:
+                    st.markdown("#### 📷 圖像分析結果")
                     if not image_urls:
-                        # ❌ 沒有圖片 → 顯示提示框
-                        st.markdown("""
-                        <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;
-                        border-radius:12px;border-left:6px solid #ff7f0e;
-                        margin-bottom:1rem;">
-                        <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-                    <p>(未找到圖片)</p>
-                        </div>
-                """, unsafe_allow_html=True)
+                        st.write("(未找到圖片)")
                     else:
-                        # ✅ 一次組合整個 HTML（標題 + 多張圖）
-                        image_cards_html = ""
-                        for i, img in enumerate(image_urls[:2]):
+                        sample_size = min(2, len(image_urls))
+                        for img in random.sample(image_urls, sample_size):
                             img_result = classify_image(img, llm_image)
-
-                            separator = "" if i == len(image_urls[:2]) - 1 else "border-bottom:1px solid #ddd;"
-
-                            image_cards_html += f"""
-            <div style="padding:0.8rem 0; {separator}">
-                <img src="{img}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
-                <div><b>分類結果：</b> {img_result}</div>
-            </div>
-            """
-
-                        if "Warning" in img_result:
-                            flagged_images += 1
-
-                        # 📦 一次包裝整體區塊（橘色框 + 所有圖片）
-                        st.markdown(f"""
-        <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;
-                    border-radius:12px;border-left:6px solid #ff7f0e;
-                    margin-bottom:1rem;">
-            <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-            {image_cards_html}
-        </div>
-        """, unsafe_allow_html=True)
+                            st.image(img, caption=f"分類結果: {img_result}")
+                            if "Warning" in img_result:
+                                flagged_images += 1
 
 
 
