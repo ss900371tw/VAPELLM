@@ -138,100 +138,49 @@ def crawl_all_text(url: str):
         return f"[Request failed]: {e}"
 
 # -------------------- 4. 爬取圖片 --------------------
+def crawl_all_text(url: str):
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        return soup.get_text(separator="\n", strip=True)[:50]
+    except requests.exceptions.RequestException as e:
+        return f"[Request failed]: {e}"
+
+# ---------------------------------------------------------------------------
+# 4. 爬取網頁的圖片 URL
+# ---------------------------------------------------------------------------
 def crawl_images(url: str):
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
+        img_tags = soup.find_all("img")
 
+        valid_extensions = {".jpg", ".jpeg", ".png", ".webp"}
         img_urls = []
-
-        # ✅ 抓 <img src=...>
-        for img in soup.find_all("img"):
-            src = img.get("src") or ""
-            if src:
-                img_urls.append(requests.compat.urljoin(url, src))
-
-        # ✅ 抓 CSS background-image
-        for div in soup.find_all(style=True):
-            style = div["style"]
-            matches = re.findall(r'url\((.*?)\)', style)
-            for match in matches:
-                cleaned = match.strip('"').strip("'")
-                img_urls.append(requests.compat.urljoin(url, cleaned))
-
+        for img in img_tags:
+            src = img.get("src")
+            if not src:
+                continue
+            lower_src = src.lower()
+            if any(lower_src.endswith(ext) for ext in valid_extensions):
+                full_url = requests.compat.urljoin(url, src)
+                img_urls.append(full_url)
         return img_urls
-    except Exception as e:
-        print(f"[圖片爬取錯誤] {e}")
-        return []
-
-
-def crawl_images(url: str):
-    try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-
-        img_urls = []
-
-        # ✅ 抓 <img src=...>
-        for img in soup.find_all("img"):
-            src = img.get("src") or ""
-            if src:
-                img_urls.append(requests.compat.urljoin(url, src))
-
-        # ✅ 抓 CSS background-image
-        for div in soup.find_all(style=True):
-            style = div["style"]
-            matches = re.findall(r'url\((.*?)\)', style)
-            for match in matches:
-                cleaned = match.strip('"').strip("'")
-                img_urls.append(requests.compat.urljoin(url, cleaned))
-
-        return img_urls
-    except Exception as e:
-        print(f"[圖片爬取錯誤] {e}")
+    except:
         return []
 
 # -------------------- 5. 下載圖片 --------------------
 def download_image(img_url, save_path="images"):
     if not os.path.exists(save_path):
         os.makedirs(save_path)
+
     img_name = os.path.join(save_path, os.path.basename(img_url.split("?")[0]))
-    try:
-        response = requests.get(img_url, stream=True, timeout=10)
-        response.raise_for_status()
-        with open(img_name, "wb") as out_file:
-            shutil.copyfileobj(response.raw, out_file)
-        return img_name
-    except:
-        return None
-
-def download_image(img_url, save_path="images"):
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
 
     try:
         response = requests.get(img_url, stream=True, timeout=10)
         response.raise_for_status()
-
-        content_type = response.headers.get("Content-Type", "")
-        if not content_type.startswith("image/"):
-            return None  # 不是圖片就跳過
-
-        # 確保有副檔名（根據 MIME 類型推測）
-        ext_map = {
-            "image/jpeg": ".jpg",
-            "image/png": ".png",
-            "image/webp": ".webp",
-            "image/gif": ".gif"
-        }
-        ext = ext_map.get(content_type, "")
-        filename = os.path.basename(img_url.split("?")[0])
-        if not any(filename.endswith(e) for e in ext_map.values()):
-            filename += ext
-
-        img_name = os.path.join(save_path, filename)
         with open(img_name, "wb") as out_file:
             shutil.copyfileobj(response.raw, out_file)
         return img_name
