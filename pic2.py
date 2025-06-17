@@ -435,6 +435,13 @@ def main():
         </div>
         """, unsafe_allow_html=True)
                     else:
+                        st.markdown("""
+        <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;
+                    border-radius:12px;border-left:6px solid #ff7f0e;
+                    margin-bottom:0.5rem;">
+            <h4 style="margin-bottom:0.3rem;">📷 圖像分析結果</h4>
+        </div>
+        """, unsafe_allow_html=True)
                         # ✅ 有圖片 → 每張圖用單獨卡片顯示，不包在橘色框裡
                         for img in image_urls[:2]:
                             img_result = classify_image(img, llm_image)
