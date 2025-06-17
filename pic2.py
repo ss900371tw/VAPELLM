@@ -143,20 +143,28 @@ def crawl_images(url: str):
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
-        img_tags = soup.find_all("img")
-        valid_extensions = {".jpg", ".jpeg", ".png", ".webp"}
+
         img_urls = []
-        for img in img_tags:
-            src = img.get("src")
-            if not src:
-                continue
-            lower_src = src.lower()
-            if any(lower_src.endswith(ext) for ext in valid_extensions):
-                full_url = requests.compat.urljoin(url, src)
-                img_urls.append(full_url)
+
+        # ✅ 抓 <img src=...>
+        for img in soup.find_all("img"):
+            src = img.get("src") or ""
+            if src:
+                img_urls.append(requests.compat.urljoin(url, src))
+
+        # ✅ 抓 CSS background-image
+        for div in soup.find_all(style=True):
+            style = div["style"]
+            matches = re.findall(r'url\((.*?)\)', style)
+            for match in matches:
+                cleaned = match.strip('"').strip("'")
+                img_urls.append(requests.compat.urljoin(url, cleaned))
+
         return img_urls
-    except:
+    except Exception as e:
+        print(f"[圖片爬取錯誤] {e}")
         return []
+
 
 def crawl_images(url: str):
     try:
