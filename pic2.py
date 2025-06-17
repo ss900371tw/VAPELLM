@@ -487,7 +487,7 @@ for img in image_urls[:2]:
         </div>
     """
 
-st.markdown(f"""
+                        st.markdown(f"""
 <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
     <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
     {image_html}
