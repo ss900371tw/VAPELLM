@@ -232,14 +232,14 @@ def main():
 
 
     st.markdown("## 🧠 電子菸網站偵測系統")
-    st.markdown("> 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站")
+    st.markdown("# > 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站")
     
     llm_text = ChatOpenAI(api_key=openai_api_key, model="gpt-4o", temperature=0)
     llm_image = ChatOpenAI(api_key=openai_api_key, model="gpt-4o", temperature=0)
     parser = StrOutputParser()
     chain = prompt | llm_text | parser
 
-    mode = st.radio("選擇模式：", ["單一網址分析", "批量網址分析", "GOOGLE 自動搜尋 & 分析"])
+    mode = st.radio("# 選擇模式：", ["單一網址分析", "批量網址分析", "GOOGLE 自動搜尋 & 分析"])
 
     if mode == "單一網址分析":
         st.markdown("### 🔗 單一網址分析")
