@@ -186,6 +186,7 @@ def crawl_all_text403(url: str, cookie_file: str = "cookies.pkl") -> str:
         return f"[Selenium failed]: {e}"
 
 
+from playwright.sync_api import sync_playwright
 
 
 
@@ -201,48 +202,20 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
             print("⚠️ HTTP 403 Forbidden - 切換為 Selenium 爬蟲繞過驗證")
 
             try:
-                options = uc.ChromeOptions()
-                # 建議：先移除 headless 看 debug 行為，之後再打開
-                # options.add_argument("--headless")
-                options.add_argument("--start-maximized")
+                with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        context = browser.new_context()
+        page = context.new_page()
 
-                driver = uc.Chrome(options=options)
+        page.goto("https://www.jkvapeking.com", timeout=30000)
+        page.wait_for_timeout(3000)
 
-                # 先開啟首頁，讓 domain 設定正確
-                driver.get("https://www.jkvapeking.com")
-                time.sleep(3)
+        page.goto(url, timeout=30000)
+        page.wait_for_timeout(8000)
 
-                # 載入 cookies
-                with open(cookie_file, "rb") as f:
-                    cookies = pickle.load(f)
-                    for cookie in cookies:
-                        # 🔧 有些 cookie 缺 domain，補上
-                        if 'domain' not in cookie:
-                            cookie['domain'] = ".jkvapeking.com"
-                        try:
-                            driver.add_cookie(cookie)
-                        except Exception as err:
-                            print("⚠️ 忽略某個 cookie:", err)
-
-                # 再次進入商品頁
-                driver.get(url)
-                time.sleep(8)
-
-                soup = BeautifulSoup(driver.page_source, "html.parser")
-                driver.quit()
-
-                for script in soup(["script", "style"]):
-                    script.decompose()
-
-                # 如果還是 Cloudflare 頁面，給提示
-                body_text = soup.get_text(separator="\n", strip=True)[:50]
-                if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
-                    return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
-
-                return body_text
-
-            except Exception as e:
-                return f"[Selenium failed]: {e}"
+        html = page.content()
+        browser.close()
+        return html[:50]
 
 
 
