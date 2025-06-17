@@ -378,7 +378,7 @@ def main():
                 if "（1）" in text_result and flagged_images > 0:
                     high_risk_urls.append(url)
                     st.error("⚠️ 高風險網站")
-                if "（1）" in text_result > 0:
+                if "（1）" in text_result:
                     high_risk_urls.append(url)
                     st.error("⚠️ 高風險網站")
                 else:
