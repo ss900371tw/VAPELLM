@@ -195,9 +195,24 @@ Image URL: {img_url}
 """
 
 def classify_image(img_url: str, model: ChatOpenAI):
-    prompt_str = get_image_prompt(img_url)
-    result = model.invoke([HumanMessage(content=prompt_str)])
-    return result.content
+    try:
+        # 下載圖片並轉成 PIL 格式
+        response = requests.get(img_url, timeout=10)
+        response.raise_for_status()
+        img = Image.open(BytesIO(response.content))
+
+        # 使用帶圖片的 HumanMessage
+        message = HumanMessage(
+            content=[
+                {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，並只回傳：\n🚨 Warning 或 ✅ Safe"},
+                {"type": "image_url", "image_url": {"url": img_url}},
+            ]
+        )
+
+        result = model.invoke([message])
+        return result.content
+    except Exception as e:
+        return f"圖片讀取或分析失敗: {e}"
 
 # -------------------- 7. Google Search --------------------
 def google_search(query, count=10):
