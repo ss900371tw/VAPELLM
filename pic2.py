@@ -134,16 +134,7 @@ SKU 或型號顯示
 prompt = PromptTemplate.from_template(template=text_template)
 
 # -------------------- 3. 爬取網頁文字 --------------------
-def crawl_all_text(url: str):
-    try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        return soup.get_text(separator="\n", strip=True)[:50]
-    except requests.exceptions.RequestException as e:
-        return f"[Request failed]: {e}"
 
-# -------------------- 4. 爬取圖片 --------------------
 def crawl_all_text(url: str):
     try:
         response = requests.get(url, timeout=10)
