@@ -158,6 +158,26 @@ def crawl_images(url: str):
     except:
         return []
 
+def crawl_images(url: str):
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        img_tags = soup.find_all("img")
+        img_urls = []
+
+        for img in img_tags:
+            src = img.get("src")
+            if not src:
+                continue
+            full_url = requests.compat.urljoin(url, src)
+            img_urls.append(full_url)
+
+        return img_urls
+    except:
+        return []
+
+
 # -------------------- 5. 下載圖片 --------------------
 def download_image(img_url, save_path="images"):
     if not os.path.exists(save_path):
@@ -171,6 +191,38 @@ def download_image(img_url, save_path="images"):
         return img_name
     except:
         return None
+
+def download_image(img_url, save_path="images"):
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+
+    try:
+        response = requests.get(img_url, stream=True, timeout=10)
+        response.raise_for_status()
+
+        content_type = response.headers.get("Content-Type", "")
+        if not content_type.startswith("image/"):
+            return None  # 不是圖片就跳過
+
+        # 確保有副檔名（根據 MIME 類型推測）
+        ext_map = {
+            "image/jpeg": ".jpg",
+            "image/png": ".png",
+            "image/webp": ".webp",
+            "image/gif": ".gif"
+        }
+        ext = ext_map.get(content_type, "")
+        filename = os.path.basename(img_url.split("?")[0])
+        if not any(filename.endswith(e) for e in ext_map.values()):
+            filename += ext
+
+        img_name = os.path.join(save_path, filename)
+        with open(img_name, "wb") as out_file:
+            shutil.copyfileobj(response.raw, out_file)
+        return img_name
+    except:
+        return None
+
 
 # -------------------- 6. 分析圖片 --------------------
 def get_image_prompt(img_url: str) -> str:
