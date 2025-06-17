@@ -150,6 +150,14 @@ def crawl_all_text(url: str):
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
 # ---------------------------------------------------------------------------
+def is_image_url(url):
+    try:
+        head = requests.head(url, timeout=5)
+        content_type = head.headers.get("Content-Type", "")
+        return content_type.startswith("image/")
+    except:
+        return False
+
 def crawl_images(url: str):
     try:
         response = requests.get(url, timeout=10)
@@ -158,18 +166,40 @@ def crawl_images(url: str):
         img_tags = soup.find_all("img")
 
         valid_extensions = {".jpg", ".jpeg", ".png", ".webp"}
+        seen = set()
         img_urls = []
+
         for img in img_tags:
-            src = img.get("src")
-            if not src:
-                continue
-            lower_src = src.lower()
-            if any(lower_src.endswith(ext) for ext in valid_extensions):
-                full_url = requests.compat.urljoin(url, src)
-                img_urls.append(full_url)
+            # 從多個可能欄位找真實圖片來源
+            src_candidates = [
+                img.get("src"),
+                img.get("data-src"),
+                img.get("data-original"),
+                img.get("data-image"),
+                img.get("data-lazy"),
+            ]
+
+            for src in src_candidates:
+                if not src or src in seen:
+                    continue
+                seen.add(src)
+                full_url = urljoin(url, src)
+                lower_url = full_url.lower()
+
+                # 有副檔名直接接受
+                if any(lower_url.endswith(ext) for ext in valid_extensions):
+                    img_urls.append(full_url)
+                    break
+                # 無副檔名的圖片，靠 HEAD 判斷
+                elif is_image_url(full_url):
+                    img_urls.append(full_url)
+                    break
+
         return img_urls
-    except:
+    except Exception as e:
+        print(f"[crawl_images error]: {e}")
         return []
+
 
 # -------------------- 5. 下載圖片 --------------------
 def download_image(img_url, save_path="images"):
