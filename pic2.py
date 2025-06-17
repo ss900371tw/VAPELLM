@@ -324,7 +324,9 @@ def main():
             # 綜合結論
             st.markdown("---")
             st.subheader("📋 綜合結論")
-            if "(1)" in text_result or flagged_images > 0:
+            if "(1)" in text_result and flagged_images > 0:
+                st.error("⚠️ 高風險網站：網站可能涉及電子煙或管制藥品販售")
+            if "(1)" in text_result:
                 st.error("⚠️ 高風險網站：網站可能涉及電子煙或管制藥品販售")
             else:
                 st.success("✅ 安全網站：未偵測出高風險內容")
@@ -373,7 +375,10 @@ def main():
                                     flagged_images += 1
 
                 # 綜合結論
-                if "(1)" in text_result or flagged_images > 0:
+                if "(1)" in text_result and flagged_images > 0:
+                    high_risk_urls.append(url)
+                    st.error("⚠️ 高風險網站")
+                if "(1)" in text_result > 0:
                     high_risk_urls.append(url)
                     st.error("⚠️ 高風險網站")
                 else:
@@ -458,7 +463,10 @@ def main():
                                     flagged_images += 1
 
                 # 綜合判斷
-                if "(1)" in text_result or flagged_images > 0:
+                if "(1)" in text_result and flagged_images > 0:
+                    high_risk_urls.append(url)
+                    st.error("⚠️ 高風險網站")
+                if "(1)" in text_result:
                     high_risk_urls.append(url)
                     st.error("⚠️ 高風險網站")
                 else:
