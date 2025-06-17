@@ -229,8 +229,7 @@ def main():
         }
     </style>
 """, unsafe_allow_html=True)
-    st.markdown("## 🧠 電子菸網站偵測系統")
-    st.markdown("# 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站")
+    st.markdown("## 🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站")
     
     llm_text = ChatOpenAI(api_key=openai_api_key, model="gpt-4o", temperature=0)
     llm_image = ChatOpenAI(api_key=openai_api_key, model="gpt-4o", temperature=0)
