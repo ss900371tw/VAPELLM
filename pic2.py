@@ -429,7 +429,7 @@ def main():
                         for img in random.sample(image_urls, sample_size):
                             img_result = classify_image(img, llm_image)
                             st.markdown(f"""
-<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
+<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
     <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
     <img src="{img}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
     <div style="font-size:0.9rem;"><b>分類結果：</b>{img_result}</div>
@@ -491,39 +491,17 @@ def main():
                         sample_size = min(2, len(image_urls))
                         for img in random.sample(image_urls, sample_size):
                             img_result = classify_image(img, llm_image)
-
                             st.markdown(f"""
-<div style="background-color:transparent;padding:1.2rem 1.5rem;
-            border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
+<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
     <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-    <pre style="white-space:pre-wrap;font-size:0.92rem;font-family:inherit;">
-圖片網址：{img}
-
-分類結果：{img_result}
-    </pre>
+    <img src="{img}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
+    <div style="font-size:0.9rem;"><b>分類結果：</b>{img_result}</div>
 </div>
 """, unsafe_allow_html=True)
-
-                    if not image_urls:
-                        st.write("(未找到圖片)")
-                    else:
-                        sample_size = min(2, len(image_urls))
-                        for img in random.sample(image_urls, sample_size):
-                            img_result = classify_image(img, llm_image)
-                            st.image(img, caption=f"分類結果: {img_result}")
                             if "Warning" in img_result:
                                 flagged_images += 1
 
-                st.markdown("---")
-                # 綜合結論
-                if "(1)" in text_result and flagged_images > 0:
-                    high_risk_urls.append(url)
-                    st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
-                if "(1)" in text_result:
-                    high_risk_urls.append(url)
-                    st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
-                else:
-                    st.success("✅ 安全網站")
+
 
             st.markdown("---")
             st.subheader("📋 批次分析總結")
@@ -597,21 +575,23 @@ def main():
 </div>
 """, unsafe_allow_html=True)
                 with col2:
-                    st.markdown("""
-        <div style="background-color:transparent;padding:1.2rem 1.5rem;
-                    margin-bottom:1rem;">
-            <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-        </div>
-        """, unsafe_allow_html=True)
                     if not image_urls:
                         st.write("(未找到圖片)")
                     else:
                         sample_size = min(2, len(image_urls))
                         for img in random.sample(image_urls, sample_size):
                             img_result = classify_image(img, llm_image)
-                            st.image(img, caption=f"分類結果: {img_result}")
+                            st.markdown(f"""
+<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
+    <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+    <img src="{img}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
+    <div style="font-size:0.9rem;"><b>分類結果：</b>{img_result}</div>
+</div>
+""", unsafe_allow_html=True)
                             if "Warning" in img_result:
                                 flagged_images += 1
+
+
 
                 
                 st.markdown("---")
