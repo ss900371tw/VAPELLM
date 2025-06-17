@@ -466,12 +466,20 @@ def main():
 
 
                     with col1:
-                        st.markdown("#### 📄 文字分類結果")
+                        st.markdown("""
+    <div style="background-color:#f7f9fc;padding:1rem 1.2rem;border-radius:12px;border-left:6px solid #1f77b4;">
+        <h4 style="margin-bottom:0.5rem;">📄 文字分類結果</h4>
+    </div>
+    """, unsafe_allow_html=True)
                         st.write(text_result)
 
 
                     with col2:
-                        st.markdown("#### 📷 圖像分析結果")
+                        st.markdown("""
+    <div style="background-color:#f7f9fc;padding:1rem 1.2rem;border-radius:12px;border-left:6px solid #ff7f0e;">
+        <h4 style="margin-bottom:0.5rem;">📷 圖像分析結果</h4>
+    </div>
+    """, unsafe_allow_html=True)
                         if not image_urls:
                             st.write("(未找到圖片)")
                         else:
