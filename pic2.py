@@ -8,7 +8,6 @@ import re
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from PIL import Image
-
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
@@ -16,13 +15,14 @@ from langchain.prompts import PromptTemplate
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-
-import requests
+import undetected_chromedriver as uc
+import time
+import pickle
 from bs4 import BeautifulSoup
+import requests
 from urllib.parse import urljoin
 from googleapiclient.discovery import build
 from PIL import Image
-import requests
 from io import BytesIO
 from langchain_core.messages import HumanMessage
 from langchain_core.messages import AIMessage
