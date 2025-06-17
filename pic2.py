@@ -134,20 +134,25 @@ SKU 或型號顯示
 prompt = PromptTemplate.from_template(template=text_template)
 
 # -------------------- 3. 爬取網頁文字 --------------------
+def save_cookies_after_manual_verification(url: str, cookie_file: str = "cookies.pkl"):
+    options = uc.ChromeOptions()
+    options.add_argument("--start-maximized")  # 開啟實際視窗（不是 headless）
+    driver = uc.Chrome(options=options)
 
-def crawl_all_text(url: str):
+    print("👉 請在開啟的瀏覽器中通過 Cloudflare 驗證")
+    driver.get(url)
+
+    time.sleep(30)  # 給你時間通過驗證
+
+    # ✅ 儲存 cookies
+    with open(cookie_file, "wb") as f:
+        pickle.dump(driver.get_cookies(), f)
+
+    print("✅ Cookies 已儲存為 cookies.pkl")
+    driver.quit()
+
+def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        return soup.get_text(separator="\n", strip=True)[:50]
-    except requests.exceptions.RequestException as e:
-        return f"[Request failed]: {e}"
-
-
-def crawl_all_text(url: str, cookie_file: str = "cookies.pkl") -> str:
-    try:
-        # 優先嘗試使用 requests 抓取內容
         headers = {
             "User-Agent": (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -156,34 +161,36 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl") -> str:
             )
         }
         response = requests.get(url, headers=headers, timeout=10)
-        if response.status_code == 403:
-            raise requests.exceptions.HTTPError("403 Forbidden")
-        
+        response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         return soup.get_text(separator="\n", strip=True)
 
-    except requests.exceptions.HTTPError as e:
+    except requests.exceptions.RequestException as e:
         if "403" in str(e):
-            print("🔁 Detected 403. Switching to Selenium with cookies...")
+            print("⚠️ HTTP 403 Forbidden - 切換為 Selenium 爬蟲繞過驗證")
 
             try:
                 options = uc.ChromeOptions()
                 options.add_argument("--start-maximized")
                 driver = uc.Chrome(options=options)
 
-                driver.get("https://www.jkvapeking.com")
+                # 先開首頁建立 session
+                base_domain = "/".join(url.split("/")[:3])
+                driver.get(base_domain)
                 time.sleep(3)
 
+                # 載入 cookies
                 with open(cookie_file, "rb") as f:
                     cookies = pickle.load(f)
                     for cookie in cookies:
                         if 'domain' not in cookie:
-                            cookie['domain'] = ".jkvapeking.com"
+                            cookie['domain'] = "." + base_domain.replace("https://", "").replace("http://", "")
                         try:
                             driver.add_cookie(cookie)
                         except Exception as err:
                             print("⚠️ 忽略某個 cookie:", err)
 
+                # 再打開目標頁
                 driver.get(url)
                 time.sleep(8)
 
@@ -201,11 +208,11 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl") -> str:
 
             except Exception as se:
                 return f"[Selenium failed]: {se}"
-        else:
-            return f"[HTTP Error]: {e}"
 
-    except Exception as e:
         return f"[Request failed]: {e}"
+
+
+
 
 
 # ---------------------------------------------------------------------------
