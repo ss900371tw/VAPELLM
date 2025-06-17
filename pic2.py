@@ -260,7 +260,7 @@ def main():
                 flagged_images = 0
 
                 # 分成兩欄顯示分析結果
-                col1,  col2 = st.columns([3,  3])
+                col1,  col2 = st.columns([5,  5])
 
                 with col1:
                     st.markdown("#### 📄 文字分類結果")
@@ -310,7 +310,7 @@ def main():
                     flagged_images = 0
 
                     # 左右分區：文字 / 圖像
-                    col1,  col2 = st.columns([3, 3])
+                    col1,  col2 = st.columns([5, 5])
 
 
                     with col1:
@@ -396,7 +396,7 @@ def main():
                     flagged_images = 0
 
                     # 分兩欄顯示文字與圖像
-                    col1,  col2 = st.columns([3,  3])
+                    col1,  col2 = st.columns([5,  5])
 
                     with col1:
                         st.markdown("#### 📄 文字分類結果")
