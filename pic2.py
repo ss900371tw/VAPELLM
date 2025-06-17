@@ -134,22 +134,55 @@ SKU 或型號顯示
 prompt = PromptTemplate.from_template(template=text_template)
 
 # -------------------- 3. 爬取網頁文字 --------------------
-def save_cookies_after_manual_verification(url: str, cookie_file: str = "cookies.pkl"):
-    options = uc.ChromeOptions()
-    options.add_argument("--start-maximized")  # 開啟實際視窗（不是 headless）
-    driver = uc.Chrome(options=options)
 
-    print("👉 請在開啟的瀏覽器中通過 Cloudflare 驗證")
-    driver.get(url)
+def crawl_all_text403(url: str, cookie_file: str = "cookies.pkl") -> str:
+    try:
+        options = uc.ChromeOptions()
+        # 建議：先移除 headless 看 debug 行為，之後再打開
+        # options.add_argument("--headless")
+        options.add_argument("--start-maximized")
 
-    time.sleep(30)  # 給你時間通過驗證
+        driver = uc.Chrome(options=options)
 
-    # ✅ 儲存 cookies
-    with open(cookie_file, "wb") as f:
-        pickle.dump(driver.get_cookies(), f)
+        # 先開啟首頁，讓 domain 設定正確
+        driver.get("https://www.jkvapeking.com")
+        time.sleep(3)
 
-    print("✅ Cookies 已儲存為 cookies.pkl")
-    driver.quit()
+        # 載入 cookies
+        with open(cookie_file, "rb") as f:
+            cookies = pickle.load(f)
+            for cookie in cookies:
+                # 🔧 有些 cookie 缺 domain，補上
+                if 'domain' not in cookie:
+                    cookie['domain'] = ".jkvapeking.com"
+                try:
+                    driver.add_cookie(cookie)
+                except Exception as err:
+                    print("⚠️ 忽略某個 cookie:", err)
+
+        # 再次進入商品頁
+        driver.get(url)
+        time.sleep(8)
+
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+        driver.quit()
+
+        for script in soup(["script", "style"]):
+            script.decompose()
+
+        # 如果還是 Cloudflare 頁面，給提示
+        body_text = soup.get_text(separator="\n", strip=True)
+        if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
+            return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
+
+        return body_text
+
+    except Exception as e:
+        return f"[Selenium failed]: {e}"
+
+
+
+
 
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
@@ -171,26 +204,29 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
             try:
                 options = uc.ChromeOptions()
+                # 建議：先移除 headless 看 debug 行為，之後再打開
+                # options.add_argument("--headless")
                 options.add_argument("--start-maximized")
+
                 driver = uc.Chrome(options=options)
 
-                # 先開首頁建立 session
-                base_domain = "/".join(url.split("/")[:3])
-                driver.get(base_domain)
+                # 先開啟首頁，讓 domain 設定正確
+                driver.get("https://www.jkvapeking.com")
                 time.sleep(3)
 
                 # 載入 cookies
                 with open(cookie_file, "rb") as f:
                     cookies = pickle.load(f)
                     for cookie in cookies:
+                        # 🔧 有些 cookie 缺 domain，補上
                         if 'domain' not in cookie:
-                            cookie['domain'] = "." + base_domain.replace("https://", "").replace("http://", "")
+                            cookie['domain'] = ".jkvapeking.com"
                         try:
                             driver.add_cookie(cookie)
                         except Exception as err:
                             print("⚠️ 忽略某個 cookie:", err)
 
-                # 再打開目標頁
+                # 再次進入商品頁
                 driver.get(url)
                 time.sleep(8)
 
@@ -200,16 +236,15 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
                 for script in soup(["script", "style"]):
                     script.decompose()
 
+                # 如果還是 Cloudflare 頁面，給提示
                 body_text = soup.get_text(separator="\n", strip=True)
                 if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
                     return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
 
                 return body_text
 
-            except Exception as se:
-                return f"[Selenium failed]: {se}"
-
-        return f"[Request failed]: {e}"
+            except Exception as e:
+                return f"[Selenium failed]: {e}"
 
 
 
