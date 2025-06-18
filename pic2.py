@@ -236,34 +236,29 @@ import asyncio
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
 
-async def crawl_all_text_with_playwright(url: str) -> str:
-    try:
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            context = await browser.new_context()
-            page = await context.new_page()
+import asyncio
+from playwright.async_api import async_playwright
+from bs4 import BeautifulSoup
 
-            await page.goto(url, timeout=30000)
-            await page.wait_for_timeout(5000)  # 等待 JS 執行
-            content = await page.content()
-            await browser.close()
+async def crawl_all_text_js(url: str) -> str:
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        context = await browser.new_context()
+        page = await context.new_page()
 
-            soup = BeautifulSoup(content, "html.parser")
-            for tag in soup(["script", "style"]):
-                tag.decompose()
+        await page.goto(url, timeout=30000)
+        await page.wait_for_timeout(5000)  # 給 JS 時間載入
+        content = await page.content()
+        await browser.close()
 
-            body_text = soup.get_text(separator="\n", strip=True)
-            if "驗證您是人類" in body_text or "Enable JavaScript" in body_text:
-                return "[⚠️ Cloudflare Verification Failed]"
+        soup = BeautifulSoup(content, "html.parser")
+        for tag in soup(["script", "style"]):
+            tag.decompose()
+        return soup.get_text(separator="\n", strip=True)[:1000]
 
-            return body_text[:500]
+def crawl_all_text(url: str):
+    return asyncio.run(crawl_all_text_js(url))
 
-    except Exception as e:
-        return f"[Playwright failed]: {str(e)}"
-
-# 包裝成同步函數給 Streamlit 用
-def crawl_all_text(url: str) -> str:
-    return asyncio.run(crawl_all_text_with_playwright(url))
 
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
