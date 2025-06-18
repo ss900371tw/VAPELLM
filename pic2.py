@@ -240,25 +240,75 @@ import asyncio
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
 
-async def crawl_all_text_js(url: str) -> str:
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context()
-        page = await context.new_page()
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+import undetected_chromedriver as uc
+import pickle
+import time
 
-        await page.goto(url, timeout=30000)
-        await page.wait_for_timeout(5000)  # 給 JS 時間載入
-        content = await page.content()
-        await browser.close()
 
-        soup = BeautifulSoup(content, "html.parser")
-        for tag in soup(["script", "style"]):
-            tag.decompose()
-        return soup.get_text(separator="\n", strip=True)[:1000]
+import undetected_chromedriver as uc
+import time
+import pickle
 
-def crawl_all_text(url: str):
-    return asyncio.run(crawl_all_text_js(url))
+def save_cookies_after_manual_verification(url: str, cookie_file: str = "cookies.pkl"):
+    options = uc.ChromeOptions()
+    options.add_argument("--start-maximized")  # 開啟視窗（非 headless）
+    driver = uc.Chrome(options=options)
 
+    print("👉 請在開啟的瀏覽器中手動通過驗證...")
+    driver.get(url)
+    time.sleep(30)  # 等你手動點選「驗證通過」
+
+    # ✅ 儲存 cookies
+    with open(cookie_file, "wb") as f:
+        pickle.dump(driver.get_cookies(), f)
+
+    print("✅ Cookies 已儲存為 cookies.pkl")
+    driver.quit()
+
+def crawl_with_cookie(url: str, cookie_file: str = "cookies.pkl"):
+    options = uc.ChromeOptions()
+    options.add_argument("--headless")  # 可選：debug 建議先註解這行
+    options.add_argument("--start-maximized")
+    driver = uc.Chrome(options=options)
+
+    parsed = urlparse(url)
+    base_url = f"{parsed.scheme}://{parsed.netloc}"
+    driver.get(base_url)
+    time.sleep(3)
+    save_cookies_after_manual_verification(base_url)
+
+    # ➕ 載入 cookies
+    with open(cookie_file, "rb") as f:
+        cookies = pickle.load(f)
+        for cookie in cookies:
+            if "domain" not in cookie:
+                cookie["domain"] = parsed.hostname
+            try:
+                driver.add_cookie(cookie)
+            except Exception:
+                pass
+
+    driver.get(url)
+    time.sleep(5)
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+    driver.quit()
+
+    # 🔍 提取純文字
+    for tag in soup(["script", "style"]):
+        tag.decompose()
+    text = soup.get_text(separator="\n", strip=True)
+
+    # 🔍 提取圖片
+    img_tags = soup.find_all("img")
+    img_urls = []
+    for img in img_tags:
+        src = img.get("src")
+        if src and not src.startswith("data:"):
+            img_urls.append(urljoin(url, src))
+
+    return text[:1000], img_urls
 
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
