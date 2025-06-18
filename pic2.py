@@ -285,8 +285,6 @@ async def save_cookies_after_human_verification(url, cookie_file="cookies.pkl"):
         await browser.close()
 
 # 👉 執行一次
-if __name__ == "__main__":
-    asyncio.run(save_cookies_after_human_verification("https://www.jkvapeking.com"))
 
 import asyncio
 from playwright.async_api import async_playwright
