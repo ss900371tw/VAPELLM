@@ -361,6 +361,50 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
         return f"[requests failed]: {e}"
 
 
+
+
+
+import requests
+from bs4 import BeautifulSoup
+
+def crawl_all_text(url: str, flaresolverr_url: str = "http://localhost:8191"):
+    try:
+        payload = {
+            "cmd": "request.get",
+            "url": url,
+            "maxTimeout": 60000
+        }
+
+        response = requests.post(f"{flaresolverr_url}/v1", json=payload, timeout=70)
+        response.raise_for_status()
+        data = response.json()
+
+        if data.get("status") != "ok":
+            return f"[FlareSolverr failed]: {data}"
+
+        html = data["solution"]["response"]
+        soup = BeautifulSoup(html, "html.parser")
+
+        for tag in soup(["script", "style"]):
+            tag.decompose()
+
+        body_text = soup.get_text(separator="\n", strip=True)
+
+        # 判斷是否還是 Cloudflare 验证頁
+        if any(keyword in body_text for keyword in [
+            "Verify you are human",
+            "Enable JavaScript and cookies to continue",
+            "Just a moment",
+            "Performance & security by Cloudflare"
+        ]):
+            return "[⛔ FlareSolverr 解驗證失敗]"
+
+        return body_text[:50]
+
+    except Exception as e:
+        return f"[FlareSolverr error]: {e}"
+
+
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
 # ---------------------------------------------------------------------------
