@@ -556,18 +556,18 @@ def main():
                             if "Warning" in img_result:
                                 flagged_images += 1
 
-                st.markdown("---")
-                high_risk_urls = []
+                    st.markdown("---")
+                    high_risk_urls = []
             
-                st.subheader("📋 批次分析總結")
-                if "(1)" in text_result and flagged_images > 0:
-                    high_risk_urls.append(url)
-                    st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
-                if "(1)" in text_result:
-                    high_risk_urls.append(url)
-                    st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
-                else:
-                    st.success("✅ 安全網站")
+                    st.subheader("📋 批次分析總結")
+                    if "(1)" in text_result and flagged_images > 0:
+                        high_risk_urls.append(url)
+                        st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
+                    if "(1)" in text_result:
+                        high_risk_urls.append(url)
+                        st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
+                    else:
+                        st.success("✅ 安全網站")
             if high_risk_urls:
                     st.warning(f"⚠️ 共偵測到高風險網址 {len(high_risk_urls)} 筆")
                     st.download_button(
