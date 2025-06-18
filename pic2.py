@@ -287,8 +287,6 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
                 return body_text[:50]
 
-            except Exception as e:
-                return f"[Selenium failed]: {e}"
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
 # ---------------------------------------------------------------------------
