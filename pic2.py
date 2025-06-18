@@ -269,61 +269,78 @@ from playwright.async_api import async_playwright
 import pickle
 import os
 
-async def save_cookies_after_human_verification(url, cookie_file="cookies.pkl"):
-    async with async_playwright() as p:
-        browser = await p.chromium.launch_persistent_context(
-            user_data_dir="playwright_profile", headless=False
-        )
-        page = await browser.new_page()
-        print("👉 請在開啟的瀏覽器中手動通過驗證：", url)
-        await page.goto(url)
-        await asyncio.sleep(30)  # 等你通過驗證
-        cookies = await page.context.cookies()
-        with open(cookie_file, "wb") as f:
-            pickle.dump(cookies, f)
-        print("✅ Cookies 已儲存為 cookies.pkl")
-        await browser.close()
+def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        return soup.get_text(separator="\n", strip=True)[:50]
 
-# 👉 執行一次
+    except requests.exceptions.RequestException as e:
+        if "403" in str(e):
+            print("⚠️ HTTP 403 Forbidden - 切換為 Playwright 爬蟲繞過驗證")
 
-import asyncio
-from playwright.async_api import async_playwright
-from bs4 import BeautifulSoup
-import pickle
-import os
+            try:
+                parsed = urlparse(url)
+                base_url = f"{parsed.scheme}://{parsed.netloc}/"
 
-async def crawl_with_cookie(url, cookie_file="cookies.pkl"):
-    async with async_playwright() as p:
-        browser = await p.chromium.launch_persistent_context(
-            user_data_dir="playwright_profile",
-            headless=True
-        )
-        page = await browser.new_page()
+                with sync_playwright() as p:
+                    browser = p.chromium.launch(headless=True)  # ⬅️ 改為 headless 模式避免 X Server 問題
+                    context = browser.new_context()
 
-        # ✅ 載入 Cookies
-        if os.path.exists(cookie_file):
-            with open(cookie_file, "rb") as f:
-                cookies = pickle.load(f)
-                await page.context.add_cookies(cookies)
+                    # ➕ 載入 cookies 並轉為 Playwright 格式
+                    try:
+                        with open(cookie_file, "rb") as f:
+                            cookies = pickle.load(f)
+                            playwright_cookies = []
+                            for cookie in cookies:
+                                # 🔧 若缺 domain，補上
+                                if 'domain' not in cookie:
+                                    domain = parsed.hostname
+                                    cookie['domain'] = "." + domain
+                                playwright_cookies.append({
+                                    "name": cookie.get("name"),
+                                    "value": cookie.get("value"),
+                                    "domain": cookie.get("domain"),
+                                    "path": cookie.get("path", "/"),
+                                    "httpOnly": cookie.get("httpOnly", False),
+                                    "secure": cookie.get("secure", False),
+                                    "sameSite": cookie.get("sameSite", "Lax"),
+                                    # "expires": cookie.get("expiry")  # 可選
+                                })
+                            context.add_cookies(playwright_cookies)
+                    except Exception as err:
+                        print("⚠️ 載入 cookie 發生錯誤:", err)
 
-        await page.goto(url, timeout=30000)
-        await page.wait_for_timeout(5000)
-        content = await page.content()
-        await browser.close()
+                    page = context.new_page()
 
-        soup = BeautifulSoup(content, "html.parser")
-        for tag in soup(["script", "style"]):
-            tag.decompose()
+                    # 先打 base_url 建立 domain
+                    page.goto(base_url, timeout=30000)
+                    page.wait_for_timeout(3000)
 
-        body_text = soup.get_text(separator="\n", strip=True)
-        if "驗證您是人類" in body_text or "enable JavaScript" in body_text.lower():
-            return "[⚠️ Cloudflare Verification Failed]"
-        return body_text[:1000]
+                    # 再進入目標頁面
+                    page.goto(url, timeout=30000)
+                    page.wait_for_timeout(8000)
 
-def crawl_all_text(url: str) -> str:
-    return asyncio.run(crawl_with_cookie(url))
+                    html = page.content()
+                    browser.close()
 
+                    soup = BeautifulSoup(html, "html.parser")
+                    for tag in soup(["script", "style"]):
+                        tag.decompose()
 
+                    body_text = soup.get_text(separator="\n", strip=True)
+
+                    # 檢查 Cloudflare 失敗提示
+                    if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
+                        return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
+
+                    return body_text[:50]
+
+            except Exception as e:
+                return f"[Playwright failed]: {e}"
+
+        return f"[requests failed]: {e}"
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
 # ---------------------------------------------------------------------------
