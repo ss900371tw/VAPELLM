@@ -374,6 +374,89 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
                 return sb_fallback(url)
 
         return f"[requests failed]: {e}"
+
+
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+from playwright.sync_api import sync_playwright
+import pickle
+
+
+def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
+    try:
+        # 優先用 requests 嘗試簡單抓取
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        return soup.get_text(separator="\n", strip=True)[:50]
+
+    except requests.exceptions.RequestException as e:
+        if "403" in str(e):
+            print("⚠️ HTTP 403 Forbidden - 嘗試使用 Playwright 繞過驗證")
+
+            try:
+                parsed = urlparse(url)
+                base_url = f"{parsed.scheme}://{parsed.netloc}/"
+
+                with sync_playwright() as p:
+                    browser = p.chromium.launch(headless=True)  # ✅ Cloud-friendly headless 模式
+                    context = browser.new_context()
+
+                    # 嘗試載入 cookie
+                    try:
+                        with open(cookie_file, "rb") as f:
+                            cookies = pickle.load(f)
+                            playwright_cookies = []
+                            for cookie in cookies:
+                                if "domain" not in cookie:
+                                    cookie["domain"] = "." + parsed.hostname
+                                playwright_cookies.append({
+                                    "name": cookie.get("name"),
+                                    "value": cookie.get("value"),
+                                    "domain": cookie.get("domain"),
+                                    "path": cookie.get("path", "/"),
+                                    "httpOnly": cookie.get("httpOnly", False),
+                                    "secure": cookie.get("secure", False),
+                                    "sameSite": cookie.get("sameSite", "Lax")
+                                })
+                            context.add_cookies(playwright_cookies)
+                    except Exception as err:
+                        print("⚠️ Cookie 載入失敗，略過。錯誤：", err)
+
+                    page = context.new_page()
+                    page.goto(base_url, timeout=30000)
+                    page.wait_for_timeout(3000)
+                    page.goto(url, timeout=30000)
+                    page.wait_for_timeout(8000)
+
+                    html = page.content()
+                    browser.close()
+
+                    soup = BeautifulSoup(html, "html.parser")
+                    for tag in soup(["script", "style"]):
+                        tag.decompose()
+
+                    body_text = soup.get_text(separator="\n", strip=True)
+
+                    # 檢查是否仍被 Cloudflare 阻擋
+                    if any(keyword in body_text for keyword in [
+                        "驗證您是人類",
+                        "Enable JavaScript and cookies to continue",
+                        "Verify you are human",
+                        "Just a moment",
+                        "Ray ID:",
+                        "Performance & security by Cloudflare"
+                    ]):
+                        return "[⛔ Cloudflare Verification Failed] Playwright 無法繞過驗證，建議手動處理 cookie"
+
+                    return body_text[:50]
+
+            except Exception as e:
+                return f"[Playwright failed]: {e}"
+
+        return f"[requests failed]: {e}"
+
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
 # ---------------------------------------------------------------------------
