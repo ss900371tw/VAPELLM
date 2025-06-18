@@ -230,6 +230,8 @@ import pickle
 from bs4 import BeautifulSoup
 import requests
 
+
+
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
         response = requests.get(url, timeout=10)
@@ -239,65 +241,54 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
     except requests.exceptions.RequestException as e:
         if "403" in str(e):
-            print("⚠️ HTTP 403 Forbidden - 切換為 Playwright 繞過驗證")
+            print("⚠️ HTTP 403 Forbidden - 切換為 Selenium 爬蟲繞過驗證")
 
             try:
+                options = uc.ChromeOptions()
+                # 建議：先移除 headless 看 debug 行為，之後再打開
+                # options.add_argument("--headless")
+                options.add_argument("--start-maximized")
+
+                driver = uc.Chrome(options=options)
                 parsed = urlparse(url)
                 base_url = f"{parsed.scheme}://{parsed.netloc}/"
+                # 先開啟首頁，讓 domain 設定正確
+                driver.get(base_url)
+                time.sleep(3)
 
-                with sync_playwright() as p:
-                    browser = p.chromium.launch(headless=True)
-                    context = browser.new_context(
-                        user_agent=(
-                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                            "AppleWebKit/537.36 (KHTML, like Gecko) "
-                            "Chrome/114.0.0.0 Safari/537.36"
-                        ),
-                        java_script_enabled=True,
-                        viewport={"width": 1280, "height": 800},
-                        locale="en-US"
-                    )
+                # 載入 cookies
+                with open(cookie_file, "rb") as f:
+                    cookies = pickle.load(f)
+                    for cookie in cookies:
+                        # 🔧 有些 cookie 缺 domain，補上
+                        if 'domain' not in cookie:
+                            domain = parsed.hostname  # 👉 'www.jkvapeking.com'
+                            cookie_domain = "." + domain  # 👉 '.www.jkvapeking.com'
+                            cookie['domain'] = cookie_domain
+                        try:
+                            driver.add_cookie(cookie)
+                        except Exception as err:
+                            print("⚠️ 忽略某個 cookie:", err)
 
-                    # 載入 cookies（如果有）
-                    try:
-                        with open(cookie_file, "rb") as f:
-                            cookies = pickle.load(f)
-                            for cookie in cookies:
-                                if 'domain' not in cookie:
-                                    cookie['domain'] = "." + parsed.hostname
-                            context.add_cookies(cookies)
-                    except Exception as e:
-                        print("⚠️ Cookie 載入失敗或不存在:", e)
+                # 再次進入商品頁
+                driver.get(url)
+                time.sleep(8)
 
-                    page = context.new_page()
-                    page.goto(base_url, timeout=30000)
-                    page.wait_for_timeout(3000)
-                    page.goto(url, timeout=30000)
+                soup = BeautifulSoup(driver.page_source, "html.parser")
+                driver.quit()
 
-                    # ✅ 等待真正商品內容出現，而不是只等時間
-                    try:
-                        page.wait_for_selector("ul.products", timeout=10000)
-                    except:
-                        print("⚠️ 等待商品區塊失敗，可能仍是 Cloudflare")
+                for script in soup(["script", "style"]):
+                    script.decompose()
 
-                    html = page.content()
-                    browser.close()
-
-                soup = BeautifulSoup(html, "html.parser")
-                for tag in soup(["script", "style"]):
-                    tag.decompose()
-
-                body_text = soup.get_text(separator="\n", strip=True)
+                # 如果還是 Cloudflare 頁面，給提示
+                body_text = soup.get_text(separator="\n", strip=True)[:50]
                 if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
-                    return "[⚠️ Cloudflare Verification Failed] 仍停留在驗證頁面"
+                    return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
 
-                return body_text[:500]  # 可視情況擴大字數
+                return body_text[:50]
 
             except Exception as e:
-                return f"[Playwright failed]: {e}"
-
-        return f"[Request failed]: {e}"
-
+                return f"[Selenium failed]: {e}"
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
 # ---------------------------------------------------------------------------
