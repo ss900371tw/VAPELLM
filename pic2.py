@@ -8,6 +8,23 @@ import re
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from PIL import Image
+
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.messages import HumanMessage
+from langchain_openai import ChatOpenAI
+from langchain.prompts import PromptTemplate
+
+from googleapiclient.discovery import build
+import streamlit as st
+import requests
+import os
+import shutil
+import time
+import random
+import re
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+from PIL import Image
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
@@ -25,13 +42,15 @@ from PIL import Image
 from io import BytesIO
 from langchain_core.messages import HumanMessage
 from langchain_core.messages import AIMessage
+import undetected_chromedriver as uc
+from urllib.parse import urlparse
 
 import sys
-
 
 # -------------------- 1. 環境變數 --------------------
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY","")
+
 
 
 # -------------------- 2. Prompt --------------------
@@ -141,18 +160,64 @@ prompt = PromptTemplate.from_template(template=text_template)
 
 
 
-
-
-
-
-def crawl_all_text(url: str):
+def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         return soup.get_text(separator="\n", strip=True)[:50]
+
     except requests.exceptions.RequestException as e:
-        return f"[Request failed]: {e}"
+        if "403" in str(e):
+            print("⚠️ HTTP 403 Forbidden - 切換為 Selenium 爬蟲繞過驗證")
+
+            try:
+                options = uc.ChromeOptions()
+                # 建議：先移除 headless 看 debug 行為，之後再打開
+                # options.add_argument("--headless")
+                options.add_argument("--start-maximized")
+
+                driver = uc.Chrome(options=options)
+                parsed = urlparse(url)
+                base_url = f"{parsed.scheme}://{parsed.netloc}/"
+                # 先開啟首頁，讓 domain 設定正確
+                driver.get(base_url)
+                time.sleep(3)
+
+                # 載入 cookies
+                with open(cookie_file, "rb") as f:
+                    cookies = pickle.load(f)
+                    for cookie in cookies:
+                        # 🔧 有些 cookie 缺 domain，補上
+                        if 'domain' not in cookie:
+                            domain = parsed.hostname  # 👉 'www.jkvapeking.com'
+                            cookie_domain = "." + domain  # 👉 '.www.jkvapeking.com'
+                            cookie['domain'] = cookie_domain
+                        try:
+                            driver.add_cookie(cookie)
+                        except Exception as err:
+                            print("⚠️ 忽略某個 cookie:", err)
+
+                # 再次進入商品頁
+                driver.get(url)
+                time.sleep(8)
+
+                soup = BeautifulSoup(driver.page_source, "html.parser")
+                driver.quit()
+
+                for script in soup(["script", "style"]):
+                    script.decompose()
+
+                # 如果還是 Cloudflare 頁面，給提示
+                body_text = soup.get_text(separator="\n", strip=True)[:50]
+                if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
+                    return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
+
+                return body_text[:50]
+
+            except Exception as e:
+                return f"[Selenium failed]: {e}"
+
 
 
 # ---------------------------------------------------------------------------
@@ -160,27 +225,46 @@ def crawl_all_text(url: str):
 # ---------------------------------------------------------------------------
 
 
-def is_image_url(url):
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+
+def is_image_url(url: str) -> bool:
     try:
-        head = requests.head(url, timeout=5)
-        content_type = head.headers.get("Content-Type", "")
-        return content_type.startswith("image/")
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                          "AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/114.0.0.0 Safari/537.36"
+        }
+        resp = requests.head(url, headers=headers, timeout=5, allow_redirects=True)
+        return resp.headers.get("Content-Type", "").lower().startswith("image/")
     except:
         return False
 
+def normalize_src(src: str, base_url: str) -> str:
+    if not src:
+        return ""
+    if src.startswith("//"):
+        return "https:" + src
+    return urljoin(base_url, src)
+
 def crawl_images(url: str):
     try:
-        response = requests.get(url, timeout=10)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                          "AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/114.0.0.0 Safari/537.36"
+        }
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         img_tags = soup.find_all("img")
 
-        valid_keywords = [".jpg", ".jpeg", ".png", ".webp", "img", "image"]
+        valid_extensions = {".jpg", ".jpeg", ".png", ".webp"}
         seen = set()
         img_urls = []
 
         for img in img_tags:
-            # 從多個可能欄位找真實圖片來源
             src_candidates = [
                 img.get("src"),
                 img.get("data-src"),
@@ -190,17 +274,17 @@ def crawl_images(url: str):
             ]
 
             for src in src_candidates:
-                if not src or src in seen:
+                if not src:
                     continue
-                seen.add(src)
-                full_url = urljoin(url, src)
-                lower_url = full_url.lower()
+                full_url = normalize_src(src, url)
+                if full_url in seen or len(full_url) < 10 or "base64" in full_url:
+                    continue
+                seen.add(full_url)
 
-                # 只要 URL 中包含任何圖片關鍵字
-                if any(ext in lower_url for ext in valid_keywords):
+                lower_url = full_url.lower()
+                if any(lower_url.endswith(ext) for ext in valid_extensions):
                     img_urls.append(full_url)
                     break
-                # 或 Content-Type 是圖片
                 elif is_image_url(full_url):
                     img_urls.append(full_url)
                     break
@@ -209,7 +293,6 @@ def crawl_images(url: str):
     except Exception as e:
         print(f"[crawl_images error]: {e}")
         return []
-
 
 
 
