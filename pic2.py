@@ -185,7 +185,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
             parsed = urlparse(url)
             base_url = f"{parsed.scheme}://{parsed.netloc}/"
 
-            # 載入 cookies
+            # 載入 cookies（如有）
             try:
                 with open(cookie_file, "rb") as f:
                     cookies = pickle.load(f)
@@ -196,12 +196,15 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
             except Exception as err:
                 print("⚠️ Cookie 載入失敗:", err)
 
-            # 先訪問 base url
             session.get(base_url, timeout=10)
-
-            # 再訪問真正內容
             r = session.get(url, timeout=20)
-            r.html.render(timeout=20, sleep=3)  # JS 渲染
+
+            # ✅ 關鍵修正：手動建立 event loop
+            import asyncio
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+            r.html.render(timeout=20, sleep=3)
 
             soup = BeautifulSoup(r.html.html, "html.parser")
             for tag in soup(["script", "style"]):
@@ -215,6 +218,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
         except Exception as e2:
             return f"[requests-html failed]: {e2}"
+
 
 
 
