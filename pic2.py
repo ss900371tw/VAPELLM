@@ -250,17 +250,18 @@ import time
 import undetected_chromedriver as uc
 import time
 import pickle
+CHROME_PATH = "/usr/bin/google-chrome"  # ← 修改為你的 Chrome 真實路徑
 
 def save_cookies_after_manual_verification(url: str, cookie_file: str = "cookies.pkl"):
     options = uc.ChromeOptions()
-    options.add_argument("--start-maximized")  # 開啟視窗（非 headless）
+    options.binary_location = CHROME_PATH
+    options.add_argument("--start-maximized")
     driver = uc.Chrome(options=options)
 
     print("👉 請在開啟的瀏覽器中手動通過驗證...")
     driver.get(url)
-    time.sleep(30)  # 等你手動點選「驗證通過」
+    time.sleep(30)
 
-    # ✅ 儲存 cookies
     with open(cookie_file, "wb") as f:
         pickle.dump(driver.get_cookies(), f)
 
@@ -269,16 +270,17 @@ def save_cookies_after_manual_verification(url: str, cookie_file: str = "cookies
 
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     options = uc.ChromeOptions()
-    options.add_argument("--headless")  # 可選：debug 建議先註解這行
+    options.binary_location = CHROME_PATH
+    options.add_argument("--headless")
     options.add_argument("--start-maximized")
     driver = uc.Chrome(options=options)
-
+    
     parsed = urlparse(url)
     base_url = f"{parsed.scheme}://{parsed.netloc}"
     driver.get(base_url)
     time.sleep(3)
-    save_cookies_after_manual_verification(base_url)
 
+    # ❗ 不要在這裡呼叫 save_cookies_after_manual_verification（否則會重複打開）
     # ➕ 載入 cookies
     with open(cookie_file, "rb") as f:
         cookies = pickle.load(f)
@@ -295,12 +297,10 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     soup = BeautifulSoup(driver.page_source, "html.parser")
     driver.quit()
 
-    # 🔍 提取純文字
     for tag in soup(["script", "style"]):
         tag.decompose()
     text = soup.get_text(separator="\n", strip=True)
 
-    # 🔍 提取圖片
     img_tags = soup.find_all("img")
     img_urls = []
     for img in img_tags:
@@ -309,6 +309,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
             img_urls.append(urljoin(url, src))
 
     return text[:1000], img_urls
+
 
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
