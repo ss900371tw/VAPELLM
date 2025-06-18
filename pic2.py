@@ -219,7 +219,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
             try:
                 with sync_playwright() as p:
-                    browser = p.chromium.launch(headless=False)  # 或改為 True 避免開視窗
+                    browser = p.chromium.launch(headless=True)
                     context = browser.new_context()
 
                     # ➕ 載入 cookies（需格式轉換）
