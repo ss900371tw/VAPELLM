@@ -251,34 +251,44 @@ import undetected_chromedriver as uc
 import time
 import pickle
 
-async def crawl_all_text_with_playwright(url: str) -> str:
-    try:
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            context = await browser.new_context()
-            page = await context.new_page()
+import asyncio
+from playwright.async_api import async_playwright
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+import os
 
-            await page.goto(url, timeout=30000)
-            await page.wait_for_timeout(5000)  # 等待 JS 執行
-            content = await page.content()
-            await browser.close()
+def ensure_http(url: str) -> str:
+    parsed = urlparse(url)
+    if not parsed.scheme:
+        return "https://" + url
+    return url
 
-            soup = BeautifulSoup(content, "html.parser")
-            for tag in soup(["script", "style"]):
-                tag.decompose()
+async def crawl_all_text_js_persistent(url: str, user_data_dir="playwright_profile") -> str:
+    url = ensure_http(url)
+    async with async_playwright() as p:
+        # 🔐 使用 Chromium 並啟用 Persistent Context（模擬真實使用者 + 可保留 cookie）
+        browser = await p.chromium.launch_persistent_context(
+            user_data_dir=user_data_dir,
+            headless=True,
+            args=["--start-maximized"]
+        )
+        page = await browser.new_page()
+        await page.goto(url, timeout=30000)
+        await page.wait_for_timeout(6000)
+        content = await page.content()
+        await browser.close()
 
-            body_text = soup.get_text(separator="\n", strip=True)
-            if "驗證您是人類" in body_text or "Enable JavaScript" in body_text:
-                return "[⚠️ Cloudflare Verification Failed]"
+        soup = BeautifulSoup(content, "html.parser")
+        for tag in soup(["script", "style"]):
+            tag.decompose()
 
-            return body_text[:500]
+        text = soup.get_text(separator="\n", strip=True)
+        if "驗證您是人類" in text or "enable JavaScript and cookies" in text.lower():
+            return "[⚠️ Cloudflare Verification Failed]"
+        return text[:1000]
 
-    except Exception as e:
-        return f"[Playwright failed]: {str(e)}"
-
-# 包裝成同步函數給 Streamlit 用
-def crawl_all_text(url: str) -> str:
-    return asyncio.run(crawl_all_text_with_playwright(url))
+def crawl_all_text(url: str):
+    return asyncio.run(crawl_all_text_js_persistent(url))
 
 
 # ---------------------------------------------------------------------------
