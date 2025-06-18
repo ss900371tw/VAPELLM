@@ -571,27 +571,31 @@ def main():
                             if "Warning" in img_result:
                                 flagged_images += 1
 
-        st.markdown("---")
-        high_risk_urls = []
-        st.subheader("📋 批次分析總結")
-        if "(1)" in text_result and flagged_images > 0:
-            high_risk_urls.append(url)
-            st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
-        if "(1)" in text_result:
-            high_risk_urls.append(url)
-            st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
-        else:
-            st.success("✅ 安全網站")
-        if high_risk_urls:
-            st.warning(f"⚠️ 共偵測到高風險網址 {len(high_risk_urls)} 筆")
-            st.download_button(
+
+                st.markdown("---")
+                # 綜合判斷
+                if "(1)" in text_result and flagged_images > 0:
+                    high_risk_urls.append(url)
+                    st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
+                if "(1)" in text_result:
+                    high_risk_urls.append(url)
+                    st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
+                else:
+                    st.success("✅ 安全網站")
+            st.markdown("---")
+            st.subheader("📋 批次分析總結")
+            
+            if high_risk_urls:
+                st.warning(f"⚠️ 共偵測到高風險網址 {len(high_risk_urls)} 筆")
+
+                st.download_button(
                     label="📥 下載高風險網址清單",
                     data="\n".join(high_risk_urls),
                     file_name="high_risk_urls.txt",
                     mime="text/plain"
                 )
-        else:
-            st.success("✅ 所有網址皆未偵測到高風險內容")
+            else:
+                st.success("✅ 所有網址皆未偵測到高風險內容")
 
     else:
         st.markdown("### 🌐 Google 搜尋分析模式")
@@ -702,6 +706,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
