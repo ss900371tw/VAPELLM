@@ -215,19 +215,41 @@ from urllib.parse import urlparse
 from playwright.sync_api import sync_playwright
 import undetected_chromedriver as uc
 
-# 第三層：fallback 使用 undetected_chromedriver
+import os
+import requests
+import pickle
+import time
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+from playwright.sync_api import sync_playwright
+import undetected_chromedriver as uc
+
+
+def detect_chrome_path():
+    candidates = [
+        "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+        "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    raise FileNotFoundError("⚠️ 找不到 Chrome 或 Edge 的執行檔路徑，請安裝瀏覽器")
+
+
 def fallback_with_uc(url: str, cookie_file: str = "cookies.pkl"):
     try:
         options = uc.ChromeOptions()
         options.add_argument("--start-maximized")
-        driver = uc.Chrome(options=options)
+
+        chrome_path = detect_chrome_path()
+        driver = uc.Chrome(options=options, browser_executable_path=chrome_path)
 
         parsed = urlparse(url)
         base_url = f"{parsed.scheme}://{parsed.netloc}/"
         driver.get(base_url)
         time.sleep(3)
 
-        # 載入 cookies
         with open(cookie_file, "rb") as f:
             cookies = pickle.load(f)
             for cookie in cookies:
@@ -249,9 +271,12 @@ def fallback_with_uc(url: str, cookie_file: str = "cookies.pkl"):
 
         body_text = soup.get_text(separator="\n", strip=True)
 
-        # 偵測封鎖訊息
-        if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text or "blocked by network security" in body_text:
-            return "[⛔ Blocked] UC 繞過失敗，Cloudflare 或網路安全系統仍阻擋"
+        if (
+            "驗證您是人類" in body_text
+            or "Enable JavaScript and cookies to continue" in body_text
+            or "blocked by network security" in body_text
+        ):
+            return "[⛔ UC繞過失敗] 仍被安全系統封鎖"
 
         return body_text[:50]
 
@@ -259,7 +284,6 @@ def fallback_with_uc(url: str, cookie_file: str = "cookies.pkl"):
         return f"[undetected_chromedriver failed]: {e}"
 
 
-# 主函數
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
         response = requests.get(url, timeout=10)
@@ -269,7 +293,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
     except requests.exceptions.RequestException as e:
         if "403" in str(e):
-            print("⚠️ HTTP 403 Forbidden - 切換為 Playwright 繞過驗證")
+            print("⚠️ HTTP 403 Forbidden - 嘗試 Playwright 繞過")
 
             try:
                 parsed = urlparse(url)
@@ -279,7 +303,6 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
                     browser = p.chromium.launch(headless=True)
                     context = browser.new_context()
 
-                    # 載入 cookies
                     try:
                         with open(cookie_file, "rb") as f:
                             cookies = pickle.load(f)
@@ -315,21 +338,20 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
                     body_text = soup.get_text(separator="\n", strip=True)
 
-                    # 檢查是否被封鎖
                     if (
                         "驗證您是人類" in body_text
                         or "Enable JavaScript and cookies to continue" in body_text
                         or "blocked by network security" in body_text
                         or "Access Denied" in body_text
                     ):
-                        print("🚫 Playwright 驗證失敗，切換 UC 繞過")
+                        print("🚫 Playwright 繞過失敗，切換 UC")
                         return fallback_with_uc(url, cookie_file)
 
                     return body_text[:50]
 
             except Exception as e:
                 print(f"[Playwright failed]: {e}")
-                print("🔁 嘗試使用 undetected_chromedriver 再試一次")
+                print("🔁 嘗試使用 UC 再試一次")
                 return fallback_with_uc(url, cookie_file)
 
         return f"[requests failed]: {e}"
