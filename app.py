@@ -124,14 +124,66 @@ prompt = PromptTemplate.from_template(template=text_template)
 # ---------------------------------------------------------------------------
 # 3. 爬取網頁的文字內容
 # ---------------------------------------------------------------------------
-def crawl_all_text(url: str):
+from playwright.sync_api import sync_playwright
+from urllib.parse import urlparse
+import pickle
+from bs4 import BeautifulSoup
+import requests
+import time
+
+def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         return soup.get_text(separator="\n", strip=True)[:50]
+
     except requests.exceptions.RequestException as e:
-        return f"[Request failed]: {e}"
+        if "403" in str(e):
+            print("⚠️ HTTP 403 Forbidden - 切換為 Playwright 繞過驗證")
+
+            try:
+                with sync_playwright() as p:
+                    browser = p.chromium.launch(headless=False)  # 建議 debug 時先用非 headless
+                    context = browser.new_context()
+
+                    parsed = urlparse(url)
+                    base_url = f"{parsed.scheme}://{parsed.netloc}/"
+
+                    # 先開首頁，建立 domain context
+                    page = context.new_page()
+                    page.goto(base_url, timeout=30000)
+                    time.sleep(3)
+
+                    # 載入 cookies（如有）
+                    try:
+                        with open(cookie_file, "rb") as f:
+                            cookies = pickle.load(f)
+                            for cookie in cookies:
+                                if 'domain' not in cookie:
+                                    cookie['domain'] = "." + parsed.hostname
+                            context.add_cookies(cookies)
+                    except Exception as err:
+                        print("⚠️ Cookie 載入失敗:", err)
+
+                    # 跳轉到目標頁面
+                    page.goto(url, timeout=30000)
+                    time.sleep(5)
+                    html = page.content()
+                    browser.close()
+
+                    soup = BeautifulSoup(html, "html.parser")
+                    for tag in soup(["script", "style"]):
+                        tag.decompose()
+
+                    body_text = soup.get_text(separator="\n", strip=True)
+                    if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
+                        return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
+
+                    return body_text[:50]
+
+            except Exception as e:
+                return f"[Playwright failed]: {e}"
 
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
