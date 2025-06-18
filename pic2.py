@@ -262,37 +262,36 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
                     try:
                         with open(cookie_file, "rb") as f:
                             cookies = pickle.load(f)
-                            formatted_cookies = []
                             for cookie in cookies:
                                 if 'domain' not in cookie:
                                     cookie['domain'] = "." + parsed.hostname
-                                formatted_cookies.append(cookie)
-                            context.add_cookies(formatted_cookies)
+                            context.add_cookies(cookies)
                     except Exception as e:
                         print("⚠️ Cookie 載入失敗或不存在:", e)
 
                     page = context.new_page()
-
-                    # Step 1: 先進 base 網站
                     page.goto(base_url, timeout=30000)
                     page.wait_for_timeout(3000)
-
-                    # Step 2: 再進入實際目標頁
                     page.goto(url, timeout=30000)
-                    page.wait_for_timeout(6000)
+
+                    # ✅ 等待真正商品內容出現，而不是只等時間
+                    try:
+                        page.wait_for_selector("ul.products", timeout=10000)
+                    except:
+                        print("⚠️ 等待商品區塊失敗，可能仍是 Cloudflare")
 
                     html = page.content()
                     browser.close()
 
                 soup = BeautifulSoup(html, "html.parser")
-                for script in soup(["script", "style"]):
-                    script.decompose()
+                for tag in soup(["script", "style"]):
+                    tag.decompose()
 
                 body_text = soup.get_text(separator="\n", strip=True)
                 if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
-                    return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
+                    return "[⚠️ Cloudflare Verification Failed] 仍停留在驗證頁面"
 
-                return body_text[:50]
+                return body_text[:500]  # 可視情況擴大字數
 
             except Exception as e:
                 return f"[Playwright failed]: {e}"
