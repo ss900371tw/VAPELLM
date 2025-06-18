@@ -8,43 +8,18 @@ import re
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from PIL import Image
-
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.messages import HumanMessage
-from langchain_openai import ChatOpenAI
-from langchain.prompts import PromptTemplate
-
 from googleapiclient.discovery import build
-import streamlit as st
-import requests
-import os
-import shutil
-import time
-import random
-import re
-from bs4 import BeautifulSoup
-from dotenv import load_dotenv
-from PIL import Image
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
-import requests
-from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-import time
 import pickle
-from bs4 import BeautifulSoup
-import requests
-from urllib.parse import urljoin
 from googleapiclient.discovery import build
 from PIL import Image
 from io import BytesIO
-from langchain_core.messages import HumanMessage
 from langchain_core.messages import AIMessage
-import undetected_chromedriver as uc
-from urllib.parse import urlparse
-
+from playwright.sync_api import sync_playwright
 import sys
 
 # -------------------- 1. 環境變數 --------------------
@@ -159,6 +134,8 @@ prompt = PromptTemplate.from_template(template=text_template)
 
 
 
+
+
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
         response = requests.get(url, timeout=10)
@@ -168,54 +145,39 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
     except requests.exceptions.RequestException as e:
         if "403" in str(e):
-            print("⚠️ HTTP 403 Forbidden - 切換為 Selenium 爬蟲繞過驗證")
+            print("⚠️ HTTP 403 Forbidden - 切換為 Playwright 繞過驗證")
 
             try:
-                options = uc.ChromeOptions()
-                # 建議：先移除 headless 看 debug 行為，之後再打開
-                # options.add_argument("--headless")
-                options.add_argument("--start-maximized")
+                with sync_playwright() as p:
+                    browser = p.chromium.launch(headless=False)
+                    context = browser.new_context()
+                    page = context.new_page()
+                    parsed = urlparse(url)
+                    base_url = f"{parsed.scheme}://{parsed.netloc}/"
+                    # 先開首頁，建立 domain context
+                    page.goto(base_url, timeout=30000)
+                    page.wait_for_timeout(3000)
 
-                driver = uc.Chrome(options=options)
-                parsed = urlparse(url)
-                base_url = f"{parsed.scheme}://{parsed.netloc}/"
-                # 先開啟首頁，讓 domain 設定正確
-                driver.get(base_url)
-                time.sleep(3)
+                    # 再跳轉到目標頁面
+                    page.goto(url, timeout=30000)
+                    page.wait_for_timeout(8000)
 
-                # 載入 cookies
-                with open(cookie_file, "rb") as f:
-                    cookies = pickle.load(f)
-                    for cookie in cookies:
-                        # 🔧 有些 cookie 缺 domain，補上
-                        if 'domain' not in cookie:
-                            domain = parsed.hostname  # 👉 'www.jkvapeking.com'
-                            cookie_domain = "." + domain  # 👉 '.www.jkvapeking.com'
-                            cookie['domain'] = cookie_domain
-                        try:
-                            driver.add_cookie(cookie)
-                        except Exception as err:
-                            print("⚠️ 忽略某個 cookie:", err)
+                    html = page.content()
+                    soup = BeautifulSoup(html, 'html.parser')
+                    browser.close()
 
-                # 再次進入商品頁
-                driver.get(url)
-                time.sleep(8)
+                    # 清除不必要元素
+                    for tag in soup(["script", "style"]):
+                        tag.decompose()
 
-                soup = BeautifulSoup(driver.page_source, "html.parser")
-                driver.quit()
+                    # 擷取文字
+                    return soup.get_text(separator="\n", strip=True)[:50]
 
-                for script in soup(["script", "style"]):
-                    script.decompose()
+            except Exception as se:
+                return f"[Playwright failed]: {se}"
 
-                # 如果還是 Cloudflare 頁面，給提示
-                body_text = soup.get_text(separator="\n", strip=True)[:50]
-                if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
-                    return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
-
-                return body_text[:50]
-
-            except Exception as e:
-                return f"[Selenium failed]: {e}"
+        else:
+            return f"[Request failed]: {e}"
 
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
