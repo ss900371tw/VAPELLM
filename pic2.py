@@ -159,7 +159,6 @@ prompt = PromptTemplate.from_template(template=text_template)
 
 
 
-
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
         response = requests.get(url, timeout=10)
@@ -217,8 +216,6 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
             except Exception as e:
                 return f"[Selenium failed]: {e}"
-
-
 
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
