@@ -286,6 +286,9 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
                     return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
 
                 return body_text[:50]
+            
+            except Exception as e:
+                return f"{url}"
 
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
