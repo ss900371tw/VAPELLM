@@ -247,7 +247,16 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
                 with sync_playwright() as p:
                     browser = p.chromium.launch(headless=True)
-                    context = browser.new_context()
+                    context = browser.new_context(
+                        user_agent=(
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                            "AppleWebKit/537.36 (KHTML, like Gecko) "
+                            "Chrome/114.0.0.0 Safari/537.36"
+                        ),
+                        java_script_enabled=True,
+                        viewport={"width": 1280, "height": 800},
+                        locale="en-US"
+                    )
 
                     # 載入 cookies（如果有）
                     try:
@@ -264,13 +273,13 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
                     page = context.new_page()
 
-                    # Step 1: 打 base URL 以建立 domain context
+                    # Step 1: 先進 base 網站
                     page.goto(base_url, timeout=30000)
                     page.wait_for_timeout(3000)
 
-                    # Step 2: 再前往目標頁面
+                    # Step 2: 再進入實際目標頁
                     page.goto(url, timeout=30000)
-                    page.wait_for_timeout(5000)
+                    page.wait_for_timeout(6000)
 
                     html = page.content()
                     browser.close()
