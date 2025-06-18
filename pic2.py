@@ -22,6 +22,7 @@ from langchain_core.messages import AIMessage
 from playwright.sync_api import sync_playwright
 import sys
 from urllib.parse import urlparse
+import undetected_chromedriver as uc
 
 # -------------------- 1. 環境變數 --------------------
 load_dotenv()
