@@ -558,7 +558,7 @@ def main():
 
                     st.markdown("---")
                     high_risk_urls = []
-            
+                    st.markdown("---")
                     st.subheader("📋 批次分析總結")
                     if "(1)" in text_result and flagged_images > 0:
                         high_risk_urls.append(url)
