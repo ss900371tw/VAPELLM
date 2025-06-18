@@ -11,3 +11,4 @@ langchain-groq>=0.0.6
 google-api-python-client>=2.110
 playwright
 requests_html
+lxml[html_clean]
