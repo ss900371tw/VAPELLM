@@ -263,24 +263,53 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import os
 
-def ensure_http(url: str) -> str:
-    parsed = urlparse(url)
-    if not parsed.scheme:
-        return "https://" + url
-    return url
+# save_cookie.py
+import asyncio
+from playwright.async_api import async_playwright
+import pickle
+import os
 
-async def crawl_all_text_js_persistent(url: str, user_data_dir="playwright_profile") -> str:
-    url = ensure_http(url)
+async def save_cookies_after_human_verification(url, cookie_file="cookies.pkl"):
     async with async_playwright() as p:
-        # 🔐 使用 Chromium 並啟用 Persistent Context（模擬真實使用者 + 可保留 cookie）
         browser = await p.chromium.launch_persistent_context(
-            user_data_dir=user_data_dir,
-            headless=True,
-            args=["--start-maximized"]
+            user_data_dir="playwright_profile", headless=False
         )
         page = await browser.new_page()
+        print("👉 請在開啟的瀏覽器中手動通過驗證：", url)
+        await page.goto(url)
+        await asyncio.sleep(30)  # 等你通過驗證
+        cookies = await page.context.cookies()
+        with open(cookie_file, "wb") as f:
+            pickle.dump(cookies, f)
+        print("✅ Cookies 已儲存為 cookies.pkl")
+        await browser.close()
+
+# 👉 執行一次
+if __name__ == "__main__":
+    asyncio.run(save_cookies_after_human_verification("https://www.jkvapeking.com"))
+
+import asyncio
+from playwright.async_api import async_playwright
+from bs4 import BeautifulSoup
+import pickle
+import os
+
+async def crawl_with_cookie(url, cookie_file="cookies.pkl"):
+    async with async_playwright() as p:
+        browser = await p.chromium.launch_persistent_context(
+            user_data_dir="playwright_profile",
+            headless=True
+        )
+        page = await browser.new_page()
+
+        # ✅ 載入 Cookies
+        if os.path.exists(cookie_file):
+            with open(cookie_file, "rb") as f:
+                cookies = pickle.load(f)
+                await page.context.add_cookies(cookies)
+
         await page.goto(url, timeout=30000)
-        await page.wait_for_timeout(6000)
+        await page.wait_for_timeout(5000)
         content = await page.content()
         await browser.close()
 
@@ -288,13 +317,14 @@ async def crawl_all_text_js_persistent(url: str, user_data_dir="playwright_profi
         for tag in soup(["script", "style"]):
             tag.decompose()
 
-        text = soup.get_text(separator="\n", strip=True)
-        if "驗證您是人類" in text or "enable JavaScript and cookies" in text.lower():
+        body_text = soup.get_text(separator="\n", strip=True)
+        if "驗證您是人類" in body_text or "enable JavaScript" in body_text.lower():
             return "[⚠️ Cloudflare Verification Failed]"
-        return text[:1000]
+        return body_text[:1000]
 
-def crawl_all_text(url: str):
-    return asyncio.run(crawl_all_text_js_persistent(url))
+def crawl_all_text(url: str) -> str:
+    return asyncio.run(crawl_with_cookie(url))
+
 
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
