@@ -171,6 +171,7 @@ from bs4 import BeautifulSoup
 import requests
 import time
 
+
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
         response = requests.get(url, timeout=10)
@@ -180,50 +181,54 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
     except requests.exceptions.RequestException as e:
         if "403" in str(e):
-            print("⚠️ HTTP 403 Forbidden - 切換為 Playwright 繞過驗證")
+            print("⚠️ HTTP 403 Forbidden - 切換為 Selenium 爬蟲繞過驗證")
 
             try:
-                with sync_playwright() as p:
-                    browser = p.chromium.launch(headless=False)  # 建議 debug 時先用非 headless
-                    context = browser.new_context()
+                options = uc.ChromeOptions()
+                # 建議：先移除 headless 看 debug 行為，之後再打開
+                # options.add_argument("--headless")
+                options.add_argument("--start-maximized")
 
-                    parsed = urlparse(url)
-                    base_url = f"{parsed.scheme}://{parsed.netloc}/"
+                driver = uc.Chrome(options=options)
+                parsed = urlparse(url)
+                base_url = f"{parsed.scheme}://{parsed.netloc}/"
+                # 先開啟首頁，讓 domain 設定正確
+                driver.get(base_url)
+                time.sleep(3)
 
-                    # 先開首頁，建立 domain context
-                    page = context.new_page()
-                    page.goto(base_url, timeout=30000)
-                    time.sleep(3)
+                # 載入 cookies
+                with open(cookie_file, "rb") as f:
+                    cookies = pickle.load(f)
+                    for cookie in cookies:
+                        # 🔧 有些 cookie 缺 domain，補上
+                        if 'domain' not in cookie:
+                            domain = parsed.hostname  # 👉 'www.jkvapeking.com'
+                            cookie_domain = "." + domain  # 👉 '.www.jkvapeking.com'
+                            cookie['domain'] = cookie_domain
+                        try:
+                            driver.add_cookie(cookie)
+                        except Exception as err:
+                            print("⚠️ 忽略某個 cookie:", err)
 
-                    # 載入 cookies（如有）
-                    try:
-                        with open(cookie_file, "rb") as f:
-                            cookies = pickle.load(f)
-                            for cookie in cookies:
-                                if 'domain' not in cookie:
-                                    cookie['domain'] = "." + parsed.hostname
-                            context.add_cookies(cookies)
-                    except Exception as err:
-                        print("⚠️ Cookie 載入失敗:", err)
+                # 再次進入商品頁
+                driver.get(url)
+                time.sleep(8)
 
-                    # 跳轉到目標頁面
-                    page.goto(url, timeout=30000)
-                    time.sleep(5)
-                    html = page.content()
-                    browser.close()
+                soup = BeautifulSoup(driver.page_source, "html.parser")
+                driver.quit()
 
-                    soup = BeautifulSoup(html, "html.parser")
-                    for tag in soup(["script", "style"]):
-                        tag.decompose()
+                for script in soup(["script", "style"]):
+                    script.decompose()
 
-                    body_text = soup.get_text(separator="\n", strip=True)
-                    if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
-                        return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
+                # 如果還是 Cloudflare 頁面，給提示
+                body_text = soup.get_text(separator="\n", strip=True)[:50]
+                if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
+                    return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
 
-                    return body_text[:50]
+                return body_text[:50]
 
             except Exception as e:
-                return f"[Playwright failed]: {e}"
+                return f"[Selenium failed]: {e}"
 
 
 
