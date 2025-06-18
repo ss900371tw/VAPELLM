@@ -277,33 +277,17 @@ import pickle
 import time
 from playwright.sync_api import sync_playwright
 
-
-def sb_fallback(url: str):
-    print("🚨 SeleniumBase 開始進行 Cloudflare 驗證繞過")
-    try:
-        with SB(uc=True) as sb:
-            sb.uc_open_with_reconnect(url, 3)
-
-            # ✅ 嘗試識別成功元素（可依據網站內容調整）
-            if sb.is_element_visible('input[value*="Verify"]'):
-                sb.uc_click('input[value*="Verify"]')
-                sb.sleep(2)
-            elif sb.is_element_visible('iframe') or sb.is_element_visible('canvas'):
-                sb.uc_gui_click_captcha()
-
-            sb.sleep(5)
-            html = sb.get_page_source()
-            soup = BeautifulSoup(html, "html.parser")
-            for tag in soup(["script", "style"]):
-                tag.decompose()
-            body_text = soup.get_text(separator="\n", strip=True)
-            return body_text[:50]
-    except Exception as e:
-        return f"[SeleniumBase failed]: {e}"
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+from playwright.sync_api import sync_playwright
+import pickle
+import os
 
 
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
+        # 嘗試使用 requests 直接抓
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -311,7 +295,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
     except requests.exceptions.RequestException as e:
         if "403" in str(e):
-            print("⚠️ HTTP 403 Forbidden - 嘗試 Playwright")
+            print("⚠️ HTTP 403 Forbidden - 使用 Playwright 並附加 Cookie 嘗試繞過")
 
             try:
                 parsed = urlparse(url)
@@ -321,26 +305,28 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
                     browser = p.chromium.launch(headless=True)
                     context = browser.new_context()
 
-                    # 載入 cookies
-                    try:
-                        with open(cookie_file, "rb") as f:
-                            cookies = pickle.load(f)
-                            playwright_cookies = []
-                            for cookie in cookies:
-                                if 'domain' not in cookie:
-                                    cookie['domain'] = "." + parsed.hostname
-                                playwright_cookies.append({
-                                    "name": cookie.get("name"),
-                                    "value": cookie.get("value"),
-                                    "domain": cookie.get("domain"),
-                                    "path": cookie.get("path", "/"),
-                                    "httpOnly": cookie.get("httpOnly", False),
-                                    "secure": cookie.get("secure", False),
-                                    "sameSite": cookie.get("sameSite", "Lax")
-                                })
-                            context.add_cookies(playwright_cookies)
-                    except Exception as err:
-                        print("⚠️ 載入 cookie 發生錯誤:", err)
+                    # ✅ 如果有 cookie 檔，就載入
+                    if os.path.exists(cookie_file):
+                        try:
+                            with open(cookie_file, "rb") as f:
+                                cookies = pickle.load(f)
+                                playwright_cookies = []
+                                for cookie in cookies:
+                                    if "domain" not in cookie:
+                                        cookie["domain"] = "." + parsed.hostname
+                                    playwright_cookies.append({
+                                        "name": cookie.get("name"),
+                                        "value": cookie.get("value"),
+                                        "domain": cookie.get("domain"),
+                                        "path": cookie.get("path", "/"),
+                                        "httpOnly": cookie.get("httpOnly", False),
+                                        "secure": cookie.get("secure", False),
+                                        "sameSite": cookie.get("sameSite", "Lax")
+                                    })
+                                context.add_cookies(playwright_cookies)
+                                print("✅ 已載入 cookies")
+                        except Exception as err:
+                            print("⚠️ 載入 cookie 發生錯誤:", err)
 
                     page = context.new_page()
                     page.goto(base_url, timeout=30000)
@@ -357,98 +343,15 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
                     body_text = soup.get_text(separator="\n", strip=True)
 
-                    if (
-                        "驗證您是人類" in body_text
-                        or "Enable JavaScript and cookies to continue" in body_text
-                        or "Verify you are human" in body_text
-                        or "Just a moment" in body_text
-                    ):
-                        print("🚫 Playwright 繞過失敗，切換 SeleniumBase")
-                        return sb_fallback(url)
-
-                    return body_text[:50]
-
-            except Exception as e:
-                print(f"[Playwright failed]: {e}")
-                print("🔁 嘗試 SeleniumBase")
-                return sb_fallback(url)
-
-        return f"[requests failed]: {e}"
-
-
-import requests
-from bs4 import BeautifulSoup
-from urllib.parse import urlparse
-from playwright.sync_api import sync_playwright
-import pickle
-
-
-def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
-    try:
-        # 優先用 requests 嘗試簡單抓取
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        return soup.get_text(separator="\n", strip=True)[:50]
-
-    except requests.exceptions.RequestException as e:
-        if "403" in str(e):
-            print("⚠️ HTTP 403 Forbidden - 嘗試使用 Playwright 繞過驗證")
-
-            try:
-                parsed = urlparse(url)
-                base_url = f"{parsed.scheme}://{parsed.netloc}/"
-
-                with sync_playwright() as p:
-                    browser = p.chromium.launch(headless=True)  # ✅ Cloud-friendly headless 模式
-                    context = browser.new_context()
-
-                    # 嘗試載入 cookie
-                    try:
-                        with open(cookie_file, "rb") as f:
-                            cookies = pickle.load(f)
-                            playwright_cookies = []
-                            for cookie in cookies:
-                                if "domain" not in cookie:
-                                    cookie["domain"] = "." + parsed.hostname
-                                playwright_cookies.append({
-                                    "name": cookie.get("name"),
-                                    "value": cookie.get("value"),
-                                    "domain": cookie.get("domain"),
-                                    "path": cookie.get("path", "/"),
-                                    "httpOnly": cookie.get("httpOnly", False),
-                                    "secure": cookie.get("secure", False),
-                                    "sameSite": cookie.get("sameSite", "Lax")
-                                })
-                            context.add_cookies(playwright_cookies)
-                    except Exception as err:
-                        print("⚠️ Cookie 載入失敗，略過。錯誤：", err)
-
-                    page = context.new_page()
-                    page.goto(base_url, timeout=30000)
-                    page.wait_for_timeout(3000)
-                    page.goto(url, timeout=30000)
-                    page.wait_for_timeout(8000)
-
-                    html = page.content()
-                    browser.close()
-
-                    soup = BeautifulSoup(html, "html.parser")
-                    for tag in soup(["script", "style"]):
-                        tag.decompose()
-
-                    body_text = soup.get_text(separator="\n", strip=True)
-
-                    # 檢查是否仍被 Cloudflare 阻擋
+                    # 判斷是否還是卡在 Cloudflare 頁面
                     if any(keyword in body_text for keyword in [
-                        "驗證您是人類",
-                        "Enable JavaScript and cookies to continue",
                         "Verify you are human",
                         "Just a moment",
                         "Ray ID:",
-                        "Performance & security by Cloudflare"
+                        "Performance & security by Cloudflare",
+                        "Enable JavaScript and cookies to continue"
                     ]):
-                        return "[⛔ Cloudflare Verification Failed] Playwright 無法繞過驗證，建議手動處理 cookie"
+                        return "[⛔ Cloudflare Verification Failed] Cookie 可能已過期，請重新驗證"
 
                     return body_text[:50]
 
@@ -456,6 +359,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
                 return f"[Playwright failed]: {e}"
 
         return f"[requests failed]: {e}"
+
 
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
