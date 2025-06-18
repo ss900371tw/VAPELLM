@@ -31,8 +31,7 @@ import time
 import sys
 from bs4 import BeautifulSoup
 import time
-if sys.version_info >= (3, 12):
-    raise RuntimeError("❌ Python 3.12+ 不支援 undetected_chromedriver，請改用 Python 3.10 或降版！")
+
 # -------------------- 1. 環境變數 --------------------
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY","")
