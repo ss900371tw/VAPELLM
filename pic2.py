@@ -28,6 +28,12 @@ import pickle
 from bs4 import BeautifulSoup
 import requests
 import time
+import sys
+import undetected_chromedriver as uc
+from bs4 import BeautifulSoup
+import time
+if sys.version_info >= (3, 12):
+    raise RuntimeError("❌ Python 3.12+ 不支援 undetected_chromedriver，請改用 Python 3.10 或降版！")
 # -------------------- 1. 環境變數 --------------------
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY","")
@@ -154,17 +160,10 @@ def ensure_playwright_browser():
 
 ensure_playwright_browser()
 
+
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
-        headers = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/114.0.0.0 Safari/537.36"
-    ),
-    "Accept-Language": "en-US,en;q=0.9",
-}
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         return soup.get_text(separator="\n", strip=True)[:50]
@@ -215,6 +214,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
             except Exception as e:
                 return f"[Playwright failed]: {e}"
+
 
 
 
