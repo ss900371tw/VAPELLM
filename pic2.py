@@ -267,7 +267,7 @@ def save_cookies_after_manual_verification(url: str, cookie_file: str = "cookies
     print("✅ Cookies 已儲存為 cookies.pkl")
     driver.quit()
 
-def crawl_with_cookie(url: str, cookie_file: str = "cookies.pkl"):
+def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     options = uc.ChromeOptions()
     options.add_argument("--headless")  # 可選：debug 建議先註解這行
     options.add_argument("--start-maximized")
