@@ -528,7 +528,7 @@ def main():
             st.markdown(f"### 🔍 正在分析：[{url}]({url})")
 
             with st.spinner("⏳ 正在讀取網站內容與圖片..."):
-                text_content = crawl_all_text(url)
+                text_content = asyncio.run(crawl_all_text(url))
                 text_result = chain.invoke(text_content)
 
                 image_urls = crawl_images(url)
