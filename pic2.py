@@ -499,7 +499,7 @@ def main():
 <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
     <h4 style="margin-bottom:0.8rem;">📄 文字分類結果</h4>
     <pre style="white-space:pre-wrap;font-size:0.92rem;font-family:inherit;">
-{text_result}
+{text_content}{text_result}
     </pre>
 </div>
 """, unsafe_allow_html=True)
