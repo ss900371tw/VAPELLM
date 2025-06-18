@@ -250,64 +250,35 @@ import time
 import undetected_chromedriver as uc
 import time
 import pickle
-def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
+
+async def crawl_all_text_with_playwright(url: str) -> str:
     try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        return soup.get_text(separator="\n", strip=True)[:50]
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            context = await browser.new_context()
+            page = await context.new_page()
 
-    except requests.exceptions.RequestException as e:
-        if "403" in str(e):
-            print("⚠️ HTTP 403 Forbidden - 切換為 Selenium 爬蟲繞過驗證")
+            await page.goto(url, timeout=30000)
+            await page.wait_for_timeout(5000)  # 等待 JS 執行
+            content = await page.content()
+            await browser.close()
 
-            try:
-                options = uc.ChromeOptions()
-                # 建議：先移除 headless 看 debug 行為，之後再打開
-                # options.add_argument("--headless")
-                options.add_argument("--start-maximized")
+            soup = BeautifulSoup(content, "html.parser")
+            for tag in soup(["script", "style"]):
+                tag.decompose()
 
-                driver = uc.Chrome(options=options)
-                parsed = urlparse(url)
-                base_url = f"{parsed.scheme}://{parsed.netloc}/"
-                # 先開啟首頁，讓 domain 設定正確
-                driver.get(base_url)
-                time.sleep(3)
+            body_text = soup.get_text(separator="\n", strip=True)
+            if "驗證您是人類" in body_text or "Enable JavaScript" in body_text:
+                return "[⚠️ Cloudflare Verification Failed]"
 
-                # 載入 cookies
-                with open(cookie_file, "rb") as f:
-                    cookies = pickle.load(f)
-                    for cookie in cookies:
-                        # 🔧 有些 cookie 缺 domain，補上
-                        if 'domain' not in cookie:
-                            domain = parsed.hostname  # 👉 'www.jkvapeking.com'
-                            cookie_domain = "." + domain  # 👉 '.www.jkvapeking.com'
-                            cookie['domain'] = cookie_domain
-                        try:
-                            driver.add_cookie(cookie)
-                        except Exception as err:
-                            print("⚠️ 忽略某個 cookie:", err)
+            return body_text[:500]
 
-                # 再次進入商品頁
-                driver.get(url)
-                time.sleep(8)
+    except Exception as e:
+        return f"[Playwright failed]: {str(e)}"
 
-                soup = BeautifulSoup(driver.page_source, "html.parser")
-                driver.quit()
-
-                for script in soup(["script", "style"]):
-                    script.decompose()
-
-                # 如果還是 Cloudflare 頁面，給提示
-                body_text = soup.get_text(separator="\n", strip=True)[:50]
-                if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
-                    return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
-
-                return body_text[:50]
-            
-            except Exception as e:
-                return f""
-
+# 包裝成同步函數給 Streamlit 用
+def crawl_all_text(url: str) -> str:
+    return asyncio.run(crawl_all_text_with_playwright(url))
 
 
 # ---------------------------------------------------------------------------
