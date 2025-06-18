@@ -142,7 +142,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
-        return soup.get_text(separator="\n", strip=True)[:50]
+        return soup.get_text(separator="\n", strip=True)[:200]
 
     except requests.exceptions.RequestException as e:
         if "403" in str(e):
