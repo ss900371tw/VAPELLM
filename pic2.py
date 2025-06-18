@@ -139,9 +139,7 @@ prompt = PromptTemplate.from_template(template=text_template)
 
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
-        parsed = urlparse(url)
-        base_url = f"{parsed.scheme}://{parsed.netloc}/"
-        response = requests.get(base_url, timeout=10)
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         return soup.get_text(separator="\n", strip=True)[:50]
