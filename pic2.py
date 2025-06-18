@@ -164,61 +164,66 @@ from bs4 import BeautifulSoup
 import requests
 from requests_html import HTMLSession
 
+from playwright.sync_api import sync_playwright
+from urllib.parse import urlparse
+import pickle
+from bs4 import BeautifulSoup
+import requests
+import time
+
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
-        # 嘗試用 requests 抓取
-        response = requests.get(url, timeout=10, headers={
-            "User-Agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/114.0.0.0 Safari/537.36"
-            )
-        })
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         return soup.get_text(separator="\n", strip=True)[:50]
 
     except requests.exceptions.RequestException as e:
-        print("⚠️ Requests failed，嘗試改用 requests-html 處理 JS 渲染")
-        try:
-            session = HTMLSession()
-            parsed = urlparse(url)
-            base_url = f"{parsed.scheme}://{parsed.netloc}/"
+        if "403" in str(e):
+            print("⚠️ HTTP 403 Forbidden - 切換為 Playwright 繞過驗證")
 
-            # 載入 cookies（如有）
             try:
-                with open(cookie_file, "rb") as f:
-                    cookies = pickle.load(f)
-                    session.cookies.update({
-                        c["name"]: c["value"]
-                        for c in cookies if "name" in c and "value" in c
-                    })
-            except Exception as err:
-                print("⚠️ Cookie 載入失敗:", err)
+                with sync_playwright() as p:
+                    browser = p.chromium.launch(headless=False)  # 建議 debug 時先用非 headless
+                    context = browser.new_context()
 
-            session.get(base_url, timeout=10)
-            r = session.get(url, timeout=20)
+                    parsed = urlparse(url)
+                    base_url = f"{parsed.scheme}://{parsed.netloc}/"
 
-            # ✅ 關鍵修正：手動建立 event loop
-            import asyncio
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
+                    # 先開首頁，建立 domain context
+                    page = context.new_page()
+                    page.goto(base_url, timeout=30000)
+                    time.sleep(3)
 
-            r.html.render(timeout=20, sleep=3)
+                    # 載入 cookies（如有）
+                    try:
+                        with open(cookie_file, "rb") as f:
+                            cookies = pickle.load(f)
+                            for cookie in cookies:
+                                if 'domain' not in cookie:
+                                    cookie['domain'] = "." + parsed.hostname
+                            context.add_cookies(cookies)
+                    except Exception as err:
+                        print("⚠️ Cookie 載入失敗:", err)
 
-            soup = BeautifulSoup(r.html.html, "html.parser")
-            for tag in soup(["script", "style"]):
-                tag.decompose()
+                    # 跳轉到目標頁面
+                    page.goto(url, timeout=30000)
+                    time.sleep(5)
+                    html = page.content()
+                    browser.close()
 
-            body_text = soup.get_text(separator="\n", strip=True)
-            if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
-                return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
+                    soup = BeautifulSoup(html, "html.parser")
+                    for tag in soup(["script", "style"]):
+                        tag.decompose()
 
-            return body_text[:50]
+                    body_text = soup.get_text(separator="\n", strip=True)
+                    if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
+                        return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
 
-        except Exception as e2:
-            return f"[requests-html failed]: {e2}"
+                    return body_text[:50]
 
+            except Exception as e:
+                return f"[Playwright failed]: {e}"
 
 
 
