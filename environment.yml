@@ -1,8 +1,0 @@
-name: streamlit-env
-channels:
-  - conda-forge
-dependencies:
-  - python=3.9.21  # 指定目标版本
-  - pip
-  - pip:
-      - -r requirements.txt  # 依赖文件
