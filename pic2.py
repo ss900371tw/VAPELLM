@@ -206,6 +206,7 @@ import time
 from urllib.parse import urlparse
 from playwright.sync_api import sync_playwright
 
+
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
         response = requests.get(url, timeout=10)
@@ -218,52 +219,57 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
             print("⚠️ HTTP 403 Forbidden - 切換為 Playwright 爬蟲繞過驗證")
 
             try:
+                parsed = urlparse(url)
+                base_url = f"{parsed.scheme}://{parsed.netloc}/"
+
                 with sync_playwright() as p:
-                    browser = p.chromium.launch(headless=True)
+                    browser = p.chromium.launch(headless=True)  # ⬅️ 改為 headless 模式避免 X Server 問題
                     context = browser.new_context()
 
-                    # ➕ 載入 cookies（需格式轉換）
-                    parsed = urlparse(url)
-                    base_url = f"{parsed.scheme}://{parsed.netloc}/"
-
+                    # ➕ 載入 cookies 並轉為 Playwright 格式
                     try:
                         with open(cookie_file, "rb") as f:
                             cookies = pickle.load(f)
                             playwright_cookies = []
                             for cookie in cookies:
-                                # Playwright cookie schema
-                                pc = {
+                                # 🔧 若缺 domain，補上
+                                if 'domain' not in cookie:
+                                    domain = parsed.hostname
+                                    cookie['domain'] = "." + domain
+                                playwright_cookies.append({
                                     "name": cookie.get("name"),
                                     "value": cookie.get("value"),
-                                    "domain": cookie.get("domain", parsed.hostname),
+                                    "domain": cookie.get("domain"),
                                     "path": cookie.get("path", "/"),
                                     "httpOnly": cookie.get("httpOnly", False),
                                     "secure": cookie.get("secure", False),
-                                    "sameSite": cookie.get("sameSite", "Lax")
-                                }
-                                playwright_cookies.append(pc)
+                                    "sameSite": cookie.get("sameSite", "Lax"),
+                                    # "expires": cookie.get("expiry")  # 可選
+                                })
                             context.add_cookies(playwright_cookies)
                     except Exception as err:
-                        print("⚠️ 無法載入 cookies:", err)
+                        print("⚠️ 載入 cookie 發生錯誤:", err)
 
                     page = context.new_page()
 
-                    # 開首頁建立 domain context
+                    # 先打 base_url 建立 domain
                     page.goto(base_url, timeout=30000)
                     page.wait_for_timeout(3000)
 
-                    # 再跳轉至目標頁面
+                    # 再進入目標頁面
                     page.goto(url, timeout=30000)
                     page.wait_for_timeout(8000)
 
                     html = page.content()
-                    soup = BeautifulSoup(html, 'html.parser')
                     browser.close()
 
-                    for script in soup(["script", "style"]):
-                        script.decompose()
+                    soup = BeautifulSoup(html, "html.parser")
+                    for tag in soup(["script", "style"]):
+                        tag.decompose()
 
                     body_text = soup.get_text(separator="\n", strip=True)
+
+                    # 檢查 Cloudflare 失敗提示
                     if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
                         return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
 
@@ -273,9 +279,6 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
                 return f"[Playwright failed]: {e}"
 
         return f"[requests failed]: {e}"
-
-
-
 
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
