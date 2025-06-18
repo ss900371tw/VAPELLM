@@ -257,6 +257,12 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import os
 
+import asyncio
+from playwright.async_api import async_playwright
+from bs4 import BeautifulSoup
+from urllib.parse import urlparse
+import os
+
 def ensure_http(url: str) -> str:
     parsed = urlparse(url)
     if not parsed.scheme:
@@ -289,7 +295,6 @@ async def crawl_all_text_js_persistent(url: str, user_data_dir="playwright_profi
 
 def crawl_all_text(url: str):
     return asyncio.run(crawl_all_text_js_persistent(url))
-
 
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
