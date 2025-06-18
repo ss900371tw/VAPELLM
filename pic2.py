@@ -31,6 +31,7 @@ import time
 import sys
 from bs4 import BeautifulSoup
 import time
+import undetected_chromedriver as uc
 
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY","")
