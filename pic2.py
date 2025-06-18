@@ -29,7 +29,6 @@ from bs4 import BeautifulSoup
 import requests
 import time
 import sys
-import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
 import time
 if sys.version_info >= (3, 12):
