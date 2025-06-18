@@ -32,7 +32,6 @@ import sys
 from bs4 import BeautifulSoup
 import time
 
-# -------------------- 1. 環境變數 --------------------
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY","")
 
