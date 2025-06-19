@@ -536,7 +536,7 @@ def is_blacklisted_url(url: str) -> bool:
     
 # -------------------- 9. Streamlit 主程式 --------------------
 def main():
-    st.markdown("<h1 style='text-align:center;'>電子菸網站偵測系統</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center;color:white;'>電子菸網站偵測系統</h1>", unsafe_allow_html=True)
 
     # 背景樣式與主題文字
     st.markdown("""
@@ -595,7 +595,10 @@ def main():
                         
 
     # 模式選擇
-    st.markdown("## 📌 請選擇分析模式")
+    st.markdown("""
+    <p style='text-align:center; font-size: 24px; color: white;'>## 📌 請選擇分析模式</p>
+    """, unsafe_allow_html=True)
+
     if "selected_mode" not in st.session_state:
         st.session_state.selected_mode = None
 
