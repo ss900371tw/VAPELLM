@@ -929,7 +929,8 @@ div[role="status"] > div > span {
 """, unsafe_allow_html=True)
                 st.markdown("---")
                 st.markdown("<h3 style='color:white;'>📋 批次分析總結</h3>", unsafe_allow_html=True)
-                
+                high_risk_urls = sorted(set(high_risk_urls))
+
                 if high_risk_urls:
                     st.markdown(f"<h3 style='color:white;'>⚠️ 共偵測到高風險網址 {len(high_risk_urls)} 筆", unsafe_allow_html=True)
     
