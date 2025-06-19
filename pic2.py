@@ -679,7 +679,7 @@ def main():
                 font-size: 20px;
                 border-radius: 10px;
                 border: 2px solid #ff5f5f;
-                margin-top: 0px;
+                margin-top: 6px;
                 margin-bottom: 0px;
                 padding: 0 10px;
             }
