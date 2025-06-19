@@ -673,23 +673,18 @@ def main():
             # CSS：美化按鈕與輸入框容器
             # --- 自訂樣式 ---
 
+            # --- 自訂樣式 ---
             st.markdown("""
             <style>
-            /* ✅ 按鈕所在欄垂直置中 */
             div[data-testid="column"] div:has(button) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
-            
-            /* ✅ 輸入框所在欄也垂直置中 */
             div[data-testid="column"] div:has(input) {
                 display: flex;
                 align-items: center;
-                height: 100%;  /* 讓它撐滿欄位高度 */
             }
-            
-            /* ✅ 自訂輸入框本身的高度與樣式 */
             input[type="text"] {
                 height: 40px;
                 font-size: 16px;
@@ -697,8 +692,6 @@ def main():
                 border-radius: 8px;
                 border: 1.5px solid #ccc;
             }
-            
-            /* ✅ 自訂按鈕樣式 */
             div[data-testid="column"] button {
                 height: 40px;
                 width: 60px;
@@ -712,34 +705,35 @@ def main():
             </style>
             """, unsafe_allow_html=True)
             
-            # --- 表單輸入區塊 ---
+            # --- 輸入表單區塊 ---
             with st.form("url_input_form"):
                 col1, col2 = st.columns([3, 1])
-                
+            
                 with col1:
                     url = st.text_input("", placeholder="請輸入網址：", label_visibility="collapsed")
-                
+            
                 with col2:
-                    submitted = st.form_submit_button("確定")            
-
-            # 分析邏輯
-                if submitted:
-                    if not url.strip():
-                        st.markdown("""
-                        <div style="
-                            background-color: #fff3cd;
-                            color: #856404;
-                            padding: 1rem;
-                            border-radius: 10px;
-                            border: 1px solid #ffeeba;
-                            font-size: 16px;
-                        ">
-                        ⚠️ 請輸入有效網址
-                        </div>
-                        """, unsafe_allow_html=True)
-                    else:
-                        st.markdown(f"<h3 style='color:white;'>🔍 正在分析：<a href='{url}' target='_blank'>{url}</a></h3>", unsafe_allow_html=True)
-                        st.markdown("<p style='color:white;'>⏳ 正在讀取網站內容與圖片...</p>", unsafe_allow_html=True)
+                    submitted = st.form_submit_button("確定")
+            
+            # --- 分析邏輯在表單外判斷，才能正確中止流程 ---
+            if submitted:
+                if not url.strip():
+                    st.markdown("""
+                    <div style="
+                        background-color: #fff3cd;
+                        color: #856404;
+                        padding: 1rem;
+                        border-radius: 10px;
+                        border: 1px solid #ffeeba;
+                        font-size: 16px;
+                    ">
+                    ⚠️ 請輸入有效網址
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown(f"<h3 style='color:white;'>🔍 正在分析：<a href='{url}' target='_blank'>{url}</a></h3>", unsafe_allow_html=True)
+                    st.markdown("<p style='color:white;'>⏳ 正在讀取網站內容與圖片...</p>", unsafe_allow_html=True)
+                    # 這裡可以繼續放分析程式邏輯
 
                 with st.spinner(" "): 
                     text_content = crawl_all_text(url)
