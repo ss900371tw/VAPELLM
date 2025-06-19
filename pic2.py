@@ -724,6 +724,20 @@ def main():
     if mode:    
         if "單一網址分析" in mode:
             # 建立左右排列欄位
+            st.markdown("""
+                    <style>
+                    .button-align-center button {
+                        margin-top: 32px;  /* 可依實際情況微調 */
+                        width: 100%;
+                        height: 46px;
+                        font-size: 20px;
+                        background-color: #3EB489;
+                        color: white;
+                        border-radius: 12px;
+                        border: 2px solid #ff5f5f;
+                    }
+                    </style>
+                    """, unsafe_allow_html=True)
             col1, col2 = st.columns([5, 1])
             
             with col1:
