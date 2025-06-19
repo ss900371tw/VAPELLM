@@ -591,7 +591,7 @@ def main():
                 border: {border};
                 box-shadow: {shadow};
                 padding: 1.5rem;
-                height: 36px;
+                height: 320px;
                 text-align: center;
                 transition: all 0.2s ease;
                 display: flex;
@@ -687,6 +687,7 @@ div[data-testid="column"] div:has(button) {
                 font-size: 22px;
                 background-color: #3EB489;
                 color: white;
+                height: 36px; 
                 border-radius: 10px;
                 border: 2px solid #ff5f5f;
                 padding: 0;
