@@ -536,59 +536,45 @@ def is_blacklisted_url(url: str) -> bool:
     
 # -------------------- 9. Streamlit 主程式 --------------------
 def main():
-    st.markdown("""
-<h1 style='text-align: center;'>
-電子菸網站偵測系統
-</h1>
-""", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center;'>電子菸網站偵測系統</h1>", unsafe_allow_html=True)
 
+    # 背景樣式與主題文字
     st.markdown("""
     <style>
         .stApp {
-        background-image: url("https://wallpapers.com/images/hd/dark-grey-aesthetic-iy0yvgt4wq4qafgg.jpg");
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
+            background-image: url("https://wallpapers.com/images/hd/dark-grey-aesthetic-iy0yvgt4wq4qafgg.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
         h1, h2, h3 {
-            color: #00FFFF; /* Electric Blue */
+            color: #00FFFF;
         }
-        .stRadio > div {
-            flex-direction: row;
-            gap: 2rem;
-        }
-        .stButton > button, .stDownloadButton > button {
-            background-color: #3EB489; /* Mint Green */
+        .stButton > button {
+            background-color: #3EB489;
             color: white;
             font-weight: bold;
             border-radius: 8px;
             padding: 0.5rem 1.2rem;
         }
-        .stTextInput > div > input,
-        .stTextArea > div > textarea {
-            border-radius: 6px;
-        }
     </style>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
     st.markdown("""
-<p style='text-align: center; font-size: 24px; font-weight: normal; letter-spacing: 0.5px;'>
-🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站
-</p>
-""", unsafe_allow_html=True)
+    <p style='text-align:center; font-size: 24px;'>🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站</p>
+    """, unsafe_allow_html=True)
 
+    # 初始化
     if "selected_mode" not in st.session_state:
         st.session_state.selected_mode = None
 
-    def select_mode_and_rerun(mode_value):
-        st.session_state.selected_mode = mode_value
-        st.experimental_rerun()
-
-    def render_card(icon, title, desc, selected):
-        border = "4px solid #3EB489" if selected else "1px solid rgba(255,255,255,0.1)"
-        shadow = "0 0 20px #3EB489" if selected else "0 0 8px rgba(0,0,0,0.3)"
+    # 顯示卡片
+    def render_card(icon, title, desc, selected, key):
+        border = "4px solid #3EB489" if selected else "1px solid #999999"
+        shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
-        return f"""
+
+        st.markdown(f"""
         <div style="
             background-color: {bg};
             color: white;
@@ -597,41 +583,34 @@ def main():
             box-shadow: {shadow};
             padding: 1.5rem;
             text-align: center;
-            transition: 0.3s;
+            margin-bottom: 1rem;
         ">
-            <div style="font-size: 2rem; margin-bottom: 0.5rem;">{icon}</div>
-            <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 0.3rem;">{title}</div>
-            <div style="font-size: 0.9rem; margin-bottom: 1rem; color: #cccccc;">{desc}</div>
+            <div style="font-size: 2rem;">{icon}</div>
+            <div style="font-size: 1.2rem; font-weight: bold;">{title}</div>
+            <div style="font-size: 0.9rem; color: #ccc;">{desc}</div>
         </div>
-        """
+        """, unsafe_allow_html=True)
 
-    # -------------------- 模式選擇區塊 --------------------
-    st.markdown("""
-<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;">
-    <h4 style="margin-bottom:0.5rem;">🎛️ 請選擇分析模式</h4>
-</div>
-""", unsafe_allow_html=True)
+        if st.button("選擇", key=key):
+            st.session_state.selected_mode = title
+            st.experimental_rerun()
 
-    st.markdown("## 📌 請選擇分析模式", unsafe_allow_html=True)
-
+    # 模式選擇
+    st.markdown("## 📌 請選擇分析模式")
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown(render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片", st.session_state.selected_mode == "單一網址分析"), unsafe_allow_html=True)
-        if st.button("選擇", key="btn_單一"):
-            select_mode_and_rerun("單一網址分析")
-
+        render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片", st.session_state.selected_mode == "單一網址分析", "btn_1")
     with col2:
-        st.markdown(render_card("📂", "批量網址分析", "上傳文字檔，一次分析多個網站", st.session_state.selected_mode == "批量網址分析"), unsafe_allow_html=True)
-        if st.button("選擇", key="btn_批量"):
-            select_mode_and_rerun("批量網址分析")
-
+        render_card("📂", "批量網址分析", "上傳文字檔，一次分析多個網站", st.session_state.selected_mode == "批量網址分析", "btn_2")
     with col3:
-        st.markdown(render_card("📝", "關鍵字搜尋分析", "根據關鍵字搜尋網站", st.session_state.selected_mode == "GOOGLE 自動搜尋 & 分析"), unsafe_allow_html=True)
-        if st.button("選擇", key="btn_搜尋"):
-            select_mode_and_rerun("GOOGLE 自動搜尋 & 分析")
+        render_card("📝", "GOOGLE 自動搜尋 & 分析", "根據關鍵字搜尋網站", st.session_state.selected_mode == "GOOGLE 自動搜尋 & 分析", "btn_3")
 
-    # -------------------- 顯示目前模式 --------------------
+    # 顯示選擇模式
     mode = st.session_state.selected_mode
+
+
+
+    
     if mode:
         st.markdown(f"""
         <div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
