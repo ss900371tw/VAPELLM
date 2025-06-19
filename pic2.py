@@ -579,7 +579,7 @@ def main():
     
         st.markdown(f"""
         <style>
-        div[data-testid="stButton"] > button#{key} {{
+        #{key}_card {{
             background-color: {bg};
             color: white;
             border-radius: 16px;
@@ -588,23 +588,29 @@ def main():
             padding: 1.5rem;
             height: 220px;
             width: 100%;
-            font-size: 1rem;
-            white-space: normal;
+            text-align: center;
             transition: all 0.2s ease;
         }}
-        div[data-testid="stButton"] > button#{key}:hover {{
+        #{key}_card:hover {{
             transform: scale(1.02);
             box-shadow: 0 0 25px #3EB489;
             cursor: pointer;
         }}
         </style>
+    
+        <div id="{key}_card" onclick="document.getElementById('{key}_hidden_btn').click()">
+            <div style="font-size: 2rem;">{icon}</div>
+            <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
+        </div>
         """, unsafe_allow_html=True)
     
-        # 按鈕 + 立即 rerun
-        if st.button(f"{icon}\n{title}\n{desc}", key=key):
+        # 隱藏觸發按鈕
+        btn_placeholder = st.empty()
+        if btn_placeholder.button(" ", key=f"{key}_hidden_btn"):
             st.session_state.selected_mode = title
             st.rerun()
-    
+
 
                         
 
