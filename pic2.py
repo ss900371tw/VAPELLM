@@ -673,7 +673,7 @@ def main():
 <style>
 div[data-testid="column"] div[class^="stButton"] > button {
     height: 42px;
-    margin-top: 18px; /* ✅ 微調讓按鈕垂直置中 */
+    margin-top: 0px; /* ✅ 微調讓按鈕垂直置中 */
     background-color: #3EB489;
     color: white;
     font-size: 20px;
