@@ -561,7 +561,7 @@ def main():
     """, unsafe_allow_html=True)
 
     st.markdown("""
-    <p style='text-align:center; font-size: 24px;'>🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站</p>
+    <p style='text-align:center; font-size: 24px; color: white;'>🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站</p>
     """, unsafe_allow_html=True)
 
     # 初始化
@@ -618,10 +618,10 @@ def main():
 
     # 第二階段：渲染卡片（這時狀態已準備好，視覺效果正確）
     with col1:
-        render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片",
+        render_card("🔍", "單一網址分析", "分析單個網站文字與圖片",
                     selected=(st.session_state.selected_mode == "單一網址分析"))
     with col2:
-        render_card("📂", "批量網址分析", "上傳文字檔，分析多個網站",
+        render_card("📂", "批量網址分析", "上傳文字檔，分析多網站",
                     selected=(st.session_state.selected_mode == "批量網址分析"))
     with col3:
         render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站",
