@@ -670,16 +670,17 @@ def main():
             # 建立左右排列欄位
             # 自訂按鈕樣式讓它貼齊 text_input 高度
             
+            # CSS：美化按鈕與輸入框容器
             st.markdown("""
             <style>
-            /* 精準對齊：選取 button 外層容器，做垂直居中處理 */
+            /* 讓右側 container（按鈕）垂直置中 */
             div[data-testid="column"] div:has(button) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
             
-            /* 美化按鈕本身 */
+            /* 美化按鈕樣式 */
             div[data-testid="column"] button {
                 height: 40px;
                 width: 48px;
@@ -689,18 +690,24 @@ def main():
                 border-radius: 10px;
                 border: 2px solid #ff5f5f;
             }
+            
+            /* 美化輸入框邊框（選配） */
+            input {
+                border: 2px solid #ff5f5f !important;
+                border-radius: 10px !important;
+            }
             </style>
             """, unsafe_allow_html=True)
-            
-            # --- Streamlit 原生欄位與元件 ---
-            col1, col2 = st.columns([6, 1])
-            
-            with col1:
-                url = st.text_input("", placeholder="請輸入網址：")
-            
-            with col2:
-                go = st.button("🚀")
 
+            with st.container():
+                col1, col2 = st.columns([6, 1])
+            
+                with col1:
+                    url = st.text_input("", placeholder="請輸入網址：")
+            
+                with col2:
+                    go = st.button("🚀")  # ✅ 正常返回 True/False
+            
 
             # 分析邏輯
             if go:
