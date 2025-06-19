@@ -564,21 +564,47 @@ def main():
     <p style='text-align:center; font-size: 24px; color: white;'>🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站</p>
     """, unsafe_allow_html=True)
 
-    # 初始化
-    if "selected_mode" not in st.session_state:
-        st.session_state.selected_mode = None
+    st.set_page_config(layout="wide")
 
-    # 顯示卡片
+# 初始化
+if "selected_mode" not in st.session_state:
+    st.session_state.selected_mode = ""
 
-     # 卡片按鈕渲染函數
-    def render_card_button(icon, title, desc, key):
-        selected = (st.session_state.get("selected_mode") == title)
-        border = "4px solid #3EB489" if selected else "1px solid #999999"
-        shadow = "0 0 20px #3EB489" if selected else "none"
+# 觸發點擊事件的 JS script
+def js_click_handler():
+    st.markdown("""
+    <script>
+    const cards = document.querySelectorAll('.clickable-card');
+    cards.forEach(card => {
+        card.onclick = () => {
+            const mode = card.getAttribute("data-mode");
+            const streamlitInput = window.parent.document.querySelector('input[data-testid="stTextInput"][aria-label="mode_input"]');
+            if (streamlitInput) {
+                streamlitInput.value = mode;
+                streamlitInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        };
+    });
+    </script>
+    """, unsafe_allow_html=True)
+
+    # 自動觸發一次 JS 綁定
+    js_click_handler()
+    
+    # 隱藏輸入框作為中介橋梁
+    selected_mode = st.text_input("mode_input", key="mode_input", label_visibility="collapsed")
+    if selected_mode:
+        st.session_state.selected_mode = selected_mode
+    
+    # HTML 卡片樣式
+    def render_card(icon, title, desc, mode_key):
+        selected = (st.session_state.selected_mode == mode_key)
+        border = "4px solid #3EB489" if selected else "1px solid #999"
+        shadow = "0 0 25px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        btn_html = f"""
-        <div style="
+        st.markdown(f"""
+        <div class="clickable-card" data-mode="{mode_key}" style="
             background-color: {bg};
             color: white;
             border-radius: 16px;
@@ -586,18 +612,14 @@ def main():
             box-shadow: {shadow};
             padding: 1.5rem;
             text-align: center;
-            margin-bottom: 0.5rem;
             cursor: pointer;
+            transition: 0.2s;
         ">
-            <div style="font-size: 2rem;">{icon}</div>
-            <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
+            <div style="font-size: 2.2rem;">{icon}</div>
+            <div style="font-size: 1.3rem; font-weight: bold; margin-top: 0.6rem;">{title}</div>
+            <div style="font-size: 0.95rem; color: #ccc; margin-top: 0.4rem;">{desc}</div>
         </div>
-        """
-        if st.button("", key=key):
-            st.session_state.selected_mode = title
-        st.markdown(btn_html, unsafe_allow_html=True)
-
+        """, unsafe_allow_html=True)
                         
 
         # 模式標題
@@ -626,14 +648,18 @@ def main():
     
     # 三欄卡片按鈕
     # 顯示三個卡片按鈕
+    # 三欄顯示
     col1, col2, col3 = st.columns(3)
     with col1:
-        render_card_button("🔍", "單一網址分析", "分析單個網站文字與圖片", key="mode1")
+        render_card("🔍", "單一網址分析", "分析單個網站文字與圖片", "單一網址分析")
     with col2:
-        render_card_button("📂", "批量網址分析", "上傳文字檔，分析多網站", key="mode2")
+        render_card("📂", "批量網址分析", "上傳文字檔，分析多網站", "批量網址分析")
     with col3:
-        render_card_button("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站", key="mode3")
-
+        render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站", "關鍵字搜尋分析")
+    
+    # 根據選擇顯示內容（例）
+    if st.session_state.selected_mode:
+        st.success(f"✅ 你選擇的是：{st.session_state.selected_mode}")
     if mode:
         st.markdown(f"""
         <div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
