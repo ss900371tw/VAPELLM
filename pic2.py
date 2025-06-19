@@ -629,7 +629,7 @@ def main():
     
     # 三欄卡片按鈕
     col1, col2, col3 = st.columns(3)
-    
+    mode=None
     with col1:
         if render_card("🔍", "單一網址分析", "分析單個網站文字與圖片", "mode_single", st.session_state.selected_mode == "單一網址分析"):
             st.session_state.selected_mode = "單一網址分析"
