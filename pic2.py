@@ -832,9 +832,13 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                     st.markdown(f"<h3 style='color:white;'>---\n 🔗 [{idx}/{len(urls)}] 分析網址：{url}", unsafe_allow_html=True)
 
                     st.markdown("""
-<style>.stSpinner > div > div {
-    border-top-color: #0f0;
-}</style>
+<style>
+/* Modify spinner text color to match theme's primaryColor */
+div[role="status"] > div > span {
+    color: var(--primary-color) !important;
+    font-weight: bold;
+}
+</style>
 """, unsafe_allow_html=True)
 
 
