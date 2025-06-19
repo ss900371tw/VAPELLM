@@ -720,38 +720,10 @@ def main():
                     url = st.text_input("", placeholder="請輸入網址：", label_visibility="collapsed")
                 
                 with col2:
-                    submitted = st.form_submit_button("確定")
-            
-                if submitted and url.strip():
-                    st.markdown("""
-<div style="
-    background-color: #d4edda;
-    color: #155724;
-    padding: 1rem;
-    border-radius: 10px;
-    border: 1px solid #c3e6cb;
-    font-size: 16px;
-">
-✅ 你輸入的網址是：{url}
-</div>
-""", unsafe_allow_html=True)
-                elif submitted:
-                    st.markdown("""
-<div style="
-    background-color: #fff3cd;
-    color: #856404;
-    padding: 1rem;
-    border-radius: 10px;
-    border: 1px solid #ffeeba;
-    font-size: 16px;
-">
-⚠️ 請輸入有效網址
-</div>
-""", unsafe_allow_html=True)
-            
+                    submitted = st.form_submit_button("確定")            
 
             # 分析邏輯
-            if submitted:
+            if submitted and url.strip()
                 if not url.strip():
                     st.markdown("""
 <div style="
