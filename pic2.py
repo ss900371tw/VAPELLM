@@ -564,98 +564,77 @@ def main():
     <p style='text-align:center; font-size: 24px; color: white;'>🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站</p>
     """, unsafe_allow_html=True)
 
-    st.set_page_config(layout="wide")
-
     # 初始化
     if "selected_mode" not in st.session_state:
-        st.session_state.selected_mode = ""
+        st.session_state.selected_mode = None
+
+    # 顯示卡片
+
+    def render_card(icon, title, desc, key):
+        clicked = st.button(
+            label=f"{icon} {title}\n{desc}",
+            key=key,
+            help=desc,
+        )
     
-    # 觸發點擊事件的 JS script
-    def js_click_handler():
-        st.markdown("""
-        <script>
-        const cards = document.querySelectorAll('.clickable-card');
-        cards.forEach(card => {
-            card.onclick = () => {
-                const mode = card.getAttribute("data-mode");
-                const streamlitInput = window.parent.document.querySelector('input[data-testid="stTextInput"][aria-label="mode_input"]');
-                if (streamlitInput) {
-                    streamlitInput.value = mode;
-                    streamlitInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            };
-        });
-        </script>
+        border = "4px solid #3EB489" if st.session_state.get("selected_mode") == title else "1px solid #999999"
+        shadow = "0 0 20px #3EB489" if st.session_state.get("selected_mode") == title else "none"
+        bg = "#0c1b2a" if st.session_state.get("selected_mode") == title else "#1a1f2b"
+    
+        st.markdown(f"""
+            <style>
+                .stButton > button#{key} {{
+                    background-color: {bg};
+                    color: white;
+                    border-radius: 16px;
+                    border: {border};
+                    box-shadow: {shadow};
+                    padding: 1.5rem;
+                    width: 100%;
+                    font-size: 1.1rem;
+                    text-align: center;
+                    line-height: 1.5;
+                    white-space: normal;
+                }}
+            </style>
         """, unsafe_allow_html=True)
     
-        # 自動觸發一次 JS 綁定
-        js_click_handler()
-        
-        # 隱藏輸入框作為中介橋梁
-        selected_mode = st.text_input("mode_input", key="mode_input", label_visibility="collapsed")
-        if selected_mode:
-            st.session_state.selected_mode = selected_mode
-        
-        # HTML 卡片樣式
-        def render_card(icon, title, desc, mode_key):
-            selected = (st.session_state.selected_mode == mode_key)
-            border = "4px solid #3EB489" if selected else "1px solid #999"
-            shadow = "0 0 25px #3EB489" if selected else "none"
-            bg = "#0c1b2a" if selected else "#1a1f2b"
-        
-            st.markdown(f"""
-            <div class="clickable-card" data-mode="{mode_key}" style="
-                background-color: {bg};
-                color: white;
-                border-radius: 16px;
-                border: {border};
-                box-shadow: {shadow};
-                padding: 1.5rem;
-                text-align: center;
-                cursor: pointer;
-                transition: 0.2s;
-            ">
-                <div style="font-size: 2.2rem;">{icon}</div>
-                <div style="font-size: 1.3rem; font-weight: bold; margin-top: 0.6rem;">{title}</div>
-                <div style="font-size: 0.95rem; color: #ccc; margin-top: 0.4rem;">{desc}</div>
-            </div>
-            """, unsafe_allow_html=True)
-                            
-    
-            # 模式標題
-        st.markdown("""
-        <style>
-        .banner-text {
-            background-color: #0052cc;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
-            border-radius: 6px;
-            margin: 10px 0px;
-        }
-        </style>
-        
-        <div class="banner-text">
-        請選擇分析模式
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # 初始化狀態
+        if clicked:
+            st.session_state.selected_mode = title
+
+                        
+
+    # 模式選擇
+    st.markdown("""
+<style>
+.banner-text {
+    background-color: #0052cc;  /* 深藍色 */
+    color: white;               /* 白字 */
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    border-radius: 6px;
+    margin: 10px 0px;
+}
+</style>
+
+<div class="banner-text">
+請選擇分析模式
+</div>
+""", unsafe_allow_html=True)
+
     if "selected_mode" not in st.session_state:
         st.session_state.selected_mode = None
-    
-    # 三欄卡片按鈕
-    # 顯示三個卡片按鈕
-    # 三欄顯示
+
+    # 集中處理按鈕事件
     col1, col2, col3 = st.columns(3)
     with col1:
-        render_card("🔍", "單一網址分析", "分析單個網站文字與圖片", "單一網址分析")
+        render_card("🔍", "單一網址分析", "分析單個網站文字與圖片", key="mode_single")
     with col2:
-        render_card("📂", "批量網址分析", "上傳文字檔，分析多網站", "批量網址分析")
+        render_card("📂", "批量網址分析", "上傳文字檔，分析多網站", key="mode_batch")
     with col3:
-        render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站", "關鍵字搜尋分析")
+        render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站", key="mode_keyword")
     
     # 根據選擇顯示內容（例）
     if st.session_state.selected_mode:
