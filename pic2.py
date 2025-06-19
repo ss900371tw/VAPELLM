@@ -597,33 +597,66 @@ def main():
 """, unsafe_allow_html=True)
     
     # -------------------- 模式選擇區塊（卡片樣式） --------------------
-    st.markdown("## 📌 請選擇分析模式")
-
-    # 初始化 session_state 儲存選擇
+    st.markdown("## 📌 請選擇分析模式", unsafe_allow_html=True)
+    
     if "selected_mode" not in st.session_state:
         st.session_state.selected_mode = None
-
-    # 三欄顯示三種模式
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        if st.button("🔍 單一網址分析"):
-            st.session_state.selected_mode = "單一網址分析"
-    with col2:
-        if st.button("📂 批量網址分析"):
-            st.session_state.selected_mode = "批量網址分析"
-    with col3:
-        if st.button("🌐 GOOGLE 自動搜尋 & 分析"):
-            st.session_state.selected_mode = "GOOGLE 自動搜尋 & 分析"
-
-    # 顯示目前選擇
+    
+    def render_card(icon, title, desc, key, selected):
+        border = "4px solid #3EB489" if selected else "1px solid rgba(255,255,255,0.1)"
+        shadow = "0 0 20px #3EB489" if selected else "0 0 8px rgba(0,0,0,0.3)"
+        bg = "#0c1b2a" if selected else "#1a1f2b"
+    
+        return f"""
+        <div style="
+            background-color: {bg};
+            color: white;
+            border-radius: 16px;
+            border: {border};
+            box-shadow: {shadow};
+            padding: 1.5rem;
+            text-align: center;
+            transition: 0.3s;
+        ">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">{icon}</div>
+            <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 0.3rem;">{title}</div>
+            <div style="font-size: 0.9rem; margin-bottom: 1rem; color: #cccccc;">{desc}</div>
+            <form action="" method="post">
+                <button name="select_mode" value="{key}" style="
+                    background-color: #3EB489;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 0.4rem 1.2rem;
+                    font-size: 0.95rem;
+                    cursor: pointer;
+                ">選擇</button>
+            </form>
+        </div>
+        """
+    
+    # 處理 POST 選擇
+    selected_key = st.experimental_get_query_params().get("select_mode", [None])[0]
+    if selected_key:
+        st.session_state.selected_mode = selected_key
+    
     mode = st.session_state.selected_mode
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown(render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片", "單一網址分析", mode == "單一網址分析"), unsafe_allow_html=True)
+    with col2:
+        st.markdown(render_card("📂", "批量網址分析", "上傳文字檔，一次分析多個網站", "批量網址分析", mode == "批量網址分析"), unsafe_allow_html=True)
+    with col3:
+        st.markdown(render_card("📝", "關鍵字搜尋分析", "根據關鍵字自動搜尋並分析網站", "GOOGLE 自動搜尋 & 分析", mode == "GOOGLE 自動搜尋 & 分析"), unsafe_allow_html=True)
+    
+    # 顯示目前選擇
     if mode:
         st.markdown(f"""
-    <div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
-        <h4 style="margin-bottom:0rem;">🎯 目前選擇的模式：<span style="color:#3EB489;">{mode}</span></h4>
-    </div>
-    """, unsafe_allow_html=True)
+        <div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
+            <h4 style="margin-bottom:0rem;">🎯 目前選擇的模式：<span style="color:#3EB489;">{mode}</span></h4>
+        </div>
+        """, unsafe_allow_html=True)
     else:
         st.info("👉 請點選上方卡片來選擇模式")
     
