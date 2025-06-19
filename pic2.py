@@ -634,7 +634,6 @@ def main():
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
         with st.container():
-            # 自訂 CSS（卡片 + 按鈕）
             st.markdown(f"""
             <style>
             div#{key}_card {{
@@ -668,22 +667,21 @@ def main():
             </style>
             """, unsafe_allow_html=True)
     
-            # ✅ 把全部內容放到卡片 div 裡
-            st.markdown(f'<div id="{key}_card">', unsafe_allow_html=True)
-    
-            # 卡片內部內容
+            # ✅ 把所有內容寫在這一個 HTML block 裡
             st.markdown(f"""
-            <div style="font-size: 2rem;">{icon}</div>
-            <div style="font-size: 1.2rem; font-weight: bold;">{title}</div>
-            <div style="font-size: 0.9rem; color: #ccc;">{desc}</div>
+            <div id="{key}_card">
+                <div style="font-size: 2rem;">{icon}</div>
+                <div style="font-size: 1.2rem; font-weight: bold;">{title}</div>
+                <div style="font-size: 0.9rem; color: #ccc;">{desc}</div>
+                <div style="margin-top: 10px;">
             """, unsafe_allow_html=True)
     
-            # 選擇按鈕也在卡片裡
+            # ✅ Streamlit 的按鈕也放在 div 裡面
             if st.button("選擇", key=f"{key}_btn"):
                 st.session_state.selected_mode = title
                 st.rerun()
     
-            st.markdown("</div>", unsafe_allow_html=True)  # 關閉卡片 div
+            st.markdown("</div></div>", unsafe_allow_html=True)  # 關閉兩層 div
 
     # 模式選擇
     st.markdown("""
