@@ -723,15 +723,48 @@ def main():
                     submitted = st.form_submit_button("確定")
             
                 if submitted and url.strip():
-                    st.success(f"✅ 你輸入的網址是：{url}")
+                    st.markdown("""
+<div style="
+    background-color: #d4edda;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #c3e6cb;
+    font-size: 16px;
+">
+✅ 你輸入的網址是：{url}
+</div>
+""", unsafe_allow_html=True)
                 elif submitted:
-                    st.warning("⚠️ 請輸入有效網址")
+                    st.markdown("""
+<div style="
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #ffeeba;
+    font-size: 16px;
+">
+⚠️ 請輸入有效網址
+</div>
+""", unsafe_allow_html=True)
             
 
             # 分析邏輯
             if submitted:
                 if not url.strip():
-                    st.warning("⚠️ 請輸入有效網址")
+                    st.markdown("""
+<div style="
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #ffeeba;
+    font-size: 16px;
+">
+⚠️ 請輸入有效網址
+</div>
+""", unsafe_allow_html=True)
                     return
     
                 st.markdown(f"<h3 style='color:white;'>🔍 正在分析：<a href='{url}'>{url}</a></h3>", unsafe_allow_html=True)
@@ -844,7 +877,18 @@ section[data-testid="stFileUploader"] div[aria-label] p {
     
             if st.button("🚀 開始批次分析"):
                 if uploaded_file is None:
-                    st.warning("⚠️ 請先上傳 .txt 檔案")
+                    st.markdown("""
+<div style="
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #ffeeba;
+    font-size: 16px;
+">
+⚠️ 請先上傳 .txt 檔案
+</div>
+""", unsafe_allow_html=True)
                     return
     
                 urls = [line.strip().decode("utf-8") for line in uploaded_file.readlines() if line]
