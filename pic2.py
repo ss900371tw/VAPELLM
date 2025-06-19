@@ -723,21 +723,21 @@ def main():
                     submitted = st.form_submit_button("確定")            
 
             # 分析邏輯
-                if submitted and url.strip():
-                    if not url.strip():
-                        st.markdown("""
-    <div style="
-        background-color: #fff3cd;
-        color: #856404;
-        padding: 1rem;
-        border-radius: 10px;
-        border: 1px solid #ffeeba;
-        font-size: 16px;
-    ">
-    ⚠️ 請輸入有效網址
-    </div>
-    """, unsafe_allow_html=True)
-                        return
+                    if submitted and url.strip():
+                        if not url.strip():
+                            st.markdown("""
+        <div style="
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid #ffeeba;
+            font-size: 16px;
+        ">
+        ⚠️ 請輸入有效網址
+        </div>
+        """, unsafe_allow_html=True)
+                            return
         
                 st.markdown(f"<h3 style='color:white;'>🔍 正在分析：<a href='{url}'>{url}</a></h3>", unsafe_allow_html=True)
 
