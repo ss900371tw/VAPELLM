@@ -589,24 +589,24 @@ def main():
 """, unsafe_allow_html=True)
     
     # -------------------- 模式選擇區塊（卡片樣式） --------------------
-st.markdown("## 📌 請選擇分析模式")
+    st.markdown("## 📌 請選擇分析模式")
 
-# 初始化 session_state 儲存選擇
-if "selected_mode" not in st.session_state:
-    st.session_state.selected_mode = None
+    # 初始化 session_state 儲存選擇
+    if "selected_mode" not in st.session_state:
+        st.session_state.selected_mode = None
 
-# 三欄顯示三種模式
-col1, col2, col3 = st.columns(3)
+    # 三欄顯示三種模式
+    col1, col2, col3 = st.columns(3)
 
-with col1:
-    if st.button("🔍 單一網址分析"):
-        st.session_state.selected_mode = "單一網址分析"
-with col2:
-    if st.button("📂 批量網址分析"):
-        st.session_state.selected_mode = "批量網址分析"
-with col3:
-    if st.button("🌐 GOOGLE 自動搜尋 & 分析"):
-        st.session_state.selected_mode = "GOOGLE 自動搜尋 & 分析"
+    with col1:
+        if st.button("🔍 單一網址分析"):
+            st.session_state.selected_mode = "單一網址分析"
+    with col2:
+        if st.button("📂 批量網址分析"):
+            st.session_state.selected_mode = "批量網址分析"
+    with col3:
+        if st.button("🌐 GOOGLE 自動搜尋 & 分析"):
+            st.session_state.selected_mode = "GOOGLE 自動搜尋 & 分析"
 
 # 顯示目前選擇
 mode = st.session_state.selected_mode
