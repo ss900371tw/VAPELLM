@@ -600,78 +600,79 @@ def main():
     <p style='text-align:center; font-size: 24px; color: white;'>🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站</p>
     """, unsafe_allow_html=True)
 
-    # 初始化
+        # 初始化
+    import streamlit as st
+    
+    # 初始化狀態
     if "selected_mode" not in st.session_state:
         st.session_state.selected_mode = None
-
-    # 顯示卡片
-
-    def render_card(icon, title, desc, selected):
+    
+    # 卡片渲染函式：整個卡片就是一顆按鈕
+    def render_card(key, icon, title, desc):
+        selected = st.session_state.selected_mode == title
         border = "4px solid #3EB489" if selected else "1px solid #999999"
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
+        btn_clicked = st.button(
+            f"""
+            {icon}\n\n
+            **{title}**\n
+            <span style='font-size: 0.85rem; color: #ccc;'>{desc}</span>
+            """,
+            key=key,
+            help=desc,
+        )
+    
         st.markdown(f"""
-        <div style="
+        <style>
+        div[data-testid="stButton"][key="{key}"] button {{
+            width: 100%;
+            height: 200px;
             background-color: {bg};
             color: white;
             border-radius: 16px;
             border: {border};
             box-shadow: {shadow};
             padding: 1.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
             text-align: center;
-            margin-bottom: 0.5rem;
-        ">
-            <div style="font-size: 2rem;">{icon}</div>
-            <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
-        </div>
+            white-space: pre-line;
+        }}
+        </style>
         """, unsafe_allow_html=True)
-
-                        
-
-    # 模式選擇
-    st.markdown("""
-<style>
-.banner-text {
-    background-color: #0052cc;  /* 深藍色 */
-    color: white;               /* 白字 */
-    font-size: 16px;
-    font-weight: bold;
-    text-align: center;
-    padding: 10px;
-    border-radius: 6px;
-    margin: 10px 0px;
-}
-</style>
-
-<div class="banner-text">
-請選擇分析模式
-</div>
-""", unsafe_allow_html=True)
-
-    if "selected_mode" not in st.session_state:
-        st.session_state.selected_mode = None
-
-    # 集中處理按鈕事件
-    col1, col2, col3 = st.columns(3)
-    mode = None
-    # 如果這輪有點按鈕，更新狀態
-    if mode:
-        st.session_state.selected_mode = mode
-
-    # 第二階段：渲染卡片（這時狀態已準備好，視覺效果正確）
-    with col1:
-        render_card("🔍", "單一網址分析", "分析單個網站文字與圖片",
-                    selected=(st.session_state.selected_mode == "單一網址分析"))
-    with col2:
-        render_card("📂", "批量網址分析", "上傳文字檔，分析多網站",
-                    selected=(st.session_state.selected_mode == "批量網址分析"))
-    with col3:
-        render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站",
-                    selected=(st.session_state.selected_mode == "關鍵字搜尋分析"))
     
-    # 根據選擇顯示內容（例）
+        if btn_clicked:
+            st.session_state.selected_mode = title
+    
+    # 藍色橫幅
+    st.markdown("""
+    <style>
+    .banner-text {
+        background-color: #0052cc;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        padding: 10px;
+        border-radius: 6px;
+        margin: 10px 0px;
+    }
+    </style>
+    <div class="banner-text">請選擇分析模式</div>
+    """, unsafe_allow_html=True)
+    
+    # 三欄按鈕
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        render_card("card1", "🔍", "單一網址分析", "分析單個網站文字與圖片")
+    with col2:
+        render_card("card2", "📂", "批量網址分析", "上傳文字檔，分析多網站")
+    with col3:
+        render_card("card3", "🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站")
+    
+    # 顯示選取結果
     if st.session_state.selected_mode:
         st.success(f"✅ 你選擇的是：{st.session_state.selected_mode}")
     if mode:
