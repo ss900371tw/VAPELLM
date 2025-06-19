@@ -599,7 +599,7 @@ def main():
         shadow = "0 0 20px #3EB489" if selected else "0 0 8px rgba(0,0,0,0.3)"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        return f"""
+        html = f"""
         <div style="
             background-color: {bg};
             color: white;
@@ -614,7 +614,8 @@ def main():
             <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 0.3rem;">{title}</div>
             <div style="font-size: 0.9rem; margin-bottom: 1rem; color: #cccccc;">{desc}</div>
         </div>
-        """, key  # return both HTML and the key for button
+        """
+        return html
     
     # 處理 POST 選擇
     selected_key = st.experimental_get_query_params().get("select_mode", [None])[0]
