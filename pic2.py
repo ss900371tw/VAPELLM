@@ -671,37 +671,44 @@ def main():
             # 自訂按鈕樣式讓它貼齊 text_input 高度
             
             # CSS：美化按鈕與輸入框容器
+            # --- 自訂樣式 ---
             st.markdown("""
-<style>
-/* ✅ 只針對含有按鈕的欄位內部，垂直置中 */
-div[data-testid="column"] div:has(button) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* ✅ 自訂按鈕樣式 */
+            <style>
+            /* ✅ 只針對含有按鈕的欄位內部，垂直置中 */
+            div[data-testid="column"] div:has(button) {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* ✅ 自訂按鈕樣式 */
             div[data-testid="column"] button {
                 height: 40px;
-                width: 48px;
-                font-size: 22px;
+                width: 60px;
+                font-size: 20px;
                 background-color: #3EB489;
                 color: white;
-                height: 36px; 
                 border-radius: 10px;
                 border: 2px solid #ff5f5f;
                 padding: 0;
             }
             </style>
             """, unsafe_allow_html=True)
-            with st.container():
+            
+            # --- 表單輸入區塊 ---
+            with st.form("url_input_form"):
                 col1, col2 = st.columns([6, 1])
-            
+                
                 with col1:
-                    url = st.text_input("", placeholder="請輸入網址：")
-            
+                    url = st.text_input("", placeholder="請輸入網址：", label_visibility="collapsed")
+                
                 with col2:
-                    go = st.button("確定")  # ✅ 正常返回 True/False
+                    submitted = st.form_submit_button("確定")
+            
+                if submitted and url.strip():
+                    st.success(f"✅ 你輸入的網址是：{url}")
+                elif submitted:
+                    st.warning("⚠️ 請輸入有效網址")
             
 
             # 分析邏輯
