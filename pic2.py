@@ -571,47 +571,37 @@ def main():
     # 顯示卡片
     
     def render_card(icon, title, desc, key):
-        # 初始化 session_state
-        if "selected_mode" not in st.session_state:
-            st.session_state.selected_mode = None
+        selected = st.session_state.get("selected_mode") == title
     
-        selected = st.session_state.selected_mode == title
         border = "4px solid #3EB489" if selected else "1px solid #999999"
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
         with st.container():
-            col1, col2 = st.columns([1, 4])
-            with col1:
-                st.markdown(f"""
-                    <div style="
-                        font-size: 2rem;
-                        text-align: center;
-                        color: white;
-                    ">{icon}</div>
-                """, unsafe_allow_html=True)
+            # 用空字串佔位，讓 button 出現在 HTML block 裡
+            st.markdown(f"""
+            <div style="
+                background-color: {bg};
+                color: white;
+                border-radius: 16px;
+                border: {border};
+                box-shadow: {shadow};
+                padding: 1.5rem;
+                text-align: center;
+                margin-bottom: 0.5rem;
+            ">
+                <div style="font-size: 2rem;">{icon}</div>
+                <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+                <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
+            """, unsafe_allow_html=True)
     
-            with col2:
-                st.markdown(f"""
-                    <div style="
-                        background-color: {bg};
-                        color: white;
-                        border-radius: 16px;
-                        border: {border};
-                        box-shadow: {shadow};
-                        padding: 1rem;
-                        margin-bottom: 0.5rem;
-                    ">
-                        <div style="font-size: 1.2rem; font-weight: bold;">{title}</div>
-                        <div style="font-size: 0.9rem; color: #ccc;">{desc}</div>
-                    </div>
-                """, unsafe_allow_html=True)
-    
-            # 將按鈕加在卡片下方
+            # 真正的 Streamlit 按鈕：渲染在卡片內部
             if st.button("選擇", key=f"{key}_button"):
                 st.session_state.selected_mode = title
-
     
+            # 關閉卡片區塊
+            st.markdown("</div>", unsafe_allow_html=True)
+
 
                     
 
