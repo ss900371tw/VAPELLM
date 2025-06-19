@@ -600,46 +600,50 @@ def main():
     
             st.markdown("</div>", unsafe_allow_html=True)
 
-    def render_card(icon, title, desc, key):
-        # 如果本輪點了這顆按鈕，就設定這張卡片為被選取狀態
-        if st.button("選擇", key=f"{key}_button"):
-            st.session_state.selected_mode = title
-    
-        # 根據 session_state 判斷當前這張卡片是否被選中
-        selected = st.session_state.get("selected_mode") == title
-    
+    def render_card(icon, title, desc, selected):
         border = "4px solid #3EB489" if selected else "1px solid #999999"
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        with st.container():
-            st.markdown(f"""
-            <div style="
-                background-color: {bg};
-                color: white;
-                border-radius: 16px;
-                border: {border};
-                box-shadow: {shadow};
-                padding: 1.5rem;
-                text-align: center;
-                margin-bottom: 0.5rem;
-            ">
-                <div style="font-size: 2rem;">{icon}</div>
-                <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-                <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
-            </div>
-            """, unsafe_allow_html=True)
+        st.markdown(f"""
+        <div style="
+            background-color: {bg};
+            color: white;
+            border-radius: 16px;
+            border: {border};
+            box-shadow: {shadow};
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        ">
+            <div style="font-size: 2rem;">{icon}</div>
+            <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
+        </div>
+        """, unsafe_allow_html=True)
                         
 
     # 模式選擇
     st.markdown("## 📌 請選擇分析模式")
     col1, col2, col3 = st.columns(3)
+
     with col1:
-        render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片", "card1")
+        if st.button("選擇", key="btn_single"):
+            st.session_state.selected_mode = "單一網址分析"
+        render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片",
+                    selected=(st.session_state.get("selected_mode") == "單一網址分析"))
+
     with col2:
-        render_card("📂", "批量網址分析", "上傳文字檔，分析多個網站", "card2")
+        if st.button("選擇", key="btn_batch"):
+            st.session_state.selected_mode = "批量網址分析"
+        render_card("📂", "批量網址分析", "上傳文字檔，一次分析多個網站",
+                    selected=(st.session_state.get("selected_mode") == "批量網址分析"))
+
     with col3:
-        render_card("📝", "關鍵字搜尋分析", "根據關鍵字爬蟲分析", "card3")
+        if st.button("選擇", key="btn_auto"):
+            st.session_state.selected_mode = "關鍵字搜尋分析"
+        render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站",
+                    selected=(st.session_state.get("selected_mode") == "關鍵字搜尋分析"))
 
 
     # 顯示選擇模式
