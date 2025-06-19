@@ -606,9 +606,9 @@ def main():
             mode = "🌐 GOOGLE 自動搜尋 & 分析"
             st.session_state.mode = mode
 
-# 若尚未選擇但之前選過，從 session state 恢復
-if mode is None:
-    mode = st.session_state.get("mode", None)
+    # 若尚未選擇但之前選過，從 session state 恢復
+    if mode is None:
+        mode = st.session_state.get("mode", None)
 
 if mode:
     st.markdown(f"### 🎯 選擇模式：**{mode}**")
