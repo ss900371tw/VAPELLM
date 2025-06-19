@@ -601,12 +601,11 @@ def main():
             st.markdown("</div>", unsafe_allow_html=True)
 
     def render_card(icon, title, desc, key):
-        # 如果本輪點了這顆按鈕，就直接設定選擇狀態（優先於 session_state）
-        clicked = st.button("選擇", key=f"{key}_button")
-        if clicked:
+        # 如果本輪點了這顆按鈕，就設定這張卡片為被選取狀態
+        if st.button("選擇", key=f"{key}_button"):
             st.session_state.selected_mode = title
     
-        # 重新根據最新狀態確認是否選取中
+        # 根據 session_state 判斷當前這張卡片是否被選中
         selected = st.session_state.get("selected_mode") == title
     
         border = "4px solid #3EB489" if selected else "1px solid #999999"
