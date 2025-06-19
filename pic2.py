@@ -723,9 +723,9 @@ def main():
                     submitted = st.form_submit_button("確定")            
 
             # 分析邏輯
-                    if submitted:
-                        if not url.strip():
-                            st.markdown("""
+                if submitted:
+                    if not url.strip():
+                        st.markdown("""
         <div style="
             background-color: #fff3cd;
             color: #856404;
@@ -737,7 +737,7 @@ def main():
         ⚠️ 請輸入有效網址
         </div>
         """, unsafe_allow_html=True)
-                            return
+                        return
         
                 st.markdown(f"<h3 style='color:white;'>🔍 正在分析：<a href='{url}'>{url}</a></h3>", unsafe_allow_html=True)
 
