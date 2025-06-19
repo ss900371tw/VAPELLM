@@ -570,42 +570,49 @@ def main():
 
     # 顯示卡片
 
-    def render_card(icon, title, desc, key, selected):
+    def render_card(icon, title, desc, selected):
         border = "4px solid #3EB489" if selected else "1px solid #999999"
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        button_html = f"""
-            <div style="
-                background-color: {bg};
-                color: white;
-                border-radius: 16px;
-                border: {border};
-                box-shadow: {shadow};
-                padding: 1.5rem;
-                text-align: center;
-                margin-bottom: 0.5rem;
-                cursor: pointer;
-            " onclick="document.getElementById('{key}').click()">
-                <div style="font-size: 2rem;">{icon}</div>
-                <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-                <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
-            </div>
-        """
-    
-        # 隱藏真正的 Streamlit 按鈕，讓 HTML 點擊時觸發它
-        btn = st.button("選擇", key=key)
         st.markdown(f"""
-            <div style="display:none">
-                <form>
-                    <input type="submit" id="{key}">
-                </form>
-            </div>
+        <div style="
+            background-color: {bg};
+            color: white;
+            border-radius: 16px;
+            border: {border};
+            box-shadow: {shadow};
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        ">
+            <div style="font-size: 2rem;">{icon}</div>
+            <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
+        </div>
         """, unsafe_allow_html=True)
-        st.markdown(button_html, unsafe_allow_html=True)
-        
-        return btn
 
+                        
+
+    # 模式選擇
+    st.markdown("""
+<style>
+.banner-text {
+    background-color: #0052cc;  /* 深藍色 */
+    color: white;               /* 白字 */
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    border-radius: 6px;
+    margin: 10px 0px;
+}
+</style>
+
+<div class="banner-text">
+請選擇分析模式
+</div>
+""", unsafe_allow_html=True)
 
     if "selected_mode" not in st.session_state:
         st.session_state.selected_mode = None
@@ -613,17 +620,20 @@ def main():
     # 集中處理按鈕事件
     col1, col2, col3 = st.columns(3)
     mode = None
+    # 如果這輪有點按鈕，更新狀態
+    if mode:
+        st.session_state.selected_mode = mode
+
+    # 第二階段：渲染卡片（這時狀態已準備好，視覺效果正確）
     with col1:
-        if render_card("🔍", "單一網址分析", "分析單個網站文字與圖片", "card_single", selected=(st.session_state.selected_mode == "單一網址分析")):
-            st.session_state.selected_mode = "單一網址分析"
-    
+        render_card("🔍", "單一網址分析", "分析單個網站文字與圖片",
+                    selected=(st.session_state.selected_mode == "單一網址分析"))
     with col2:
-        if render_card("📂", "批量網址分析", "上傳文字檔，分析多網站", "card_batch", selected=(st.session_state.selected_mode == "批量網址分析")):
-            st.session_state.selected_mode = "批量網址分析"
-    
+        render_card("📂", "批量網址分析", "上傳文字檔，分析多網站",
+                    selected=(st.session_state.selected_mode == "批量網址分析"))
     with col3:
-        if render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站", "card_auto", selected=(st.session_state.selected_mode == "關鍵字搜尋分析")):
-            st.session_state.selected_mode = "關鍵字搜尋分析"
+        render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站",
+                    selected=(st.session_state.selected_mode == "關鍵字搜尋分析"))
 
     if mode:
         st.markdown(f"""
