@@ -1112,7 +1112,7 @@ div[role="status"] > div > span {
     
                 # 總結與下載
                 st.markdown("---")
-                st.subheader("📋 分析總結")
+                st.markdown("<h2 style='color:white;'>📋 分析總結</h2>", unsafe_allow_html=True)
     
                 if high_risk_urls:
                     st.warning(f"⚠️ 偵測到高風險網址：{len(high_risk_urls)} 筆")
