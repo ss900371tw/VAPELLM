@@ -570,7 +570,11 @@ def main():
         }
     </style>
 """, unsafe_allow_html=True)
-    st.markdown(" 🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站")
+    st.markdown("""
+<h1 style='text-align: center; color: #00FFFF; font-weight: bold; letter-spacing: 2px;'>
+🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站 
+</h1>
+""")
     
     llm_text = ChatOpenAI(api_key=openai_api_key, model="gpt-4o", temperature=0)
     llm_image = ChatOpenAI(api_key=openai_api_key, model="gpt-4.1", temperature=0)
