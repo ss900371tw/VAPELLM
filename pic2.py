@@ -571,7 +571,7 @@ def main():
     </style>
 """, unsafe_allow_html=True)
     st.markdown("""
-<p style='text-align: center; font-size: 20px; font-weight: normal; letter-spacing: 0.5px;'>
+<p style='text-align: center; font-size: 24px; font-weight: normal; letter-spacing: 0.5px;'>
 🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站
 </p>
 """, unsafe_allow_html=True)
