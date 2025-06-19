@@ -730,6 +730,7 @@ def main():
                     ⚠️ 請輸入有效網址
                     </div>
                     """, unsafe_allow_html=True)
+                    return
                 else:
                     st.markdown(f"<h3 style='color:white;'>🔍 正在分析：<a href='{url}' target='_blank'>{url}</a></h3>", unsafe_allow_html=True)
                     st.markdown("<p style='color:white;'>⏳ 正在讀取網站內容與圖片...</p>", unsafe_allow_html=True)
