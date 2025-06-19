@@ -804,11 +804,15 @@ div[data-testid="column"] div:has(button) {
 /* 將所有 Streamlit 標籤文字（例如 file_uploader）設為白色 */
 label, .stFileUploader label {
     color: white !important;
+section[data-testid="stFileUploader"] div[aria-label] p {
+    color: white !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
+
 # 檔案上傳元件
+
             uploaded_file = st.file_uploader("請上傳 .txt 檔案（每行一個網址）", type=["txt"])
     
             if st.button("🚀 開始批次分析"):
