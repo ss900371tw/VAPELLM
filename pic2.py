@@ -719,17 +719,7 @@ def main():
     
     if mode:    
         if "單一網址分析" in mode:
-            st.markdown("""
-<style>
-/* 調整 text_input 的 label 文字為白色 */
-div[data-baseweb="input"] > div:first-child label {
-    color: white !important;
-    font-weight: bold;
-}
-</style>
-""", unsafe_allow_html=True)
-
-            url = st.text_input("請輸入網址：")
+            url = st.text_input("", placeholder="請輸入網址：")
     
             if st.button("🚀 開始分析"):
                 if not url.strip():
