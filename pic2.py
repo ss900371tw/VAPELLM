@@ -584,10 +584,7 @@ def main():
     # -------------------- 模式選擇區塊（美化） --------------------
     st.markdown("""
 <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;">
-    <h4 style="margin-bottom:0.5rem;">🎛️ 模式選擇</h4>
-    <p style="margin:0;">
-    請選擇分析模式
-    </p>
+    <h4 style="margin-bottom:0.5rem;">🎛️ 請選擇分析模式</h4>
 </div>
 """, unsafe_allow_html=True)
     
