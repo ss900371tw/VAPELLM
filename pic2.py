@@ -738,9 +738,11 @@ def main():
                     st.warning("⚠️ 請輸入有效網址")
                     return
     
-                st.markdown(f"### 🔍 正在分析：[{url}]({url})")
+                st.markdown(f"<h3 style='color:white;'>🔍 正在分析：<a href='{url}' style='color:#3EB489;'>{url}</a></h3>", unsafe_allow_html=True)
     
-                with st.spinner("⏳ 正在讀取網站內容與圖片..."):
+                st.markdown("<p style='color:white;'>⏳ 正在讀取網站內容與圖片...</p>", unsafe_allow_html=True)
+
+                with st.spinner(" "): 
                     text_content = crawl_all_text(url)
                     text_result = chain.invoke(text_content)
     
@@ -783,7 +785,7 @@ def main():
     
     
                 st.markdown("---")
-                st.subheader("📋 綜合結論")
+                st.markdown("<h3 style='color:white;'>📋 綜合結論</h3>", unsafe_allow_html=True)
                 if "(1)" in text_result and flagged_images > 0:
                     st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
                 if "(1)" in text_result:
