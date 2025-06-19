@@ -637,16 +637,14 @@ def main():
     if clicked_mode:
         st.markdown(f"""
         <div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
-            <h4 style="margin-bottom:0rem;">🎯 目前選擇的模式：<span style="color:#3EB489;">{mode}</span></h4>
+            <h4 style="margin-bottom:0rem;">🎯 目前選擇的模式：<span style="color:#3EB489;">`{st.session_state.selected_mode}`</span></h4>
         </div>
         """, unsafe_allow_html=True)
     else:
         st.info("👉 請點選上方卡片來選擇模式")
     
-    if clicked_mode:
-        st.markdown(f"### 🎯 選擇模式：**{mode}**")
-    
-        if "單一網址分析" in mode:
+    if clicked_mode:    
+        if "單一網址分析" in clicked_mode:
             st.markdown("### 🔗 單一網址分析")
             url = st.text_input("請輸入網址：")
     
@@ -708,7 +706,7 @@ def main():
                 else:
                     st.success("✅ 安全網站：未偵測出高風險內容")
     
-        elif "批量網址分析" in mode:
+        elif "批量網址分析" in clicked_mode:
             st.markdown("### 📂 批量網址分析")
             uploaded_file = st.file_uploader("請上傳 .txt 檔案（每行一個網址）", type=["txt"])
     
