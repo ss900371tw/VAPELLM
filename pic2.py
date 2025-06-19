@@ -992,7 +992,11 @@ div[role="status"] > div > span {
                     found = google_search(kw, count=limit)
                     all_urls.extend([url for url in found if url not in all_urls])
     
-                st.write(f"📥 總共取得 {len(all_urls)} 個原始網址")
+                st.markdown(f"""
+<p style="color:white; font-size:1rem;">
+📥 總共取得 <strong>{len(all_urls)}</strong> 個原始網址
+</p>
+""", unsafe_allow_html=True)
     
                 # 過濾黑名單
                 filtered_urls = [url for url in all_urls if not is_blacklisted_url(url)]
