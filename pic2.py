@@ -577,10 +577,10 @@ def main():
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        # 顯示卡片樣式
-        card_html = f"""
+        # 自訂樣式
+        st.markdown(f"""
         <style>
-        #{key}_button {{
+        div[data-testid="stButton"] > button#{key} {{
             background-color: {bg};
             color: white;
             border-radius: 16px;
@@ -589,30 +589,22 @@ def main():
             padding: 1.5rem;
             height: 220px;
             width: 100%;
-            text-align: center;
             font-size: 1rem;
             white-space: normal;
             transition: all 0.2s ease;
         }}
-        #{key}_button:hover {{
+        div[data-testid="stButton"] > button#{key}:hover {{
             transform: scale(1.02);
             box-shadow: 0 0 25px #3EB489;
             cursor: pointer;
         }}
         </style>
+        """, unsafe_allow_html=True)
     
-        <button id="{key}_button" onclick="fetch('', {{method: 'POST'}}).then(() => window.location.href='#{key}_trigger')">
-            <div style="font-size: 2rem;">{icon}</div>
-            <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
-        </button>
-        """
-        st.markdown(card_html, unsafe_allow_html=True)
-    
-        # 真正觸發事件的按鈕，不顯示出來
-        trigger = st.empty()
-        if trigger.button("trigger", key=f"{key}_trigger", help=""):
+        # 實際可點按鈕（整塊）
+        if st.button(f"{icon}\n{title}\n{desc}", key=key):
             st.session_state.selected_mode = title
+    
 
                         
 
