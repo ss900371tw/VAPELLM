@@ -570,14 +570,13 @@ def main():
         st.session_state.selected_mode = None
 
     # 顯示卡片
-
+    
     def render_card(icon, title, desc, key):
         selected = st.session_state.get("selected_mode") == title
         border = "4px solid #3EB489" if selected else "1px solid #999999"
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        # 自訂樣式
         st.markdown(f"""
         <style>
         div[data-testid="stButton"] > button#{key} {{
@@ -601,9 +600,10 @@ def main():
         </style>
         """, unsafe_allow_html=True)
     
-        # 實際可點按鈕（整塊）
+        # 按鈕 + 立即 rerun
         if st.button(f"{icon}\n{title}\n{desc}", key=key):
             st.session_state.selected_mode = title
+            st.rerun()
     
 
                         
