@@ -596,8 +596,23 @@ def main():
 
     # 模式選擇
     st.markdown("""
-    <p style='text-align:center; font-size: 24px; color: white;'>📌 請選擇分析模式</p>
-    """, unsafe_allow_html=True)
+<style>
+.banner-text {
+    background-color: #0052cc;  /* 深藍色 */
+    color: white;               /* 白字 */
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    border-radius: 6px;
+    margin: 10px 0px;
+}
+</style>
+
+<div class="banner-text">
+請選擇分析模式
+</div>
+""", unsafe_allow_html=True)
 
     if "selected_mode" not in st.session_state:
         st.session_state.selected_mode = None
