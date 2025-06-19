@@ -925,7 +925,7 @@ div[role="status"] > div > span {
 </div>
 """, unsafe_allow_html=True)
                 st.markdown("---")
-                st.subheader("📋 批次分析總結")
+                st.markdown("<h3 style='color:white;'>📋 批次分析總結</h3>", unsafe_allow_html=True)
                 
                 if high_risk_urls:
                     st.markdown(f"<h3 style='color:white;'>⚠️ 共偵測到高風險網址 {len(high_risk_urls)} 筆", unsafe_allow_html=True)
@@ -941,11 +941,28 @@ div[role="status"] > div > span {
     
         else:
             # 輸入關鍵字
+            # 自訂文字顏色為白色
+            st.markdown("""
+            <style>
+            /* 調整 text_area 與 number_input 的標籤文字為白色 */
+            label, .stTextArea label, .stNumberInput label {
+                color: white !important;
+            }
+            
+            /* 調整輸入框中文字為白色，背景為深色（可視需求調整） */
+            textarea, input[type="number"] {
+                color: white !important;
+                background-color: #1a1f2b !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            # UI 元件
             keywords_text = st.text_area(
                 "🔤 請輸入搜尋關鍵字（每行一個）",
                 "vape\ne-juice\ne-cigarette\n電子煙"
             )
-    
+            
             limit = st.number_input("🔢 每個關鍵字最多擷取幾組網址？", min_value=1, max_value=50, value=10)
     
             if st.button("🚀 執行 Google 搜尋並分析"):
