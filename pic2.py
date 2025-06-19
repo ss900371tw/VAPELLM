@@ -672,20 +672,37 @@ def main():
             
             # CSS：美化按鈕與輸入框容器
             # --- 自訂樣式 ---
+
             st.markdown("""
             <style>
-            /* ✅ 只針對含有按鈕的欄位內部，垂直置中 */
+            /* ✅ 按鈕所在欄垂直置中 */
             div[data-testid="column"] div:has(button) {
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
             
+            /* ✅ 輸入框所在欄也垂直置中 */
+            div[data-testid="column"] div:has(input) {
+                display: flex;
+                align-items: center;
+                height: 100%;  /* 讓它撐滿欄位高度 */
+            }
+            
+            /* ✅ 自訂輸入框本身的高度與樣式 */
+            input[type="text"] {
+                height: 40px;
+                font-size: 16px;
+                padding: 6px 10px;
+                border-radius: 8px;
+                border: 1.5px solid #ccc;
+            }
+            
             /* ✅ 自訂按鈕樣式 */
             div[data-testid="column"] button {
                 height: 40px;
                 width: 60px;
-                font-size: 20px;
+                font-size: 18px;
                 background-color: #3EB489;
                 color: white;
                 border-radius: 10px;
