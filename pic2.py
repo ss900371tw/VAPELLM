@@ -571,6 +571,15 @@ def main():
     # 顯示卡片
     
     def render_card(icon, title, desc, key):
+        # 這一輪 render 的選取狀態會立即更新
+        if f"{key}_clicked" not in st.session_state:
+            st.session_state[f"{key}_clicked"] = False
+    
+        if st.button("選擇", key=f"{key}_button"):
+            st.session_state.selected_mode = title
+            st.session_state[f"{key}_clicked"] = True  # 可用來記錄首次點擊
+    
+        # 立即讀取目前是否選取中
         selected = st.session_state.get("selected_mode") == title
     
         border = "4px solid #3EB489" if selected else "1px solid #999999"
@@ -592,13 +601,8 @@ def main():
                 <div style="font-size: 2rem;">{icon}</div>
                 <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
                 <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
+            </div>
             """, unsafe_allow_html=True)
-    
-            if st.button("選擇", key=f"{key}_button"):
-                st.session_state.selected_mode = title
-                st.rerun()  # ✅ 正確的強制 refresh 方法（新版 Streamlit）
-    
-            st.markdown("</div>", unsafe_allow_html=True)
 
         
             
