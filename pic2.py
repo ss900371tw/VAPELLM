@@ -596,7 +596,7 @@ def main():
 
     # 模式選擇
     st.markdown("""
-    <p style='text-align:center; font-size: 24px; color: white;'>## 📌 請選擇分析模式</p>
+    <p style='text-align:center; font-size: 24px; color: white;'>📌 請選擇分析模式</p>
     """, unsafe_allow_html=True)
 
     if "selected_mode" not in st.session_state:
