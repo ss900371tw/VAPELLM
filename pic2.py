@@ -721,17 +721,10 @@ def main():
         if "單一網址分析" in mode:
             st.markdown("""
 <style>
-/* 調整 text input 的字體顏色和背景 */
-input[type="text"] {
+/* 調整 text_input 的 label 文字為白色 */
+div[data-baseweb="input"] > div:first-child label {
     color: white !important;
-    background-color: #1a1f2b !important;
-    border: 1px solid #3EB489;
-}
-
-/* 調整 placeholder 文字為白色 */
-input[type="text"]::placeholder {
-    color: white !important;
-    opacity: 0.7;
+    font-weight: bold;
 }
 </style>
 """, unsafe_allow_html=True)
