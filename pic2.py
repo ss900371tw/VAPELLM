@@ -672,15 +672,15 @@ def main():
             
             # CSS：美化按鈕與輸入框容器
             st.markdown("""
-            <style>
-            /* 讓右側 container（按鈕）垂直置中 */
-            div[data-testid="column"] div:has(button) {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            /* 美化按鈕樣式 */
+<style>
+/* ✅ 只針對含有按鈕的欄位內部，垂直置中 */
+div[data-testid="column"] div:has(button) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ✅ 自訂按鈕樣式 */
             div[data-testid="column"] button {
                 height: 40px;
                 width: 48px;
@@ -689,16 +689,10 @@ def main():
                 color: white;
                 border-radius: 10px;
                 border: 2px solid #ff5f5f;
-            }
-            
-            /* 美化輸入框邊框（選配） */
-            input {
-                border: 2px solid #ff5f5f !important;
-                border-radius: 10px !important;
+                padding: 0;
             }
             </style>
             """, unsafe_allow_html=True)
-
             with st.container():
                 col1, col2 = st.columns([6, 1])
             
