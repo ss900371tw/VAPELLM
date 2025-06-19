@@ -613,19 +613,8 @@ def main():
             <div style="font-size: 2rem; margin-bottom: 0.5rem;">{icon}</div>
             <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 0.3rem;">{title}</div>
             <div style="font-size: 0.9rem; margin-bottom: 1rem; color: #cccccc;">{desc}</div>
-            <form action="" method="post">
-                <button name="select_mode" value="{key}" style="
-                    background-color: #3EB489;
-                    color: white;
-                    border: none;
-                    border-radius: 8px;
-                    padding: 0.4rem 1.2rem;
-                    font-size: 0.95rem;
-                    cursor: pointer;
-                ">選擇</button>
-            </form>
         </div>
-        """
+        """, key  # return both HTML and the key for button
     
     # 處理 POST 選擇
     selected_key = st.experimental_get_query_params().get("select_mode", [None])[0]
@@ -635,14 +624,25 @@ def main():
     mode = st.session_state.selected_mode
     
     col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown(render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片", "單一網址分析", mode == "單一網址分析"), unsafe_allow_html=True)
-    with col2:
-        st.markdown(render_card("📂", "批量網址分析", "上傳文字檔，一次分析多個網站", "批量網址分析", mode == "批量網址分析"), unsafe_allow_html=True)
-    with col3:
-        st.markdown(render_card("📝", "關鍵字搜尋分析", "根據關鍵字自動搜尋並分析網站", "GOOGLE 自動搜尋 & 分析", mode == "GOOGLE 自動搜尋 & 分析"), unsafe_allow_html=True)
     
-    # 顯示目前選擇
+    with col1:
+        html, key = render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片", "單一網址分析", mode == "單一網址分析")
+        st.markdown(html, unsafe_allow_html=True)
+        if st.button("選擇", key="btn1"):
+            st.session_state.selected_mode = key
+    
+    with col2:
+        html, key = render_card("📂", "批量網址分析", "上傳文字檔，一次分析多個網站", "批量網址分析", mode == "批量網址分析")
+        st.markdown(html, unsafe_allow_html=True)
+        if st.button("選擇", key="btn2"):
+            st.session_state.selected_mode = key
+    
+    with col3:
+        html, key = render_card("📝", "關鍵字搜尋分析", "根據關鍵字自動搜尋並分析網站", "GOOGLE 自動搜尋 & 分析", mode == "GOOGLE 自動搜尋 & 分析")
+        st.markdown(html, unsafe_allow_html=True)
+        if st.button("選擇", key="btn3"):
+            st.session_state.selected_mode = key
+        # 顯示目前選擇
     if mode:
         st.markdown(f"""
         <div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
