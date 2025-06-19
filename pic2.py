@@ -596,7 +596,7 @@ def main():
     
             if st.button("選擇", key=f"{key}_button"):
                 st.session_state.selected_mode = title
-                st.experimental_rerun()  # ✅ 強制立即重新 render！
+                st.rerun()  # ✅ 正確的強制 refresh 方法（新版 Streamlit）
     
             st.markdown("</div>", unsafe_allow_html=True)
 
