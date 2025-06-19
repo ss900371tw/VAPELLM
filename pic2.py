@@ -630,7 +630,7 @@ def main():
     if mode:
         st.markdown(f"""
         <div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
-            <h4 style="margin-bottom:0rem;">🎯 目前選擇的模式：<span style="color:#3EB489;">`{st.session_state.selected_mode}`</span></h4>
+            <h4 style="margin-bottom:0rem;">🎯 目前選擇的模式：<span style="color:#3EB489;">{st.session_state.selected_mode}</span></h4>
         </div>
         """, unsafe_allow_html=True)
     else:
