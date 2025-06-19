@@ -627,12 +627,6 @@ def main():
         render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站",
                     selected=(st.session_state.selected_mode == "關鍵字搜尋分析"))
 
-    # 顯示目前選擇
-    if st.session_state.selected_mode:
-        st.markdown(f"### 🎯 目前選擇的模式：`{st.session_state.selected_mode}`")
-
-
-    
     if mode:
         st.markdown(f"""
         <div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
