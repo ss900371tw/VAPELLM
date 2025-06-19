@@ -570,35 +570,24 @@ def main():
         }
     </style>
 """, unsafe_allow_html=True)
+
     st.markdown("""
 <p style='text-align: center; font-size: 24px; font-weight: normal; letter-spacing: 0.5px;'>
 🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站
 </p>
 """, unsafe_allow_html=True)
-    
-    llm_text = ChatOpenAI(api_key=openai_api_key, model="gpt-4o", temperature=0)
-    llm_image = ChatOpenAI(api_key=openai_api_key, model="gpt-4.1", temperature=0)
-    parser = StrOutputParser()
-    chain = prompt | llm_text | parser
 
-    # -------------------- 模式選擇區塊（美化） --------------------
-    st.markdown("""
-<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;">
-    <h4 style="margin-bottom:0.5rem;">🎛️ 請選擇分析模式</h4>
-</div>
-""", unsafe_allow_html=True)
-    
-    # -------------------- 模式選擇區塊（卡片樣式） --------------------
-    st.markdown("## 📌 請選擇分析模式", unsafe_allow_html=True)
-    
     if "selected_mode" not in st.session_state:
         st.session_state.selected_mode = None
-    
+
+    def select_mode_and_rerun(mode_value):
+        st.session_state.selected_mode = mode_value
+        st.experimental_rerun()
+
     def render_card(icon, title, desc, selected):
         border = "4px solid #3EB489" if selected else "1px solid rgba(255,255,255,0.1)"
         shadow = "0 0 20px #3EB489" if selected else "0 0 8px rgba(0,0,0,0.3)"
         bg = "#0c1b2a" if selected else "#1a1f2b"
-    
         return f"""
         <div style="
             background-color: {bg};
@@ -615,32 +604,34 @@ def main():
             <div style="font-size: 0.9rem; margin-bottom: 1rem; color: #cccccc;">{desc}</div>
         </div>
         """
-    
-    # 處理 POST 選擇
-    selected_key = st.experimental_get_query_params().get("select_mode", [None])[0]
-    if selected_key:
-        st.session_state.selected_mode = selected_key
-    
-    mode = st.session_state.selected_mode
-    
-    col1, col2, col3 = st.columns(3)
 
+    # -------------------- 模式選擇區塊 --------------------
+    st.markdown("""
+<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;">
+    <h4 style="margin-bottom:0.5rem;">🎛️ 請選擇分析模式</h4>
+</div>
+""", unsafe_allow_html=True)
+
+    st.markdown("## 📌 請選擇分析模式", unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown(render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片", st.session_state.selected_mode == "單一網址分析"), unsafe_allow_html=True)
         if st.button("選擇", key="btn_單一"):
-            st.session_state.selected_mode = "單一網址分析"
-    
+            select_mode_and_rerun("單一網址分析")
+
     with col2:
         st.markdown(render_card("📂", "批量網址分析", "上傳文字檔，一次分析多個網站", st.session_state.selected_mode == "批量網址分析"), unsafe_allow_html=True)
         if st.button("選擇", key="btn_批量"):
-            st.session_state.selected_mode = "批量網址分析"
-    
+            select_mode_and_rerun("批量網址分析")
+
     with col3:
         st.markdown(render_card("📝", "關鍵字搜尋分析", "根據關鍵字搜尋網站", st.session_state.selected_mode == "GOOGLE 自動搜尋 & 分析"), unsafe_allow_html=True)
         if st.button("選擇", key="btn_搜尋"):
-            st.session_state.selected_mode = "GOOGLE 自動搜尋 & 分析"
-        
-        # 顯示目前選擇
+            select_mode_and_rerun("GOOGLE 自動搜尋 & 分析")
+
+    # -------------------- 顯示目前模式 --------------------
+    mode = st.session_state.selected_mode
     if mode:
         st.markdown(f"""
         <div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
