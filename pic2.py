@@ -601,7 +601,12 @@ def main():
             st.markdown("</div>", unsafe_allow_html=True)
 
     def render_card(icon, title, desc, key):
-        # 檢查是否選取中
+        # 如果本輪點了這顆按鈕，就直接設定選擇狀態（優先於 session_state）
+        clicked = st.button("選擇", key=f"{key}_button")
+        if clicked:
+            st.session_state.selected_mode = title
+    
+        # 重新根據最新狀態確認是否選取中
         selected = st.session_state.get("selected_mode") == title
     
         border = "4px solid #3EB489" if selected else "1px solid #999999"
@@ -623,15 +628,9 @@ def main():
                 <div style="font-size: 2rem;">{icon}</div>
                 <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
                 <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
+            </div>
             """, unsafe_allow_html=True)
-    
-            # 選取按鈕（不 rerun，只改 session_state）
-            if st.button("選擇", key=f"{key}_button"):
-                st.session_state.selected_mode = title
-    
-            st.markdown("</div>", unsafe_allow_html=True)
-
-                    
+                        
 
     # 模式選擇
     st.markdown("## 📌 請選擇分析模式")
