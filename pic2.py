@@ -732,8 +732,7 @@ def main():
             if go:
                 if not url.strip():
                     st.warning("⚠️ 請輸入有效網址")
-                else:
-                    st.success(f"分析中：{url}")
+                    return
     
                 st.markdown(f"### 🔍 正在分析：[{url}]({url})")
     
