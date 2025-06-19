@@ -868,13 +868,44 @@ label, .stFileUploader label {
                     st.markdown("---")
                     # 綜合判斷
                     if "(1)" in text_result and flagged_images > 0:
-                        high_risk_urls.append(url)
-                        st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
+                        st.markdown("""
+<div style="
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #ffeeba;
+    font-size: 16px;
+">
+⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+</div>
+""", unsafe_allow_html=True)
                     if "(1)" in text_result:
-                        high_risk_urls.append(url)
-                        st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
+                        st.markdown("""
+<div style="
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #ffeeba;
+    font-size: 16px;
+">
+⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+</div>
+""", unsafe_allow_html=True)
                     else:
-                        st.success("✅ 安全網站")
+                        st.markdown("""
+<div style="
+    background-color: #d4edda;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #c3e6cb;
+    font-size: 16px;
+">
+✅ <strong>安全網站</strong>：未偵測出高風險內容
+</div>
+""", unsafe_allow_html=True)
                 st.markdown("---")
                 st.subheader("📋 批次分析總結")
                 
