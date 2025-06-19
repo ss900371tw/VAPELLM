@@ -621,6 +621,29 @@ def main():
             <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
         </div>
         """, unsafe_allow_html=True)
+
+    def render_card(icon, title, desc, selected):
+        border = "4px solid #3EB489" if selected else "1px solid #999999"
+        shadow = "0 0 20px #3EB489" if selected else "none"
+        bg = "#0c1b2a" if selected else "#1a1f2b"
+    
+        st.markdown(f"""
+        <div style="
+            background-color: {bg};
+            color: white;
+            border-radius: 16px;
+            border: {border};
+            box-shadow: {shadow};
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        ">
+            <div style="font-size: 2rem;">{icon}</div>
+            <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
                         
 
     # 模式選擇
