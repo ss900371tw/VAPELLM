@@ -971,11 +971,24 @@ div[role="status"] > div > span {
                     return
     
                 keywords_list = [kw.strip() for kw in keywords_text.split("\n") if kw.strip()]
-                st.info(f"🔍 將針對 {len(keywords_list)} 個關鍵字，各擷取 {limit} 組搜尋結果")
+                st.markdown(f"""
+<div style='
+    background-color: #1e3a5f;
+    color: white;
+    padding: 1rem;
+    border-left: 5px solid #3EB489;
+    border-radius: 5px;
+    font-size: 1rem;
+'>
+🔍 將針對 <strong>{len(keywords_list)}</strong> 個關鍵字，各擷取 <strong>{limit}</strong> 組搜尋結果
+</div>
+""", unsafe_allow_html=True)
     
                 all_urls = []
                 for kw in keywords_list:
-                    st.markdown(f"#### 🔎 搜尋關鍵字：**{kw}**")
+                    st.markdown(f"""
+<h4 style='color:white;'>🔎 搜尋關鍵字：<strong>{kw}</strong></h4>
+""", unsafe_allow_html=True)
                     found = google_search(kw, count=limit)
                     all_urls.extend([url for url in found if url not in all_urls])
     
@@ -983,12 +996,29 @@ div[role="status"] > div > span {
     
                 # 過濾黑名單
                 filtered_urls = [url for url in all_urls if not is_blacklisted_url(url)]
-                st.success(f"✅ 經過過濾後剩下 {len(filtered_urls)} 個可疑網址")
+                st.markdown(f"""
+<div style='
+    background-color: #2e7d32;
+    color: white;
+    padding: 1rem;
+    border-left: 5px solid #00c853;
+    border-radius: 5px;
+    font-size: 1rem;
+'>
+✅ 經過過濾後剩下 <strong>{len(filtered_urls)}</strong> 個可疑網址
+</div>
+""", unsafe_allow_html=True)
+
     
                 high_risk_urls = []
     
                 for idx, url in enumerate(filtered_urls, start=1):
-                    st.markdown(f"---\n### 🔗 [{idx}/{len(filtered_urls)}] 分析網址：[{url}]({url})")
+                    st.markdown(f"""
+<hr style="border-top: 1px solid white;"/>
+<h3 style="color:white;">
+🔗 [{idx}/{len(filtered_urls)}] 分析網址：<a href="{url}" target="_blank" style="color:white; text-decoration:underline;">{url}</a>
+</h3>
+""", unsafe_allow_html=True)
     
                     with st.spinner("⏳ 正在分析..."):
                         text_content = crawl_all_text(url)
@@ -1037,13 +1067,44 @@ div[role="status"] > div > span {
                     st.markdown("---")
                     # 綜合判斷
                     if "(1)" in text_result and flagged_images > 0:
-                        high_risk_urls.append(url)
-                        st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
+                        st.markdown("""
+    <div style="
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid #ffeeba;
+        font-size: 16px;
+    ">
+    ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+    </div>
+    """, unsafe_allow_html=True)
                     if "(1)" in text_result:
-                        high_risk_urls.append(url)
-                        st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
+                        st.markdown("""
+    <div style="
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid #ffeeba;
+        font-size: 16px;
+    ">
+    ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+    </div>
+    """, unsafe_allow_html=True)
                     else:
-                        st.success("✅ 安全網站")
+                        st.markdown("""
+    <div style="
+        background-color: #d4edda;
+        color: #155724;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid #c3e6cb;
+        font-size: 16px;
+    ">
+    ✅ <strong>安全網站</strong>：未偵測出高風險內容
+    </div>
+    """, unsafe_allow_html=True)
     
                 # 總結與下載
                 st.markdown("---")
@@ -1058,7 +1119,18 @@ div[role="status"] > div > span {
                         mime="text/plain"
                     )
                 else:
-                    st.success("✅ 所有搜尋結果均未偵測到高風險內容")
+                    st.markdown("""
+    <div style="
+        background-color: #d4edda;
+        color: #155724;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid #c3e6cb;
+        font-size: 16px;
+    ">
+    ✅ 所有搜尋結果均未偵測到高風險內容
+    </div>
+    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
