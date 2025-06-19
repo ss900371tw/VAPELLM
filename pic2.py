@@ -571,27 +571,45 @@ def main():
 
     # 顯示卡片
 
-    def render_card(icon, title, desc, selected):
+    def render_card(icon, title, desc, key):
+        selected = st.session_state.get("selected_mode") == title
         border = "4px solid #3EB489" if selected else "1px solid #999999"
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        st.markdown(f"""
-        <div style="
+        card_html = f"""
+        <style>
+        #{key}_button {{
             background-color: {bg};
             color: white;
             border-radius: 16px;
             border: {border};
             box-shadow: {shadow};
             padding: 1.5rem;
+            height: 220px;
+            width: 100%;
             text-align: center;
-            margin-bottom: 0.5rem;
-        ">
+            font-size: 1rem;
+            white-space: normal;
+            transition: all 0.2s ease;
+        }}
+        #{key}_button:hover {{
+            transform: scale(1.02);
+            box-shadow: 0 0 25px #3EB489;
+            cursor: pointer;
+        }}
+        </style>
+    
+        <button id="{key}_button" onclick="document.getElementById('{key}_click').click()">
             <div style="font-size: 2rem;">{icon}</div>
             <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
-        </div>
-        """, unsafe_allow_html=True)
+            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
+        </button>
+        """
+        st.markdown(card_html, unsafe_allow_html=True)
+        # 隱藏的觸發用 Streamlit 按鈕
+        if st.button("", key=f"{key}_click"):
+            st.session_state.selected_mode = title
 
                         
 
@@ -620,27 +638,18 @@ def main():
 
     # 集中處理按鈕事件
     col1, col2, col3 = st.columns(3)
-    mode = None
-    # 如果這輪有點按鈕，更新狀態
-    if mode:
-        st.session_state.selected_mode = mode
-
-    # 第二階段：渲染卡片（這時狀態已準備好，視覺效果正確）
     with col1:
-        render_card("🔍", "單一網址分析", "分析單個網站文字與圖片",
-                    selected=(st.session_state.selected_mode == "單一網址分析"))
+        render_card("🔍", "單一網址分析", "分析單個網站文字與圖片", key="single")
     with col2:
-        render_card("📂", "批量網址分析", "上傳文字檔，分析多網站",
-                    selected=(st.session_state.selected_mode == "批量網址分析"))
+        render_card("📂", "批量網址分析", "上傳文字檔，分析多網站", key="batch")
     with col3:
-        render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站",
-                    selected=(st.session_state.selected_mode == "關鍵字搜尋分析"))
-
-
+        render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站", key="search")
+    
+    mode = st.session_state.get("selected_mode")
     if mode:
         st.markdown(f"""
         <div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
-            <h4 style="margin-bottom:0rem;">🎯 目前選擇的模式：<span style="color:#3EB489;">{st.session_state.selected_mode}</span></h4>
+            <h4 style="margin-bottom:0rem;">🎯 目前選擇的模式：<span style="color:#3EB489;">{mode}</span></h4>
         </div>
         """, unsafe_allow_html=True)
     else:
