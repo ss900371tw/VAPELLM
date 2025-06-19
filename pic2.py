@@ -601,7 +601,7 @@ def main():
 
     # 集中處理按鈕事件
     col1, col2, col3 = st.columns(3)
-
+    mode = None
     with col1:
         if st.button("選擇", key="btn_single"):
             clicked_mode = "單一網址分析"
@@ -613,7 +613,7 @@ def main():
             clicked_mode = "關鍵字搜尋分析"
 
     # 如果這輪有點按鈕，更新狀態
-    if clicked_mode:
+    if mode:
         st.session_state.selected_mode = clicked_mode
 
     # 第二階段：渲染卡片（這時狀態已準備好，視覺效果正確）
