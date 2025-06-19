@@ -588,30 +588,14 @@ def main():
 </div>
 """, unsafe_allow_html=True)
     
-    st.markdown("## 📌 請選擇模式")
-
-mode = None
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    if st.button("🔍 單一網址分析"):
-        mode = "🔍 單一網址分析"
-        st.session_state.mode = mode
-with col2:
-    if st.button("📂 批量網址分析"):
-        mode = "📂 批量網址分析"
-        st.session_state.mode = mode
-with col3:
-    if st.button("🌐 GOOGLE 自動搜尋 & 分析"):
-        mode = "🌐 GOOGLE 自動搜尋 & 分析"
-        st.session_state.mode = mode
-
-# 若尚未選擇但之前選過，從 session state 恢復
-if mode is None:
-    mode = st.session_state.get("mode", None)
-
-if mode:
-    st.markdown(f"### 🎯 選擇模式：**{mode}**")
+    mode = st.selectbox(
+    "📌 請選擇模式",
+    [
+        "🔍 單一網址分析",
+        "📂 批量網址分析",
+        "🌐 GOOGLE 自動搜尋 & 分析"
+    ]
+)
 
     if "單一網址分析" in mode:
         st.markdown("### 🔗 單一網址分析")
@@ -677,11 +661,11 @@ if mode:
 
     elif "批量網址分析" in mode:
         st.markdown("### 📂 批量網址分析")
-        uploaded_file = st.file_uploader("請上傳 `.txt` 檔案（每行一個網址）", type=["txt"])
+        uploaded_file = st.file_uploader("請上傳 .txt 檔案（每行一個網址）", type=["txt"])
 
         if st.button("🚀 開始批次分析"):
             if uploaded_file is None:
-                st.warning("⚠️ 請先上傳 `.txt` 檔案")
+                st.warning("⚠️ 請先上傳 .txt 檔案")
                 return
 
             urls = [line.strip().decode("utf-8") for line in uploaded_file.readlines() if line]
@@ -869,17 +853,3 @@ if __name__ == "__main__":
     main()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
