@@ -829,7 +829,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                 high_risk_urls = []
     
                 for idx, url in enumerate(urls, start=1):
-                    st.markdown(f"<h3 style='color:white;'>---\n 🔗 [{idx}/{len(urls)}] 分析網址：{url}", unsafe_allow_html=True)
+                    st.markdown(f"<h3 style='color:white;'>\n 🔗 [{idx}/{len(urls)}] 分析網址：{url}", unsafe_allow_html=True)
 
                     st.markdown("""
 <style>
@@ -898,6 +898,7 @@ div[role="status"] > div > span {
 ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
 </div>
 """, unsafe_allow_html=True)
+                        high_risk_urls.append(url)
                     if "(1)" in text_result:
                         st.markdown("""
 <div style="
@@ -911,6 +912,8 @@ div[role="status"] > div > span {
 ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
 </div>
 """, unsafe_allow_html=True)
+                        high_risk_urls.append(url)
+
                     else:
                         st.markdown("""
 <div style="
@@ -937,7 +940,18 @@ div[role="status"] > div > span {
                         mime="text/plain"
                     )
                 else:
-                    st.success("✅ 所有網址皆未偵測到高風險內容")
+                    st.markdown("""
+<div style="
+    background-color: #d4edda;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #c3e6cb;
+    font-size: 16px;
+">
+✅ 所有網址皆未偵測到高風險內容
+</div>
+""", unsafe_allow_html=True)
     
         else:
             # 輸入關鍵字
@@ -1083,6 +1097,8 @@ div[role="status"] > div > span {
     ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
     </div>
     """, unsafe_allow_html=True)
+                        high_risk_urls.append(url)
+
                     if "(1)" in text_result:
                         st.markdown("""
     <div style="
@@ -1096,6 +1112,8 @@ div[role="status"] > div > span {
     ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
     </div>
     """, unsafe_allow_html=True)
+                        high_risk_urls.append(url)
+
                     else:
                         st.markdown("""
     <div style="
