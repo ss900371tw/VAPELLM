@@ -600,7 +600,6 @@ def main():
         st.session_state.selected_mode = None
 
     # 集中處理按鈕事件
-    mode = None
     col1, col2, col3 = st.columns(3)
 
     with col1:
