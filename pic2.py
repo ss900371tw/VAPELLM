@@ -719,12 +719,21 @@ def main():
     
     if mode:    
         if "單一網址分析" in mode:
-            url = st.text_input("", placeholder="請輸入網址：")
-    
-            if st.button("🚀 開始分析"):
+            # 建立左右排列欄位
+            col1, col2 = st.columns([5, 1])
+            
+            with col1:
+                url = st.text_input("", placeholder="請輸入網址：")
+            
+            with col2:
+                go = st.button("🚀")
+
+            # 分析邏輯
+            if go:
                 if not url.strip():
                     st.warning("⚠️ 請輸入有效網址")
-                    return
+                else:
+                    st.success(f"分析中：{url}")
     
                 st.markdown(f"### 🔍 正在分析：[{url}]({url})")
     
