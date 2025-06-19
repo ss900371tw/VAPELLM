@@ -538,6 +538,14 @@ def is_blacklisted_url(url: str) -> bool:
 # -------------------- 9. Streamlit 主程式 --------------------
 def main():
     st.markdown("<h1 style='text-align:center;color:white;'>電子菸網站偵測系統</h1>", unsafe_allow_html=True)
+    # 使用 OpenAI GPT-4o 模型
+    model = ChatOpenAI(
+        openai_api_key=openai_api_key,  # 這應是你 .env 裡的 OPENAI_API_KEY
+        model="gpt-4o",
+        temperature=0.3
+    )
+    parser = StrOutputParser()
+    chain = prompt | model | parser
 
     # 背景樣式與主題文字
     st.markdown("""
