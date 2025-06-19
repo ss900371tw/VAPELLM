@@ -623,6 +623,7 @@ def main():
                 st.session_state.selected_mode = title
                 st.rerun()
 
+                
     def render_card(icon, title, desc, key):
         selected = st.session_state.get("selected_mode") == title
         border = "4px solid #3EB489" if selected else "1px solid #999999"
@@ -632,30 +633,25 @@ def main():
         with st.container():
             st.markdown(f"""
             <style>
-            #{key}_card {{
+            div#{key}_card {{
                 background-color: {bg};
                 color: white;
                 border-radius: 16px;
                 border: {border};
                 box-shadow: {shadow};
                 padding: 1.5rem;
-                height: 270px;
+                height: 300px;
                 text-align: center;
-                position: relative;
+                transition: all 0.2s ease;
                 display: flex;
                 flex-direction: column;
-                justify-content: center;
-                align-items: center;
+                justify-content: space-between;
             }}
-            #{key}_card:hover {{
+            div#{key}_card:hover {{
                 transform: scale(1.02);
                 box-shadow: 0 0 25px #3EB489;
             }}
-            #{key}_btn {{
-                position: absolute;
-                bottom: 15px;
-                left: 50%;
-                transform: translateX(-50%);
+            div[data-testid="stButton"] > button#{key}_btn {{
                 background-color: #3EB489;
                 color: white;
                 font-weight: bold;
@@ -666,20 +662,22 @@ def main():
                 padding: 0 1.2rem;
             }}
             </style>
+            """, unsafe_allow_html=True)
     
-            <div id="{key}_card">
+            # 卡片結構：包含 icon/title/desc + 按鈕
+            st.markdown(f'<div id="{key}_card">', unsafe_allow_html=True)
+            st.markdown(f"""
                 <div style="font-size: 2rem;">{icon}</div>
                 <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
                 <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
-                <form action="" method="post">
-                    <button id="{key}_btn" type="submit" name="{key}_form_button">選擇</button>
-                </form>
-            </div>
             """, unsafe_allow_html=True)
     
-            if st.session_state.get(f"{key}_form_button"):
+            # 「選擇」按鈕，浮在卡片內底部
+            if st.button("選擇", key=f"{key}_btn"):
                 st.session_state.selected_mode = title
                 st.rerun()
+    
+            st.markdown("</div>", unsafe_allow_html=True)
 
     # 模式選擇
     st.markdown("""
