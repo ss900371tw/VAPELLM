@@ -574,57 +574,34 @@ def main():
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        # 用 container 包起整個卡片區
+        # 整張卡片區域
         with st.container():
-            # 卡片主體
-            st.markdown(f"""
-            <div style="
-                background-color: {bg};
-                color: white;
-                border-radius: 16px;
-                border: {border};
-                box-shadow: {shadow};
-                padding: 1.5rem;
-                text-align: center;
-                margin-bottom: 1rem;
-            ">
-                <div style="font-size: 2rem;">{icon}</div>
-                <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-                <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1.5rem;">{desc}</div>
-    
-                <button style="
-                    background-color: #3EB489;
+            col = st.columns([1])[0]  # 單欄
+            with col:
+                st.markdown(f"""
+                <div style="
+                    background-color: {bg};
                     color: white;
-                    font-weight: bold;
-                    padding: 0.5rem 1.2rem;
-                    border: none;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    font-size: 1rem;
-                " onclick="document.dispatchEvent(new Event('custom-{key}-click'))">選擇</button>
+                    border-radius: 16px;
+                    border: {border};
+                    box-shadow: {shadow};
+                    padding: 1.5rem;
+                    text-align: center;
+                    margin-bottom: 0.5rem;
+                ">
+                    <div style="font-size: 2rem;">{icon}</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+                    <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
+                """, unsafe_allow_html=True)
     
-            </div>
-            """, unsafe_allow_html=True)
+                # ✅ 真正的 Streamlit 按鈕，讓它看起來「在卡片內」
+                if st.button("選擇", key=f"{key}_button"):
+                    st.session_state.selected_mode = title
     
-            # 真正的按鈕（隱藏）— 透過 JS event 模擬點擊
-            if st.button("", key=f"{key}_button", help=f"隱藏按鈕：{title}", args=None):
-                st.session_state.selected_mode = title
+                # 關閉卡片
+                st.markdown("</div>", unsafe_allow_html=True)
     
-            # 使用 JS event listener 綁定前面的 HTML button 行為
-            st.markdown(f"""
-            <script>
-            const btn = window.parent.document.querySelector('button[onclick="document.dispatchEvent(new Event(\\'custom-{key}-click\\'))"]');
-            if (btn) {{
-                document.addEventListener("custom-{key}-click", function() {{
-                    window.parent.document.querySelector('button[data-testid="{key}_button"]').click();
-                }});
-            }}
-            </script>
-            """, unsafe_allow_html=True)
-
-
-
-        
+            
 
     # 模式選擇
     st.markdown("## 📌 請選擇分析模式")
