@@ -599,9 +599,6 @@ def main():
     st.markdown("""
     <p style='text-align:center; font-size: 24px; color: white;'>🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站</p>
     """, unsafe_allow_html=True)
-
-        # 初始化
-    import streamlit as st
     
     # 初始化狀態
     if "selected_mode" not in st.session_state:
