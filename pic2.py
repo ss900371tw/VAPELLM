@@ -604,17 +604,17 @@ def main():
     mode = None
     with col1:
         if st.button("選擇", key="btn_single"):
-            clicked_mode = "單一網址分析"
+            mode = "單一網址分析"
     with col2:
         if st.button("選擇", key="btn_batch"):
-            clicked_mode = "批量網址分析"
+            mode = "批量網址分析"
     with col3:
         if st.button("選擇", key="btn_auto"):
-            clicked_mode = "關鍵字搜尋分析"
+            mode = "關鍵字搜尋分析"
 
     # 如果這輪有點按鈕，更新狀態
     if mode:
-        st.session_state.selected_mode = clicked_mode
+        st.session_state.selected_mode = mode
 
     # 第二階段：渲染卡片（這時狀態已準備好，視覺效果正確）
     with col1:
