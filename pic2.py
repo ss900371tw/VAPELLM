@@ -536,7 +536,11 @@ def is_blacklisted_url(url: str) -> bool:
     
 # -------------------- 9. Streamlit 主程式 --------------------
 def main():
-    st.title("電子菸網站偵測系統")
+    st.markdown("""
+<h1 style='text-align: center; color: #00FFFF;'>
+電子菸網站偵測系統
+</h1>
+""", unsafe_allow_html=True)
 
     st.markdown("""
     <style>
