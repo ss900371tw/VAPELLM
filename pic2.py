@@ -671,19 +671,27 @@ def main():
             # 自訂按鈕樣式讓它貼齊 text_input 高度
             st.markdown("""
 <style>
-div[data-testid="column"] div[class^="stButton"] > button {
-    height: 42px;
-    margin-top: 0px; /* ✅ 微調讓按鈕垂直置中 */
-    background-color: #3EB489;
-    color: white;
-    font-size: 20px;
-    border-radius: 10px;
-    border: 2px solid #ff5f5f;
+/* 限制按鈕外層為 flex 垂直置中 */
+div[data-testid="column"] > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-</style>
-""", unsafe_allow_html=True)
+
+            /* 美化按鈕本身 */
+            div[data-testid="column"] button {
+                height: 40px;
+                width: 48px;
+                font-size: 22px;
+                background-color: #3EB489;
+                color: white;
+                border-radius: 10px;
+                border: 2px solid #ff5f5f;
+            }
+            </style>
+            """, unsafe_allow_html=True)
             
-            # ⬅️ 建立欄位
+            # --- Streamlit 原生欄位與元件 ---
             col1, col2 = st.columns([6, 1])
             
             with col1:
