@@ -670,33 +670,27 @@ def main():
             # 建立左右排列欄位
             # 自訂按鈕樣式讓它貼齊 text_input 高度
             st.markdown("""
-            <style>
-            .custom-launch-button button {
-                height: 42px;
-                width: 100%;
-                background-color: #3EB489;
-                color: white;
-                font-size: 20px;
-                border-radius: 10px;
-                border: 2px solid #ff5f5f;
-                margin-top: 8px;
-                margin-bottom: 0px;
-                padding: 0 10px;
-            }
-            </style>
-            """, unsafe_allow_html=True)
+<style>
+div[data-testid="column"] div[class^="stButton"] > button {
+    height: 42px;
+    margin-top: 6px; /* ✅ 微調讓按鈕垂直置中 */
+    background-color: #3EB489;
+    color: white;
+    font-size: 20px;
+    border-radius: 10px;
+    border: 2px solid #ff5f5f;
+}
+</style>
+""", unsafe_allow_html=True)
             
-            # ⬅️ 輸入框 + 🚀 按鈕（等高對齊）
+            # ⬅️ 建立欄位
             col1, col2 = st.columns([6, 1])
+            
             with col1:
                 url = st.text_input("", placeholder="請輸入網址：")
             
             with col2:
-                # 注意這邊 st.markdown 要渲染 button 樣式，st.button 仍可觸發
-                with st.container():
-                    st.markdown('<div class="custom-launch-button">', unsafe_allow_html=True)
-                    go = st.button("🚀", key="launch_button")
-                    st.markdown('</div>', unsafe_allow_html=True)
+                go = st.button("🚀")
 
 
             # 分析邏輯
