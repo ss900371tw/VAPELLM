@@ -573,62 +573,6 @@ def main():
     if "selected_mode" not in st.session_state:
         st.session_state.selected_mode = None
 
-    # 顯示卡片
-    def render_card(icon, title, desc, key):
-        selected = st.session_state.get("selected_mode") == title
-        border = "4px solid #3EB489" if selected else "1px solid #999999"
-        shadow = "0 0 20px #3EB489" if selected else "none"
-        bg = "#0c1b2a" if selected else "#1a1f2b"
-    
-        with st.container():
-            # 先設計卡片樣式
-            st.markdown(f"""
-            <style>
-            div#{key}_card {{
-                background-color: {bg};
-                color: white;
-                border-radius: 16px;
-                border: {border};
-                box-shadow: {shadow};
-                padding: 1.5rem;
-                height: 300px;
-                text-align: center;
-                transition: all 0.2s ease;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }}
-            div#{key}_card:hover {{
-                transform: scale(1.02);
-                box-shadow: 0 0 25px #3EB489;
-            }}
-            div[data-testid="stButton"] > button#{key}_btn {{
-                background-color: #3EB489;
-                color: white;
-                font-weight: bold;
-                border: none;
-                border-radius: 6px;
-                font-size: 1rem;
-                height: 40px;
-                padding: 0 1.2rem;
-            }}
-            </style>
-            """, unsafe_allow_html=True)
-    
-            # 卡片開始
-            st.markdown(f'<div id="{key}_card">', unsafe_allow_html=True)
-            st.markdown(f"""
-                <div style="font-size: 2rem;">{icon}</div>
-                <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-                <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
-            """, unsafe_allow_html=True)
-    
-            # ✅ 正確方式：只用 st.button，不要用 form 或 HTML button
-            if st.button("選擇", key=f"{key}_btn"):
-                st.session_state.selected_mode = title
-                st.rerun()
-    
-            st.markdown("</div>", unsafe_allow_html=True)
 
                 
     def render_card(icon, title, desc, key):
@@ -724,27 +668,36 @@ def main():
     if mode:    
         if "單一網址分析" in mode:
             # 建立左右排列欄位
+            # 自訂按鈕樣式讓它貼齊 text_input 高度
             st.markdown("""
-                    <style>
-                    .button-align-center button {
-                        margin-top: 32px;  /* 可依實際情況微調 */
-                        width: 100%;
-                        height: 46px;
-                        font-size: 20px;
-                        background-color: #3EB489;
-                        color: white;
-                        border-radius: 12px;
-                        border: 2px solid #ff5f5f;
-                    }
-                    </style>
-                    """, unsafe_allow_html=True)
-            col1, col2 = st.columns([5, 1])
+            <style>
+            .custom-launch-button button {
+                height: 42px;
+                width: 100%;
+                background-color: #3EB489;
+                color: white;
+                font-size: 20px;
+                border-radius: 10px;
+                border: 2px solid #ff5f5f;
+                margin-top: 0px;
+                margin-bottom: 0px;
+                padding: 0 10px;
+            }
+            </style>
+            """, unsafe_allow_html=True)
             
+            # ⬅️ 輸入框 + 🚀 按鈕（等高對齊）
+            col1, col2 = st.columns([6, 1])
             with col1:
                 url = st.text_input("", placeholder="請輸入網址：")
             
             with col2:
-                go = st.markdown('<div class="button-align-center">' + st.button("🚀", key="go_button") * " " + '</div>', unsafe_allow_html=True)
+                # 注意這邊 st.markdown 要渲染 button 樣式，st.button 仍可觸發
+                with st.container():
+                    st.markdown('<div class="custom-launch-button">', unsafe_allow_html=True)
+                    go = st.button("🚀", key="launch_button")
+                    st.markdown('</div>', unsafe_allow_html=True)
+
 
             # 分析邏輯
             if go:
