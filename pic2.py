@@ -570,7 +570,6 @@ def main():
         st.session_state.selected_mode = None
 
     # 顯示卡片
-    
     def render_card(icon, title, desc, key):
         selected = st.session_state.get("selected_mode") == title
         border = "4px solid #3EB489" if selected else "1px solid #999999"
@@ -578,50 +577,54 @@ def main():
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
         with st.container():
+            # 先設計卡片樣式
             st.markdown(f"""
             <style>
-            #{key}_card {{
+            div#{key}_card {{
                 background-color: {bg};
                 color: white;
                 border-radius: 16px;
                 border: {border};
                 box-shadow: {shadow};
                 padding: 1.5rem;
+                height: 300px;
                 text-align: center;
                 transition: all 0.2s ease;
-                margin-bottom: 0.5rem;
-                height: 240px;
                 display: flex;
                 flex-direction: column;
-                justify-content: center;
+                justify-content: space-between;
             }}
-            #{key}_card:hover {{
+            div#{key}_card:hover {{
                 transform: scale(1.02);
                 box-shadow: 0 0 25px #3EB489;
             }}
-            .select-btn {{
+            div[data-testid="stButton"] > button#{key}_btn {{
                 background-color: #3EB489;
                 color: white;
                 font-weight: bold;
                 border: none;
-                padding: 0.4rem 1rem;
                 border-radius: 6px;
-                margin-top: 10px;
                 font-size: 1rem;
+                height: 40px;
+                padding: 0 1.2rem;
             }}
             </style>
+            """, unsafe_allow_html=True)
     
-            <div id="{key}_card">
+            # 卡片開始
+            st.markdown(f'<div id="{key}_card">', unsafe_allow_html=True)
+            st.markdown(f"""
                 <div style="font-size: 2rem;">{icon}</div>
                 <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
                 <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
-            </div>
             """, unsafe_allow_html=True)
     
-            # 這裡的按鈕會顯示「選擇」
+            # ✅ 正確方式：只用 st.button，不要用 form 或 HTML button
             if st.button("選擇", key=f"{key}_btn"):
                 st.session_state.selected_mode = title
                 st.rerun()
+    
+            st.markdown("</div>", unsafe_allow_html=True)
 
                 
     def render_card(icon, title, desc, key):
