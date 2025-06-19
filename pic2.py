@@ -759,11 +759,44 @@ div[data-testid="column"] div:has(button) {
                 st.markdown("---")
                 st.markdown("<h3 style='color:white;'>📋 綜合結論</h3>", unsafe_allow_html=True)
                 if "(1)" in text_result and flagged_images > 0:
-                    st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
+                    st.markdown("""
+<div style="
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #ffeeba;
+    font-size: 16px;
+">
+⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+</div>
+""", unsafe_allow_html=True)
                 if "(1)" in text_result:
-                    st.error("⚠️ 高風險網站：網站可能涉及電子煙販售")
+                    st.markdown("""
+<div style="
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #ffeeba;
+    font-size: 16px;
+">
+⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+</div>
+""", unsafe_allow_html=True)
                 else:
-                    st.success("✅ 安全網站：未偵測出高風險內容")
+                    st.markdown("""
+<div style="
+    background-color: #d4edda;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #c3e6cb;
+    font-size: 16px;
+">
+✅ <strong>安全網站</strong>：未偵測出高風險內容
+</div>
+""", unsafe_allow_html=True)
     
         elif "批量網址分析" in mode:
             st.markdown("""
