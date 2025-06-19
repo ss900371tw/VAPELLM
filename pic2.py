@@ -744,7 +744,7 @@ def main():
                 url = st.text_input("", placeholder="請輸入網址：")
             
             with col2:
-                go = st.button("🚀")
+                go = st.markdown('<div class="button-align-center">' + st.button("🚀", key="go_button") * " " + '</div>', unsafe_allow_html=True)
 
             # 分析邏輯
             if go:
