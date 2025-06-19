@@ -719,6 +719,23 @@ def main():
     
     if mode:    
         if "單一網址分析" in mode:
+            st.markdown("""
+<style>
+/* 調整 text input 的字體顏色和背景 */
+input[type="text"] {
+    color: white !important;
+    background-color: #1a1f2b !important;
+    border: 1px solid #3EB489;
+}
+
+/* 調整 placeholder 文字為白色 */
+input[type="text"]::placeholder {
+    color: white !important;
+    opacity: 0.7;
+}
+</style>
+""", unsafe_allow_html=True)
+
             url = st.text_input("請輸入網址：")
     
             if st.button("🚀 開始分析"):
@@ -780,6 +797,16 @@ def main():
                     st.success("✅ 安全網站：未偵測出高風險內容")
     
         elif "批量網址分析" in mode:
+            st.markdown("""
+<style>
+/* 將所有 Streamlit 標籤文字（例如 file_uploader）設為白色 */
+label, .stFileUploader label {
+    color: white !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# 檔案上傳元件
             uploaded_file = st.file_uploader("請上傳 .txt 檔案（每行一個網址）", type=["txt"])
     
             if st.button("🚀 開始批次分析"):
