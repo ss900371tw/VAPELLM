@@ -566,81 +566,81 @@ def main():
 
     st.set_page_config(layout="wide")
 
-# 初始化
-if "selected_mode" not in st.session_state:
-    st.session_state.selected_mode = ""
-
-# 觸發點擊事件的 JS script
-def js_click_handler():
-    st.markdown("""
-    <script>
-    const cards = document.querySelectorAll('.clickable-card');
-    cards.forEach(card => {
-        card.onclick = () => {
-            const mode = card.getAttribute("data-mode");
-            const streamlitInput = window.parent.document.querySelector('input[data-testid="stTextInput"][aria-label="mode_input"]');
-            if (streamlitInput) {
-                streamlitInput.value = mode;
-                streamlitInput.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        };
-    });
-    </script>
-    """, unsafe_allow_html=True)
-
-    # 自動觸發一次 JS 綁定
-    js_click_handler()
+    # 初始化
+    if "selected_mode" not in st.session_state:
+        st.session_state.selected_mode = ""
     
-    # 隱藏輸入框作為中介橋梁
-    selected_mode = st.text_input("mode_input", key="mode_input", label_visibility="collapsed")
-    if selected_mode:
-        st.session_state.selected_mode = selected_mode
+    # 觸發點擊事件的 JS script
+    def js_click_handler():
+        st.markdown("""
+        <script>
+        const cards = document.querySelectorAll('.clickable-card');
+        cards.forEach(card => {
+            card.onclick = () => {
+                const mode = card.getAttribute("data-mode");
+                const streamlitInput = window.parent.document.querySelector('input[data-testid="stTextInput"][aria-label="mode_input"]');
+                if (streamlitInput) {
+                    streamlitInput.value = mode;
+                    streamlitInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            };
+        });
+        </script>
+        """, unsafe_allow_html=True)
     
-    # HTML 卡片樣式
-    def render_card(icon, title, desc, mode_key):
-        selected = (st.session_state.selected_mode == mode_key)
-        border = "4px solid #3EB489" if selected else "1px solid #999"
-        shadow = "0 0 25px #3EB489" if selected else "none"
-        bg = "#0c1b2a" if selected else "#1a1f2b"
+        # 自動觸發一次 JS 綁定
+        js_click_handler()
+        
+        # 隱藏輸入框作為中介橋梁
+        selected_mode = st.text_input("mode_input", key="mode_input", label_visibility="collapsed")
+        if selected_mode:
+            st.session_state.selected_mode = selected_mode
+        
+        # HTML 卡片樣式
+        def render_card(icon, title, desc, mode_key):
+            selected = (st.session_state.selected_mode == mode_key)
+            border = "4px solid #3EB489" if selected else "1px solid #999"
+            shadow = "0 0 25px #3EB489" if selected else "none"
+            bg = "#0c1b2a" if selected else "#1a1f2b"
+        
+            st.markdown(f"""
+            <div class="clickable-card" data-mode="{mode_key}" style="
+                background-color: {bg};
+                color: white;
+                border-radius: 16px;
+                border: {border};
+                box-shadow: {shadow};
+                padding: 1.5rem;
+                text-align: center;
+                cursor: pointer;
+                transition: 0.2s;
+            ">
+                <div style="font-size: 2.2rem;">{icon}</div>
+                <div style="font-size: 1.3rem; font-weight: bold; margin-top: 0.6rem;">{title}</div>
+                <div style="font-size: 0.95rem; color: #ccc; margin-top: 0.4rem;">{desc}</div>
+            </div>
+            """, unsafe_allow_html=True)
+                            
     
-        st.markdown(f"""
-        <div class="clickable-card" data-mode="{mode_key}" style="
-            background-color: {bg};
+            # 模式標題
+        st.markdown("""
+        <style>
+        .banner-text {
+            background-color: #0052cc;
             color: white;
-            border-radius: 16px;
-            border: {border};
-            box-shadow: {shadow};
-            padding: 1.5rem;
+            font-size: 16px;
+            font-weight: bold;
             text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
-        ">
-            <div style="font-size: 2.2rem;">{icon}</div>
-            <div style="font-size: 1.3rem; font-weight: bold; margin-top: 0.6rem;">{title}</div>
-            <div style="font-size: 0.95rem; color: #ccc; margin-top: 0.4rem;">{desc}</div>
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0px;
+        }
+        </style>
+        
+        <div class="banner-text">
+        請選擇分析模式
         </div>
         """, unsafe_allow_html=True)
-                        
-
-        # 模式標題
-    st.markdown("""
-    <style>
-    .banner-text {
-        background-color: #0052cc;
-        color: white;
-        font-size: 16px;
-        font-weight: bold;
-        text-align: center;
-        padding: 10px;
-        border-radius: 6px;
-        margin: 10px 0px;
-    }
-    </style>
-    
-    <div class="banner-text">
-    請選擇分析模式
-    </div>
-    """, unsafe_allow_html=True)
     
     # 初始化狀態
     if "selected_mode" not in st.session_state:
