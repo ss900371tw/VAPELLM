@@ -588,27 +588,36 @@ def main():
 </div>
 """, unsafe_allow_html=True)
     
-    st.markdown("## 📌 請選擇模式")
+    # -------------------- 模式選擇區塊（卡片樣式） --------------------
+st.markdown("## 📌 請選擇分析模式")
 
-    mode = None
-    col1, col2, col3 = st.columns(3)
+# 初始化 session_state 儲存選擇
+if "selected_mode" not in st.session_state:
+    st.session_state.selected_mode = None
 
-    with col1:
-        if st.button("🔍 單一網址分析"):
-            mode = "🔍 單一網址分析"
-            st.session_state.mode = mode
-    with col2:
-        if st.button("📂 批量網址分析"):
-            mode = "📂 批量網址分析"
-            st.session_state.mode = mode
-    with col3:
-        if st.button("🌐 GOOGLE 自動搜尋 & 分析"):
-            mode = "🌐 GOOGLE 自動搜尋 & 分析"
-            st.session_state.mode = mode
+# 三欄顯示三種模式
+col1, col2, col3 = st.columns(3)
 
-    # 若尚未選擇但之前選過，從 session state 恢復
-    if mode is None:
-        mode = st.session_state.get("mode", None)
+with col1:
+    if st.button("🔍 單一網址分析"):
+        st.session_state.selected_mode = "單一網址分析"
+with col2:
+    if st.button("📂 批量網址分析"):
+        st.session_state.selected_mode = "批量網址分析"
+with col3:
+    if st.button("🌐 GOOGLE 自動搜尋 & 分析"):
+        st.session_state.selected_mode = "GOOGLE 自動搜尋 & 分析"
+
+# 顯示目前選擇
+mode = st.session_state.selected_mode
+if mode:
+    st.markdown(f"""
+<div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
+    <h4 style="margin-bottom:0rem;">🎯 目前選擇的模式：<span style="color:#3EB489;">{mode}</span></h4>
+</div>
+""", unsafe_allow_html=True)
+else:
+    st.info("👉 請點選上方卡片來選擇模式")
 
 if mode:
     st.markdown(f"### 🎯 選擇模式：**{mode}**")
