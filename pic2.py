@@ -604,74 +604,53 @@ def main():
     if "selected_mode" not in st.session_state:
         st.session_state.selected_mode = None
     
-    # 卡片渲染函式：整個卡片就是一顆按鈕
-    def render_card(key, icon, title, desc):
+    def render_card_html(key, icon, title, desc):
         selected = st.session_state.selected_mode == title
         border = "4px solid #3EB489" if selected else "1px solid #999999"
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        btn_clicked = st.button(
-            f"""
-            {icon}\n\n
-            **{title}**\n
-            <span style='font-size: 0.85rem; color: #ccc;'>{desc}</span>
-            """,
-            key=key,
-            help=desc,
-        )
-    
-        st.markdown(f"""
-        <style>
-        div[data-testid="stButton"][key="{key}"] button {{
-            width: 100%;
-            height: 200px;
+        btn = st.markdown(f"""
+        <div style="
             background-color: {bg};
             color: white;
             border-radius: 16px;
             border: {border};
             box-shadow: {shadow};
             padding: 1.5rem;
-            font-size: 1.1rem;
-            font-weight: bold;
             text-align: center;
-            white-space: pre-line;
-        }}
-        </style>
+            margin-bottom: 0.5rem;
+            height: 200px;
+            cursor: pointer;
+        " onclick="document.getElementById('{key}').click()">
+            <div style="font-size: 2rem;">{icon}</div>
+            <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
+        </div>
+        <form action="" method="post">
+            <input type="hidden" name="choice" value="{title}">
+            <button type="submit" id="{key}" style="display:none;"></button>
+        </form>
         """, unsafe_allow_html=True)
     
-        if btn_clicked:
-            st.session_state.selected_mode = title
+    # 上方橫幅
+    st.markdown("<h1 style='text-align:center;color:white;'>電子菸網站偵測系統</h1>", unsafe_allow_html=True)
+    st.markdown("<div class='banner-text'>請選擇分析模式</div>", unsafe_allow_html=True)
     
-    # 藍色橫幅
-    st.markdown("""
-    <style>
-    .banner-text {
-        background-color: #0052cc;
-        color: white;
-        font-size: 16px;
-        font-weight: bold;
-        text-align: center;
-        padding: 10px;
-        border-radius: 6px;
-        margin: 10px 0px;
-    }
-    </style>
-    <div class="banner-text">請選擇分析模式</div>
-    """, unsafe_allow_html=True)
-    
-    # 三欄按鈕
+    # 三欄卡片
     col1, col2, col3 = st.columns(3)
     with col1:
-        render_card("card1", "🔍", "單一網址分析", "分析單個網站文字與圖片")
+        render_card_html("card1", "🔍", "單一網址分析", "分析單個網站文字與圖片")
     with col2:
-        render_card("card2", "📂", "批量網址分析", "上傳文字檔，分析多網站")
+        render_card_html("card2", "📂", "批量網址分析", "上傳文字檔，分析多網站")
     with col3:
-        render_card("card3", "🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站")
+        render_card_html("card3", "🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站")
     
-    # 顯示選取結果
-    if st.session_state.selected_mode:
-        st.success(f"✅ 你選擇的是：{st.session_state.selected_mode}")
+    # 偵測點擊（需放在主程式最底）
+    choice = st.experimental_get_query_params().get("choice", [None])[0]
+    if choice:
+        st.session_state.selected_mode = choice
+        st.success(f"✅ 你選擇的是：{choice}")
     if mode:
         st.markdown(f"""
         <div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
