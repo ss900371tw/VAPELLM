@@ -569,8 +569,8 @@ def main():
         st.session_state.selected_mode = None
 
     # 顯示卡片
+    
     def render_card(icon, title, desc, key):
-        # ✅ 直接從 session_state 判斷是否選中（不靠外部傳入 selected）
         selected = st.session_state.get("selected_mode") == title
     
         border = "4px solid #3EB489" if selected else "1px solid #999999"
@@ -596,6 +596,7 @@ def main():
     
             if st.button("選擇", key=f"{key}_button"):
                 st.session_state.selected_mode = title
+                st.experimental_rerun()  # ✅ 強制立即重新 render！
     
             st.markdown("</div>", unsafe_allow_html=True)
 
