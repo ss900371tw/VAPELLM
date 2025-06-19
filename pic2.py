@@ -829,13 +829,14 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                 high_risk_urls = []
     
                 for idx, url in enumerate(urls, start=1):
-                    st.markdown(f"<h3 style='color:white;'>---\n 🔗 [{idx}/{len(urls)}] 分析網址：[{url}]({url})", unsafe_allow_html=True)
+                    st.markdown(f"<h3 style='color:white;'>---\n 🔗 [{idx}/{len(urls)}] 分析網址：{url}", unsafe_allow_html=True)
 
                     st.markdown("""
 <style>
-/* 自訂 spinner 內文為白色 */
-.css-1v0mbdj span {
+/* 把 spinner 區塊中的文字設為白色 */
+div[role="status"] > div > span {
     color: white !important;
+    font-weight: bold;
 }
 </style>
 """, unsafe_allow_html=True)
