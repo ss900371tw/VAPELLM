@@ -574,29 +574,30 @@ def main():
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        with st.container():
-            st.markdown(f"""
-            <div style="
-                background-color: {bg};
-                color: white;
-                border-radius: 16px;
-                border: {border};
-                box-shadow: {shadow};
-                padding: 1.5rem;
-                text-align: center;
-                margin-bottom: 1rem;
-            ">
-                <div style="font-size: 2rem;">{icon}</div>
-                <div style="font-size: 1.2rem; font-weight: bold;">{title}</div>
-                <div style="font-size: 0.9rem; color: #ccc; margin-bottom: 1rem;">{desc}</div>
-            """, unsafe_allow_html=True)
+        # 用空白寫法分成兩段 markdown + widget
+        st.markdown(f"""
+        <div style="
+            background-color: {bg};
+            color: white;
+            border-radius: 16px;
+            border: {border};
+            box-shadow: {shadow};
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        ">
+            <div style="font-size: 2rem;">{icon}</div>
+            <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
+        """, unsafe_allow_html=True)
     
-            # 🔘 按鈕放在卡片內部
-            if st.button("選擇", key=f"{key}_button"):
-                st.session_state.selected_mode = title
+        # ✅ Streamlit 的按鈕顯示在卡片區塊的 markdown 裡面（但必須在另一段 markdown 關閉 div）
+        clicked = st.button("選擇", key=f"{key}_button")
+        if clicked:
+            st.session_state.selected_mode = title
     
-            # 關閉最外層 div（HTML fragment）
-            st.markdown("</div>", unsafe_allow_html=True)
+        # 關閉卡片區塊 div
+        st.markdown("</div>", unsafe_allow_html=True)
 
     # 模式選擇
     st.markdown("## 📌 請選擇分析模式")
