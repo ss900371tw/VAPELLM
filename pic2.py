@@ -700,7 +700,7 @@ div[data-testid="column"] div:has(button) {
                     url = st.text_input("", placeholder="請輸入網址：")
             
                 with col2:
-                    go = st.button("🚀")  # ✅ 正常返回 True/False
+                    go = st.button("確定")  # ✅ 正常返回 True/False
             
 
             # 分析邏輯
