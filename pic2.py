@@ -738,10 +738,10 @@ def main():
         </div>
         """, unsafe_allow_html=True)
                         return
-        
-                st.markdown(f"<h3 style='color:white;'>🔍 正在分析：<a href='{url}'>{url}</a></h3>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<h3 style='color:white;'>🔍 正在分析：<a href='{url}'>{url}</a></h3>", unsafe_allow_html=True)
 
-                st.markdown("<p style='color:white;'>⏳ 正在讀取網站內容與圖片...</p>", unsafe_allow_html=True)
+                        st.markdown("<p style='color:white;'>⏳ 正在讀取網站內容與圖片...</p>", unsafe_allow_html=True)
 
                 with st.spinner(" "): 
                     text_content = crawl_all_text(url)
