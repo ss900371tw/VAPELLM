@@ -832,14 +832,11 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                     st.markdown(f"<h3 style='color:white;'>---\n 🔗 [{idx}/{len(urls)}] 分析網址：{url}", unsafe_allow_html=True)
 
                     st.markdown("""
-<style>
-/* 把 spinner 區塊中的文字設為白色 */
-div[role="status"] > div > span {
-    color: white !important;
-    font-weight: bold;
-}
-</style>
+<style>.stSpinner > div > div {
+    border-top-color: #0f0;
+}</style>
 """, unsafe_allow_html=True)
+
 
                     with st.spinner("⏳ 正在分析..."):
                         text_content = crawl_all_text(url)
