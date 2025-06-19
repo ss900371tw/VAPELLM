@@ -573,7 +573,12 @@ def main():
         border = "4px solid #3EB489" if selected else "1px solid #999999"
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
-
+    
+        clicked = st.button("選擇", key=key)
+    
+        if clicked:
+            st.session_state.selected_mode = title
+    
         st.markdown(f"""
         <div style="
             background-color: {bg};
