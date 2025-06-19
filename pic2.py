@@ -639,20 +639,23 @@ def main():
                 border: {border};
                 box-shadow: {shadow};
                 padding: 1.5rem;
+                height: 270px;
                 text-align: center;
-                transition: all 0.2s ease;
-                margin-bottom: 0.5rem;
-                height: 300px;
-    
+                position: relative;
                 display: flex;
                 flex-direction: column;
-                justify-content: space-between;
+                justify-content: center;
+                align-items: center;
             }}
             #{key}_card:hover {{
                 transform: scale(1.02);
                 box-shadow: 0 0 25px #3EB489;
             }}
             #{key}_btn {{
+                position: absolute;
+                bottom: 15px;
+                left: 50%;
+                transform: translateX(-50%);
                 background-color: #3EB489;
                 color: white;
                 font-weight: bold;
@@ -660,28 +663,23 @@ def main():
                 border-radius: 6px;
                 font-size: 1rem;
                 height: 40px;
-                padding: 0.3rem 1.2rem;
-                margin: 0 auto;
+                padding: 0 1.2rem;
             }}
             </style>
     
             <div id="{key}_card">
-                <div>
-                    <div style="font-size: 2rem;">{icon}</div>
-                    <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-                    <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
-                </div>
+                <div style="font-size: 2rem;">{icon}</div>
+                <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+                <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
                 <form action="" method="post">
                     <button id="{key}_btn" type="submit" name="{key}_form_button">選擇</button>
                 </form>
             </div>
             """, unsafe_allow_html=True)
     
-            # 偵測按下哪個表單按鈕
             if st.session_state.get(f"{key}_form_button"):
                 st.session_state.selected_mode = title
                 st.rerun()
-                        
 
     # 模式選擇
     st.markdown("""
