@@ -574,33 +574,44 @@ def main():
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        # 整張卡片區域
-        with st.container():
-            col = st.columns([1])[0]  # 單欄
-            with col:
-                st.markdown(f"""
-                <div style="
-                    background-color: {bg};
-                    color: white;
-                    border-radius: 16px;
-                    border: {border};
-                    box-shadow: {shadow};
-                    padding: 1.5rem;
-                    text-align: center;
-                    margin-bottom: 0.5rem;
-                ">
-                    <div style="font-size: 2rem;">{icon}</div>
-                    <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-                    <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
-                """, unsafe_allow_html=True)
+        # 使用 HTML 完整排版整張卡片（含按鈕）
+        card_html = f"""
+        <form action="" method="post">
+        <input type="hidden" name="selected_mode" value="{title}">
+        <div style="
+            background-color: {bg};
+            color: white;
+            border-radius: 16px;
+            border: {border};
+            box-shadow: {shadow};
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        ">
+            <div style="font-size: 2rem;">{icon}</div>
+            <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
+            <button type="submit" name="submit_{key}" style="
+                background-color: #3EB489;
+                color: white;
+                font-weight: bold;
+                padding: 0.5rem 1.2rem;
+                border: none;
+                border-radius: 8px;
+                font-size: 1rem;
+                cursor: pointer;
+            ">選擇</button>
+        </div>
+        </form>
+        """
     
-                # ✅ 真正的 Streamlit 按鈕，讓它看起來「在卡片內」
-                if st.button("選擇", key=f"{key}_button"):
-                    st.session_state.selected_mode = title
+        st.markdown(card_html, unsafe_allow_html=True)
     
-                # 關閉卡片
-                st.markdown("</div>", unsafe_allow_html=True)
+        # 手動偵測是否按下按鈕（透過 query params）
+        if f"submit_{key}" in st.experimental_get_query_params():
+            st.session_state.selected_mode = title
     
+        
             
 
     # 模式選擇
