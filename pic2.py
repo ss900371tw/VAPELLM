@@ -586,12 +586,7 @@ def main():
 <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;">
     <h4 style="margin-bottom:0.5rem;">🎛️ 模式選擇</h4>
     <p style="margin:0;">
-    請選擇您希望使用的分析方式：
-    <ul style="margin-top:0.5rem;margin-bottom:0;">
-        <li>🔍 <b>單一網址分析</b>：分析單個網站的文字與圖片</li>
-        <li>📂 <b>批量網址分析</b>：上傳文字檔，一次分析多個網站</li>
-        <li>🌐 <b>GOOGLE 自動搜尋</b>：根據關鍵字自動找網站並分析</li>
-    </ul>
+    請選擇分析模式
     </p>
 </div>
 """, unsafe_allow_html=True)
