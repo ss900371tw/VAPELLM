@@ -729,7 +729,7 @@ def main():
             
 
             # 分析邏輯
-            if go:
+            if submitted:
                 if not url.strip():
                     st.warning("⚠️ 請輸入有效網址")
                     return
