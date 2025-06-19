@@ -542,7 +542,7 @@ def main():
     st.markdown("""
     <style>
         .stApp {
-            background-image: url("https://github.com/ss900371tw/VAPELLM/blob/main/%E9%9B%BB%E5%AD%90%E8%8F%B8%E7%B6%B2%E7%AB%99%E5%81%B5%E6%B8%AC%E7%B3%BB%E7%B5%B1%20bg.png");
+            background-image: url("https://raw.githubusercontent.com/ss900371tw/VAPELLM/refs/heads/main/%E9%9B%BB%E5%AD%90%E8%8F%B8%E7%B6%B2%E7%AB%99%E5%81%B5%E6%B8%AC%E7%B3%BB%E7%B5%B1%20bg.png");
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
