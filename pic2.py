@@ -535,11 +535,11 @@ def is_blacklisted_url(url: str) -> bool:
            any(kw in url_lower for kw in blacklist_keywords_in_url)
     
 # -------------------- 9. Streamlit 主程式 --------------------
-# -------------------- 9. Streamlit 主程式 --------------------
 def main():
     st.markdown("<h1 style='text-align:center;color:white;'>電子菸網站偵測系統</h1>", unsafe_allow_html=True)
     # 使用 OpenAI GPT-4o 模型
-
+    parser = StrOutputParser()
+    chain = text_template | llm_text | parser
 
     # 背景樣式與主題文字
     st.markdown("""
@@ -566,10 +566,7 @@ def main():
     st.markdown("""
     <p style='text-align:center; font-size: 24px; color: white;'>🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站</p>
     """, unsafe_allow_html=True)
-    llm_text = ChatOpenAI(api_key=openai_api_key, model="gpt-4o", temperature=0)
-    llm_image = ChatOpenAI(api_key=openai_api_key, model="gpt-4.1", temperature=0)
-    parser = StrOutputParser()
-    chain = prompt | llm_text | parser
+
     # 初始化
     if "selected_mode" not in st.session_state:
         st.session_state.selected_mode = None
