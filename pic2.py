@@ -642,7 +642,7 @@ def main():
     else:
         st.info("👉 請點選上方卡片來選擇模式")
     
-    if clicked_mode:    
+    if mode:    
         if "單一網址分析" in clicked_mode:
             st.markdown("### 🔗 單一網址分析")
             url = st.text_input("請輸入網址：")
