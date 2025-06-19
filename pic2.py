@@ -574,30 +574,57 @@ def main():
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        # 用空白寫法分成兩段 markdown + widget
-        st.markdown(f"""
-        <div style="
-            background-color: {bg};
-            color: white;
-            border-radius: 16px;
-            border: {border};
-            box-shadow: {shadow};
-            padding: 1.5rem;
-            text-align: center;
-            margin-bottom: 1rem;
-        ">
-            <div style="font-size: 2rem;">{icon}</div>
-            <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
-        """, unsafe_allow_html=True)
+        # 用 container 包起整個卡片區
+        with st.container():
+            # 卡片主體
+            st.markdown(f"""
+            <div style="
+                background-color: {bg};
+                color: white;
+                border-radius: 16px;
+                border: {border};
+                box-shadow: {shadow};
+                padding: 1.5rem;
+                text-align: center;
+                margin-bottom: 1rem;
+            ">
+                <div style="font-size: 2rem;">{icon}</div>
+                <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+                <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1.5rem;">{desc}</div>
     
-        # ✅ Streamlit 的按鈕顯示在卡片區塊的 markdown 裡面（但必須在另一段 markdown 關閉 div）
-        clicked = st.button("選擇", key=f"{key}_button")
-        if clicked:
-            st.session_state.selected_mode = title
+                <button style="
+                    background-color: #3EB489;
+                    color: white;
+                    font-weight: bold;
+                    padding: 0.5rem 1.2rem;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 1rem;
+                " onclick="document.dispatchEvent(new Event('custom-{key}-click'))">選擇</button>
     
-        # 關閉卡片區塊 div
-        st.markdown("</div>", unsafe_allow_html=True)
+            </div>
+            """, unsafe_allow_html=True)
+    
+            # 真正的按鈕（隱藏）— 透過 JS event 模擬點擊
+            if st.button("", key=f"{key}_button", help=f"隱藏按鈕：{title}", args=None):
+                st.session_state.selected_mode = title
+    
+            # 使用 JS event listener 綁定前面的 HTML button 行為
+            st.markdown(f"""
+            <script>
+            const btn = window.parent.document.querySelector('button[onclick="document.dispatchEvent(new Event(\\'custom-{key}-click\\'))"]');
+            if (btn) {{
+                document.addEventListener("custom-{key}-click", function() {{
+                    window.parent.document.querySelector('button[data-testid="{key}_button"]').click();
+                }});
+            }}
+            </script>
+            """, unsafe_allow_html=True)
+
+
+
+        
 
     # 模式選擇
     st.markdown("## 📌 請選擇分析模式")
