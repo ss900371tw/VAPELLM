@@ -590,7 +590,7 @@ def main():
                 text-align: center;
                 transition: all 0.2s ease;
                 margin-bottom: 0.5rem;
-                height: 270px;
+                height: 240px;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
