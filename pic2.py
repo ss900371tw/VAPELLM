@@ -669,15 +669,16 @@ def main():
         if "單一網址分析" in mode:
             # 建立左右排列欄位
             # 自訂按鈕樣式讓它貼齊 text_input 高度
+            
             st.markdown("""
-<style>
-/* 限制按鈕外層為 flex 垂直置中 */
-div[data-testid="column"] > div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
+            <style>
+            /* 精準對齊：選取 button 外層容器，做垂直居中處理 */
+            div[data-testid="column"] div:has(button) {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
             /* 美化按鈕本身 */
             div[data-testid="column"] button {
                 height: 40px;
