@@ -570,36 +570,33 @@ def main():
 
     # 顯示卡片
 
-    def render_card(icon, title, desc, key, selected):
+     # 卡片按鈕渲染函數
+    def render_card_button(icon, title, desc, key):
+        selected = (st.session_state.get("selected_mode") == title)
         border = "4px solid #3EB489" if selected else "1px solid #999999"
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        # 使用 form 模擬可點擊區塊，避免 JS
-        with st.form(key=key):
-            submitted = st.form_submit_button(
-                label="",
-                use_container_width=True
-            )
-            st.markdown(f"""
-            <div style="
-                background-color: {bg};
-                color: white;
-                border-radius: 16px;
-                border: {border};
-                box-shadow: {shadow};
-                padding: 1.5rem;
-                text-align: center;
-                margin-bottom: 0.5rem;
-                cursor: pointer;
-            ">
-                <div style="font-size: 2rem;">{icon}</div>
-                <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-                <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
-            </div>
-            """, unsafe_allow_html=True)
-    
-        return submitted
+        btn_html = f"""
+        <div style="
+            background-color: {bg};
+            color: white;
+            border-radius: 16px;
+            border: {border};
+            box-shadow: {shadow};
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        ">
+            <div style="font-size: 2rem;">{icon}</div>
+            <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
+        </div>
+        """
+        if st.button("", key=key):
+            st.session_state.selected_mode = title
+        st.markdown(btn_html, unsafe_allow_html=True)
 
                         
 
@@ -628,19 +625,14 @@ def main():
         st.session_state.selected_mode = None
     
     # 三欄卡片按鈕
+    # 顯示三個卡片按鈕
     col1, col2, col3 = st.columns(3)
-    mode=None
     with col1:
-        if render_card("🔍", "單一網址分析", "分析單個網站文字與圖片", "mode_single", st.session_state.selected_mode == "單一網址分析"):
-            st.session_state.selected_mode = "單一網址分析"
-    
+        render_card_button("🔍", "單一網址分析", "分析單個網站文字與圖片", key="mode1")
     with col2:
-        if render_card("📂", "批量網址分析", "上傳文字檔，分析多網站", "mode_batch", st.session_state.selected_mode == "批量網址分析"):
-            st.session_state.selected_mode = "批量網址分析"
-    
+        render_card_button("📂", "批量網址分析", "上傳文字檔，分析多網站", key="mode2")
     with col3:
-        if render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站", "mode_auto", st.session_state.selected_mode == "關鍵字搜尋分析"):
-            st.session_state.selected_mode = "關鍵字搜尋分析"
+        render_card_button("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站", key="mode3")
 
     if mode:
         st.markdown(f"""
