@@ -591,7 +591,7 @@ def main():
                 border: {border};
                 box-shadow: {shadow};
                 padding: 1.5rem;
-                height: 320px;
+                height: 36px;
                 text-align: center;
                 transition: all 0.2s ease;
                 display: flex;
