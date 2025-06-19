@@ -1132,7 +1132,8 @@ div[role="status"] > div > span {
                 # 總結與下載
                 st.markdown("---")
                 st.markdown("<h2 style='color:white;'>📋 分析總結</h2>", unsafe_allow_html=True)
-    
+                high_risk_urls = sorted(set(high_risk_urls))
+
                 if high_risk_urls:
                     st.warning(f"⚠️ 偵測到高風險網址：{len(high_risk_urls)} 筆")
                     st.download_button(
