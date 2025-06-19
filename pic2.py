@@ -569,30 +569,34 @@ def main():
         st.session_state.selected_mode = None
 
     # 顯示卡片
-    def render_card(icon, title, desc, selected, key):
+     def render_card(icon, title, desc, selected, key):
         border = "4px solid #3EB489" if selected else "1px solid #999999"
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        st.markdown(f"""
-        <div style="
-            background-color: {bg};
-            color: white;
-            border-radius: 16px;
-            border: {border};
-            box-shadow: {shadow};
-            padding: 1.5rem;
-            text-align: center;
-            margin-bottom: 1rem;
-        ">
-            <div style="font-size: 2rem;">{icon}</div>
-            <div style="font-size: 1.2rem; font-weight: bold;">{title}</div>
-            <div style="font-size: 0.9rem; color: #ccc;">{desc}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        with st.container():
+            st.markdown(f"""
+            <div style="
+                background-color: {bg};
+                color: white;
+                border-radius: 16px;
+                border: {border};
+                box-shadow: {shadow};
+                padding: 1.5rem;
+                text-align: center;
+                margin-bottom: 1rem;
+            ">
+                <div style="font-size: 2rem;">{icon}</div>
+                <div style="font-size: 1.2rem; font-weight: bold;">{title}</div>
+                <div style="font-size: 0.9rem; color: #ccc; margin-bottom: 1rem;">{desc}</div>
+            """, unsafe_allow_html=True)
     
-        if st.button("選擇此模式", key=f"{key}_button"):
-            st.session_state.selected_mode = title
+            # 🔘 按鈕放在卡片內部
+            if st.button("選擇", key=f"{key}_button"):
+                st.session_state.selected_mode = title
+    
+            # 關閉最外層 div（HTML fragment）
+            st.markdown("</div>", unsafe_allow_html=True)
 
     # 模式選擇
     st.markdown("## 📌 請選擇分析模式")
@@ -600,9 +604,9 @@ def main():
     with col1:
         render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片", st.session_state.selected_mode == "單一網址分析", "btn_1")
     with col2:
-        render_card("📂", "批量網址分析", "上傳文字檔，一次分析多個網站", st.session_state.selected_mode == "批量網址分析", "btn_2")
+        render_card("📂", "批量網址分析", "上傳文字檔，分析多個網站", st.session_state.selected_mode == "批量網址分析", "btn_2")
     with col3:
-        render_card("📝", "GOOGLE 自動搜尋 & 分析", "根據關鍵字搜尋網站", st.session_state.selected_mode == "GOOGLE 自動搜尋 & 分析", "btn_3")
+        render_card("📝", "關鍵字搜尋分析", "根據關鍵字爬蟲分析", st.session_state.selected_mode == "關鍵字搜尋分析", "btn_3")
 
     # 顯示選擇模式
     mode = st.session_state.selected_mode
