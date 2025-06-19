@@ -571,9 +571,9 @@ def main():
     </style>
 """, unsafe_allow_html=True)
     st.markdown("""
-<h3 style='text-align: center; color: #00FFFF; font-weight: normal; letter-spacing: 1px;'>
+<p style='text-align: center; font-size: 16px; font-weight: normal; letter-spacing: 0.5px;'>
 🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站
-</h3>
+</p>
 """, unsafe_allow_html=True)
     
     llm_text = ChatOpenAI(api_key=openai_api_key, model="gpt-4o", temperature=0)
