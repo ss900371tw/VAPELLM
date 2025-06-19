@@ -824,13 +824,22 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                     return
     
                 urls = [line.strip().decode("utf-8") for line in uploaded_file.readlines() if line]
-                st.info(f"📄 共有 {len(urls)} 個網址將進行分析")
-    
+                st.markdown(f"<h3 style='color:white;'>📄 共有 {len(urls)} 個網址將進行分析", unsafe_allow_html=True)
+
                 high_risk_urls = []
     
                 for idx, url in enumerate(urls, start=1):
-                    st.markdown(f"---\n### 🔗 [{idx}/{len(urls)}] 分析網址：[{url}]({url})")
-    
+                    st.markdown(f"<h3 style='color:white;'>---\n 🔗 [{idx}/{len(urls)}] 分析網址：[{url}]({url})", unsafe_allow_html=True)
+
+                    st.markdown("""
+<style>
+/* 自訂 spinner 內文為白色 */
+.css-1v0mbdj span {
+    color: white !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
                     with st.spinner("⏳ 正在分析..."):
                         text_content = crawl_all_text(url)
                         text_result = chain.invoke(text_content)
@@ -917,7 +926,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                 st.subheader("📋 批次分析總結")
                 
                 if high_risk_urls:
-                    st.warning(f"⚠️ 共偵測到高風險網址 {len(high_risk_urls)} 筆")
+                    st.markdown(f"<h3 style='color:white;'>⚠️ 共偵測到高風險網址 {len(high_risk_urls)} 筆", unsafe_allow_html=True)
     
                     st.download_button(
                         label="📥 下載高風險網址清單",
