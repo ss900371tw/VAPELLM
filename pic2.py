@@ -535,6 +535,7 @@ def is_blacklisted_url(url: str) -> bool:
            any(kw in url_lower for kw in blacklist_keywords_in_url)
     
 # -------------------- 9. Streamlit 主程式 --------------------
+# -------------------- 9. Streamlit 主程式 --------------------
 def main():
     st.markdown("<h1 style='text-align:center;color:white;'>電子菸網站偵測系統</h1>", unsafe_allow_html=True)
 
@@ -570,47 +571,12 @@ def main():
 
     # 顯示卡片
 
-    # -------------------- 9. Streamlit 主程式 --------------------
-def main():
-    st.markdown("<h1 style='text-align:center;color:white;'>電子菸網站偵測系統</h1>", unsafe_allow_html=True)
-
-    # 背景樣式與主題文字
-    st.markdown("""
-    <style>
-        .stApp {
-            background-image: url("https://raw.githubusercontent.com/ss900371tw/VAPELLM/refs/heads/main/%E9%9B%BB%E5%AD%90%E8%8F%B8%E7%B6%B2%E7%AB%99%E5%81%B5%E6%B8%AC%E7%B3%BB%E7%B5%B1%20bg.png");
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }
-        h1, h2, h3 {
-            color: #00FFFF;
-        }
-        .stButton > button {
-            background-color: #3EB489;
-            color: white;
-            font-weight: bold;
-            border-radius: 8px;
-            padding: 0.5rem 1.2rem;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <p style='text-align:center; font-size: 24px; color: white;'>🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站</p>
-    """, unsafe_allow_html=True)
-    
-    # 初始化狀態
-    if "selected_mode" not in st.session_state:
-        st.session_state.selected_mode = None
-    
-    def render_card_html(key, icon, title, desc):
-        selected = st.session_state.selected_mode == title
+    def render_card(icon, title, desc, selected):
         border = "4px solid #3EB489" if selected else "1px solid #999999"
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        btn = st.markdown(f"""
+        st.markdown(f"""
         <div style="
             background-color: {bg};
             color: white;
@@ -620,37 +586,57 @@ def main():
             padding: 1.5rem;
             text-align: center;
             margin-bottom: 0.5rem;
-            height: 200px;
-            cursor: pointer;
-        " onclick="document.getElementById('{key}').click()">
+        ">
             <div style="font-size: 2rem;">{icon}</div>
             <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
+            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
         </div>
-        <form action="" method="post">
-            <input type="hidden" name="choice" value="{title}">
-            <button type="submit" id="{key}" style="display:none;"></button>
-        </form>
         """, unsafe_allow_html=True)
-    
-    # 上方橫幅
-    st.markdown("<h1 style='text-align:center;color:white;'>電子菸網站偵測系統</h1>", unsafe_allow_html=True)
-    st.markdown("<div class='banner-text'>請選擇分析模式</div>", unsafe_allow_html=True)
-    
-    # 三欄卡片
+
+                        
+
+    # 模式選擇
+    st.markdown("""
+<style>
+.banner-text {
+    background-color: #0052cc;  /* 深藍色 */
+    color: white;               /* 白字 */
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    border-radius: 6px;
+    margin: 10px 0px;
+}
+</style>
+
+<div class="banner-text">
+請選擇分析模式
+</div>
+""", unsafe_allow_html=True)
+
+    if "selected_mode" not in st.session_state:
+        st.session_state.selected_mode = None
+
+    # 集中處理按鈕事件
     col1, col2, col3 = st.columns(3)
+    mode = None
+    # 如果這輪有點按鈕，更新狀態
+    if mode:
+        st.session_state.selected_mode = mode
+
+    # 第二階段：渲染卡片（這時狀態已準備好，視覺效果正確）
     with col1:
-        render_card_html("card1", "🔍", "單一網址分析", "分析單個網站文字與圖片")
+        render_card("🔍", "單一網址分析", "分析單個網站文字與圖片",
+                    selected=(st.session_state.selected_mode == "單一網址分析"))
     with col2:
-        render_card_html("card2", "📂", "批量網址分析", "上傳文字檔，分析多網站")
+        render_card("📂", "批量網址分析", "上傳文字檔，分析多網站",
+                    selected=(st.session_state.selected_mode == "批量網址分析"))
     with col3:
-        render_card_html("card3", "🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站")
-    
-    # 偵測點擊（需放在主程式最底）
-    choice = st.experimental_get_query_params().get("choice", [None])[0]
-    if choice:
-        st.session_state.selected_mode = choice
-        st.success(f"✅ 你選擇的是：{choice}")
+        render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站",
+                    selected=(st.session_state.selected_mode == "關鍵字搜尋分析"))
+
+
     if mode:
         st.markdown(f"""
         <div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
