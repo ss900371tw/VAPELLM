@@ -591,6 +591,9 @@ def main():
                 transition: all 0.2s ease;
                 margin-bottom: 0.5rem;
                 height: 270px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
             }}
             #{key}_card:hover {{
                 transform: scale(1.02);
