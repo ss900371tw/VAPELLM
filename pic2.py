@@ -623,6 +623,64 @@ def main():
                 st.session_state.selected_mode = title
                 st.rerun()
 
+    def render_card(icon, title, desc, key):
+        selected = st.session_state.get("selected_mode") == title
+        border = "4px solid #3EB489" if selected else "1px solid #999999"
+        shadow = "0 0 20px #3EB489" if selected else "none"
+        bg = "#0c1b2a" if selected else "#1a1f2b"
+    
+        with st.container():
+            st.markdown(f"""
+            <style>
+            #{key}_card {{
+                background-color: {bg};
+                color: white;
+                border-radius: 16px;
+                border: {border};
+                box-shadow: {shadow};
+                padding: 1.5rem;
+                text-align: center;
+                transition: all 0.2s ease;
+                margin-bottom: 0.5rem;
+                height: 300px;
+    
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }}
+            #{key}_card:hover {{
+                transform: scale(1.02);
+                box-shadow: 0 0 25px #3EB489;
+            }}
+            #{key}_btn {{
+                background-color: #3EB489;
+                color: white;
+                font-weight: bold;
+                border: none;
+                border-radius: 6px;
+                font-size: 1rem;
+                height: 40px;
+                padding: 0.3rem 1.2rem;
+                margin: 0 auto;
+            }}
+            </style>
+    
+            <div id="{key}_card">
+                <div>
+                    <div style="font-size: 2rem;">{icon}</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+                    <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
+                </div>
+                <form action="" method="post">
+                    <button id="{key}_btn" type="submit" name="{key}_form_button">選擇</button>
+                </form>
+            </div>
+            """, unsafe_allow_html=True)
+    
+            # 偵測按下哪個表單按鈕
+            if st.session_state.get(f"{key}_form_button"):
+                st.session_state.selected_mode = title
+                st.rerun()
                         
 
     # 模式選擇
