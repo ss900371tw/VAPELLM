@@ -577,6 +577,7 @@ def main():
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
+        # 顯示卡片樣式
         card_html = f"""
         <style>
         #{key}_button {{
@@ -600,16 +601,17 @@ def main():
         }}
         </style>
     
-        <button id="{key}_button" onclick="document.getElementById('{key}_click').click()">
+        <button id="{key}_button" onclick="fetch('', {{method: 'POST'}}).then(() => window.location.href='#{key}_trigger')">
             <div style="font-size: 2rem;">{icon}</div>
             <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
             <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
         </button>
         """
         st.markdown(card_html, unsafe_allow_html=True)
-        # 隱藏的觸發用 Streamlit 按鈕
-        placeholder = st.empty()
-        if placeholder.button("", key=f"{key}_click", help="", label_visibility="collapsed"):
+    
+        # 真正觸發事件的按鈕，不顯示出來
+        trigger = st.empty()
+        if trigger.button("trigger", key=f"{key}_trigger", help=""):
             st.session_state.selected_mode = title
 
                         
