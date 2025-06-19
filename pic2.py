@@ -608,7 +608,8 @@ def main():
         """
         st.markdown(card_html, unsafe_allow_html=True)
         # 隱藏的觸發用 Streamlit 按鈕
-        if st.button("", key=f"{key}_click"):
+        placeholder = st.empty()
+        if placeholder.button("", key=f"{key}_click", help="", label_visibility="collapsed"):
             st.session_state.selected_mode = title
 
                         
