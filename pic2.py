@@ -697,7 +697,7 @@ def main():
             
             # --- 表單輸入區塊 ---
             with st.form("url_input_form"):
-                col1, col2 = st.columns([6, 1])
+                col1, col2 = st.columns([3, 1])
                 
                 with col1:
                     url = st.text_input("", placeholder="請輸入網址：", label_visibility="collapsed")
