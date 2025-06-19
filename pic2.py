@@ -569,7 +569,10 @@ def main():
         st.session_state.selected_mode = None
 
     # 顯示卡片
-    def render_card(icon, title, desc, selected, key):
+    def render_card(icon, title, desc, key):
+        # ✅ 直接從 session_state 判斷是否選中（不靠外部傳入 selected）
+        selected = st.session_state.get("selected_mode") == title
+    
         border = "4px solid #3EB489" if selected else "1px solid #999999"
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
@@ -591,13 +594,11 @@ def main():
                 <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
             """, unsafe_allow_html=True)
     
-            # ✅ 放入 Streamlit 標準按鈕，嵌在 div 裡（但實際在外層 container）
-            button_clicked = st.button("選擇", key=f"{key}_button")
-            if button_clicked:
+            if st.button("選擇", key=f"{key}_button"):
                 st.session_state.selected_mode = title
     
-            # 關閉 div 區塊
             st.markdown("</div>", unsafe_allow_html=True)
+
         
             
 
@@ -605,11 +606,12 @@ def main():
     st.markdown("## 📌 請選擇分析模式")
     col1, col2, col3 = st.columns(3)
     with col1:
-        render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片", st.session_state.selected_mode == "單一網址分析", "btn_1")
+        render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片", "card1")
     with col2:
-        render_card("📂", "批量網址分析", "上傳文字檔，分析多個網站", st.session_state.selected_mode == "批量網址分析", "btn_2")
+        render_card("📂", "批量網址分析", "上傳文字檔，分析多個網站", "card2")
     with col3:
-        render_card("📝", "關鍵字搜尋分析", "根據關鍵字爬蟲分析", st.session_state.selected_mode == "關鍵字搜尋分析", "btn_3")
+        render_card("📝", "關鍵字搜尋分析", "根據關鍵字爬蟲分析", "card3")
+
 
     # 顯示選擇模式
     mode = st.session_state.selected_mode
