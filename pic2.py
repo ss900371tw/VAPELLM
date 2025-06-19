@@ -570,37 +570,63 @@ def main():
 
     # 顯示卡片
 
-    def render_card(icon, title, desc, key):
-        clicked = st.button(
-            label=f"{icon} {title}\n{desc}",
-            key=key,
-            help=desc,
-        )
-    
-        border = "4px solid #3EB489" if st.session_state.get("selected_mode") == title else "1px solid #999999"
-        shadow = "0 0 20px #3EB489" if st.session_state.get("selected_mode") == title else "none"
-        bg = "#0c1b2a" if st.session_state.get("selected_mode") == title else "#1a1f2b"
+    # -------------------- 9. Streamlit 主程式 --------------------
+def main():
+    st.markdown("<h1 style='text-align:center;color:white;'>電子菸網站偵測系統</h1>", unsafe_allow_html=True)
+
+    # 背景樣式與主題文字
+    st.markdown("""
+    <style>
+        .stApp {
+            background-image: url("https://raw.githubusercontent.com/ss900371tw/VAPELLM/refs/heads/main/%E9%9B%BB%E5%AD%90%E8%8F%B8%E7%B6%B2%E7%AB%99%E5%81%B5%E6%B8%AC%E7%B3%BB%E7%B5%B1%20bg.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        h1, h2, h3 {
+            color: #00FFFF;
+        }
+        .stButton > button {
+            background-color: #3EB489;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            padding: 0.5rem 1.2rem;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <p style='text-align:center; font-size: 24px; color: white;'>🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站</p>
+    """, unsafe_allow_html=True)
+
+    # 初始化
+    if "selected_mode" not in st.session_state:
+        st.session_state.selected_mode = None
+
+    # 顯示卡片
+
+    def render_card(icon, title, desc, selected):
+        border = "4px solid #3EB489" if selected else "1px solid #999999"
+        shadow = "0 0 20px #3EB489" if selected else "none"
+        bg = "#0c1b2a" if selected else "#1a1f2b"
     
         st.markdown(f"""
-            <style>
-                .stButton > button#{key} {{
-                    background-color: {bg};
-                    color: white;
-                    border-radius: 16px;
-                    border: {border};
-                    box-shadow: {shadow};
-                    padding: 1.5rem;
-                    width: 100%;
-                    font-size: 1.1rem;
-                    text-align: center;
-                    line-height: 1.5;
-                    white-space: normal;
-                }}
-            </style>
+        <div style="
+            background-color: {bg};
+            color: white;
+            border-radius: 16px;
+            border: {border};
+            box-shadow: {shadow};
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        ">
+            <div style="font-size: 2rem;">{icon}</div>
+            <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
+        </div>
         """, unsafe_allow_html=True)
-    
-        if clicked:
-            st.session_state.selected_mode = title
 
                         
 
@@ -629,12 +655,21 @@ def main():
 
     # 集中處理按鈕事件
     col1, col2, col3 = st.columns(3)
+    mode = None
+    # 如果這輪有點按鈕，更新狀態
+    if mode:
+        st.session_state.selected_mode = mode
+
+    # 第二階段：渲染卡片（這時狀態已準備好，視覺效果正確）
     with col1:
-        render_card("🔍", "單一網址分析", "分析單個網站文字與圖片", key="mode_single")
+        render_card("🔍", "單一網址分析", "分析單個網站文字與圖片",
+                    selected=(st.session_state.selected_mode == "單一網址分析"))
     with col2:
-        render_card("📂", "批量網址分析", "上傳文字檔，分析多網站", key="mode_batch")
+        render_card("📂", "批量網址分析", "上傳文字檔，分析多網站",
+                    selected=(st.session_state.selected_mode == "批量網址分析"))
     with col3:
-        render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站", key="mode_keyword")
+        render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站",
+                    selected=(st.session_state.selected_mode == "關鍵字搜尋分析"))
     
     # 根據選擇顯示內容（例）
     if st.session_state.selected_mode:
