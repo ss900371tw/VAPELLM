@@ -571,15 +571,6 @@ def main():
     # 顯示卡片
     
     def render_card(icon, title, desc, key):
-        # 這一輪 render 的選取狀態會立即更新
-        if f"{key}_clicked" not in st.session_state:
-            st.session_state[f"{key}_clicked"] = False
-    
-        if st.button("選擇", key=f"{key}_button"):
-            st.session_state.selected_mode = title
-            st.session_state[f"{key}_clicked"] = True  # 可用來記錄首次點擊
-    
-        # 立即讀取目前是否選取中
         selected = st.session_state.get("selected_mode") == title
     
         border = "4px solid #3EB489" if selected else "1px solid #999999"
@@ -587,6 +578,7 @@ def main():
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
         with st.container():
+            # 用空字串佔位，讓 button 出現在 HTML block 裡
             st.markdown(f"""
             <div style="
                 background-color: {bg};
@@ -600,12 +592,17 @@ def main():
             ">
                 <div style="font-size: 2rem;">{icon}</div>
                 <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-                <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem; margin-bottom: 1rem;">{desc}</div>
-            </div>
+                <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
             """, unsafe_allow_html=True)
-
-        
+    
+            # 真正的 Streamlit 按鈕：渲染在卡片內部
+            if st.button("選擇", key=f"{key}_button"):
+                st.session_state.selected_mode = title
+    
+            # 關閉卡片區塊
+            st.markdown("</div>", unsafe_allow_html=True)
             
+                
 
     # 模式選擇
     st.markdown("## 📌 請選擇分析模式")
