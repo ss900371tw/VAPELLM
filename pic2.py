@@ -648,30 +648,41 @@ def main():
 
     # 模式選擇
     st.markdown("## 📌 請選擇分析模式")
+    if "selected_mode" not in st.session_state:
+        st.session_state.selected_mode = None
+
+    # 集中處理按鈕事件
+    clicked_mode = None
     col1, col2, col3 = st.columns(3)
 
     with col1:
         if st.button("選擇", key="btn_single"):
-            st.session_state.selected_mode = "單一網址分析"
-        render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片",
-                    selected=(st.session_state.get("selected_mode") == "單一網址分析"))
-
+            clicked_mode = "單一網址分析"
     with col2:
         if st.button("選擇", key="btn_batch"):
-            st.session_state.selected_mode = "批量網址分析"
-        render_card("📂", "批量網址分析", "上傳文字檔，一次分析多個網站",
-                    selected=(st.session_state.get("selected_mode") == "批量網址分析"))
-
+            clicked_mode = "批量網址分析"
     with col3:
         if st.button("選擇", key="btn_auto"):
-            st.session_state.selected_mode = "關鍵字搜尋分析"
+            clicked_mode = "關鍵字搜尋分析"
+
+    # 如果這輪有點按鈕，更新狀態
+    if clicked_mode:
+        st.session_state.selected_mode = clicked_mode
+
+    # 第二階段：渲染卡片（這時狀態已準備好，視覺效果正確）
+    with col1:
+        render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片",
+                    selected=(st.session_state.selected_mode == "單一網址分析"))
+    with col2:
+        render_card("📂", "批量網址分析", "上傳文字檔，一次分析多個網站",
+                    selected=(st.session_state.selected_mode == "批量網址分析"))
+    with col3:
         render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站",
-                    selected=(st.session_state.get("selected_mode") == "關鍵字搜尋分析"))
+                    selected=(st.session_state.selected_mode == "關鍵字搜尋分析"))
 
-
-    # 顯示選擇模式
-    mode = st.session_state.selected_mode
-
+    # 顯示目前選擇
+    if st.session_state.selected_mode:
+        st.markdown(f"### 🎯 目前選擇的模式：`{st.session_state.selected_mode}`")
 
 
     
