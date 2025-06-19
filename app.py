@@ -417,7 +417,7 @@ def main():
                         final_decision = "✅ 安全網站"
                 st.subheader("綜合結論：")
                 st.write(final_decision)
-                        
+            high_risk_urls = sorted(set(high_risk_urls))
             if high_risk_urls:
                 with open("high_risk_urls.txt", "w", encoding="utf-8") as wf:
                     wf.writelines(url + "\n" for url in high_risk_urls)
@@ -505,6 +505,8 @@ def main():
                         final_decision = "✅ 安全網站"
                 st.subheader("綜合結論：")
                 st.write(final_decision)
+
+            high_risk_urls = sorted(set(high_risk_urls))
 
             if high_risk_urls:
                 out_file = "google_high_risk_urls.txt"
