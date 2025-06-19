@@ -634,7 +634,7 @@ def main():
 
 
     
-    if mode:
+    if clicked_mode:
         st.markdown(f"""
         <div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
             <h4 style="margin-bottom:0rem;">🎯 目前選擇的模式：<span style="color:#3EB489;">{mode}</span></h4>
@@ -643,7 +643,7 @@ def main():
     else:
         st.info("👉 請點選上方卡片來選擇模式")
     
-    if mode:
+    if clicked_mode:
         st.markdown(f"### 🎯 選擇模式：**{mode}**")
     
         if "單一網址分析" in mode:
