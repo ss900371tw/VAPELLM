@@ -716,18 +716,9 @@ def main():
         render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站", key="search")
     
     mode = st.session_state.get("selected_mode")
-    if mode:
-        st.markdown(f"""
-        <div style="background-color:#f7f9fc;padding:1rem 1.5rem;border-radius:12px;border-left:6px solid #3EB489;margin-top:1rem;">
-            <h4 style="margin-bottom:0rem;">🎯 目前選擇的模式：<span style="color:#3EB489;">{mode}</span></h4>
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.info("👉 請點選上方卡片來選擇模式")
     
     if mode:    
         if "單一網址分析" in mode:
-            st.markdown("### 🔗 單一網址分析")
             url = st.text_input("請輸入網址：")
     
             if st.button("🚀 開始分析"):
@@ -789,7 +780,6 @@ def main():
                     st.success("✅ 安全網站：未偵測出高風險內容")
     
         elif "批量網址分析" in mode:
-            st.markdown("### 📂 批量網址分析")
             uploaded_file = st.file_uploader("請上傳 .txt 檔案（每行一個網址）", type=["txt"])
     
             if st.button("🚀 開始批次分析"):
@@ -872,9 +862,6 @@ def main():
                     st.success("✅ 所有網址皆未偵測到高風險內容")
     
         else:
-            st.markdown("### 🌐 Google 搜尋分析模式")
-            st.markdown("> 根據關鍵字自動搜尋網站，並對每個搜尋結果進行 AI 文本與圖像判斷")
-    
             # 輸入關鍵字
             keywords_text = st.text_area(
                 "🔤 請輸入搜尋關鍵字（每行一個）",
