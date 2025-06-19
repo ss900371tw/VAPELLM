@@ -723,7 +723,7 @@ def main():
                     submitted = st.form_submit_button("確定")            
 
             # 分析邏輯
-                    if submitted and url.strip():
+                    if submitted:
                         if not url.strip():
                             st.markdown("""
         <div style="
