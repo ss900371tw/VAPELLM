@@ -590,6 +590,7 @@ def main():
                 text-align: center;
                 transition: all 0.2s ease;
                 margin-bottom: 0.5rem;
+                height: 270px;
             }}
             #{key}_card:hover {{
                 transform: scale(1.02);
