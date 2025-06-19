@@ -574,11 +574,6 @@ def main():
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        clicked = st.button("選擇", key=key)
-    
-        if clicked:
-            st.session_state.selected_mode = title
-    
         st.markdown(f"""
         <div style="
             background-color: {bg};
@@ -595,10 +590,9 @@ def main():
             <div style="font-size: 0.9rem; color: #ccc;">{desc}</div>
         </div>
         """, unsafe_allow_html=True)
-
-        if st.button("選擇", key=key):
+    
+        if st.button("選擇此模式", key=f"{key}_button"):
             st.session_state.selected_mode = title
-            st.experimental_rerun()
 
     # 模式選擇
     st.markdown("## 📌 請選擇分析模式")
