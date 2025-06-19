@@ -588,14 +588,30 @@ def main():
 </div>
 """, unsafe_allow_html=True)
     
-    mode = st.selectbox(
-    "📌 請選擇模式",
-    [
-        "🔍 單一網址分析",
-        "📂 批量網址分析",
-        "🌐 GOOGLE 自動搜尋 & 分析"
-    ]
-)
+    st.markdown("## 📌 請選擇模式")
+
+    mode = None
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        if st.button("🔍 單一網址分析"):
+            mode = "🔍 單一網址分析"
+            st.session_state.mode = mode
+    with col2:
+        if st.button("📂 批量網址分析"):
+            mode = "📂 批量網址分析"
+            st.session_state.mode = mode
+    with col3:
+        if st.button("🌐 GOOGLE 自動搜尋 & 分析"):
+            mode = "🌐 GOOGLE 自動搜尋 & 分析"
+            st.session_state.mode = mode
+
+    # 若尚未選擇但之前選過，從 session state 恢復
+    if mode is None:
+        mode = st.session_state.get("mode", None)
+
+if mode:
+    st.markdown(f"### 🎯 選擇模式：**{mode}**")
 
     if "單一網址分析" in mode:
         st.markdown("### 🔗 單一網址分析")
