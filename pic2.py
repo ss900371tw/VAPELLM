@@ -577,40 +577,47 @@ def main():
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
-        st.markdown(f"""
-        <style>
-        #{key}_card {{
-            background-color: {bg};
-            color: white;
-            border-radius: 16px;
-            border: {border};
-            box-shadow: {shadow};
-            padding: 1.5rem;
-            height: 220px;
-            width: 100%;
-            text-align: center;
-            transition: all 0.2s ease;
-        }}
-        #{key}_card:hover {{
-            transform: scale(1.02);
-            box-shadow: 0 0 25px #3EB489;
-            cursor: pointer;
-        }}
-        </style>
+        with st.container():
+            st.markdown(f"""
+            <style>
+            #{key}_card {{
+                background-color: {bg};
+                color: white;
+                border-radius: 16px;
+                border: {border};
+                box-shadow: {shadow};
+                padding: 1.5rem;
+                text-align: center;
+                transition: all 0.2s ease;
+                margin-bottom: 0.5rem;
+            }}
+            #{key}_card:hover {{
+                transform: scale(1.02);
+                box-shadow: 0 0 25px #3EB489;
+            }}
+            .select-btn {{
+                background-color: #3EB489;
+                color: white;
+                font-weight: bold;
+                border: none;
+                padding: 0.4rem 1rem;
+                border-radius: 6px;
+                margin-top: 10px;
+                font-size: 1rem;
+            }}
+            </style>
     
-        <div id="{key}_card" onclick="document.getElementById('{key}_hidden_btn').click()">
-            <div style="font-size: 2rem;">{icon}</div>
-            <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
-            <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
-        </div>
-        """, unsafe_allow_html=True)
+            <div id="{key}_card">
+                <div style="font-size: 2rem;">{icon}</div>
+                <div style="font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem;">{title}</div>
+                <div style="font-size: 0.9rem; color: #ccc; margin-top: 0.3rem;">{desc}</div>
+            </div>
+            """, unsafe_allow_html=True)
     
-        # 隱藏觸發按鈕
-        btn_placeholder = st.empty()
-        if btn_placeholder.button(" ", key=f"{key}_hidden_btn"):
-            st.session_state.selected_mode = title
-            st.rerun()
-
+            # 這裡的按鈕會顯示「選擇」
+            if st.button("選擇", key=f"{key}_btn"):
+                st.session_state.selected_mode = title
+                st.rerun()
 
                         
 
