@@ -801,9 +801,12 @@ div[data-testid="column"] div:has(button) {
         elif "批量網址分析" in mode:
             st.markdown("""
 <style>
-/* 將所有 Streamlit 標籤文字（例如 file_uploader）設為白色 */
+/* 將 file_uploader 的標籤與上傳檔名都改為白色 */
 label, .stFileUploader label {
     color: white !important;
+}
+
+/* 檔名顯示區塊文字（含大小） */
 section[data-testid="stFileUploader"] div[aria-label] p {
     color: white !important;
 }
