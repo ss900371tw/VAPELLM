@@ -634,7 +634,6 @@ def main():
         bg = "#0c1b2a" if selected else "#1a1f2b"
     
         with st.container():
-            # 卡片框樣式
             st.markdown(f"""
             <style>
             div#{key}_card {{
@@ -668,17 +667,16 @@ def main():
             </style>
             """, unsafe_allow_html=True)
     
-            # ✅ 卡片本體 + button 全包在一起
+            # ✅ 整個卡片區塊（包含所有內容 + 按鈕）
             st.markdown(f'<div id="{key}_card">', unsafe_allow_html=True)
     
-            # 內容區塊
+            # 所有內容：icon + title + desc + button
             st.markdown(f"""
                 <div style="font-size: 2rem;">{icon}</div>
                 <div style="font-size: 1.2rem; font-weight: bold;">{title}</div>
                 <div style="font-size: 0.9rem; color: #ccc;">{desc}</div>
             """, unsafe_allow_html=True)
     
-            # ✅ 放進卡片內底部的 Streamlit button
             if st.button("選擇", key=f"{key}_btn"):
                 st.session_state.selected_mode = title
                 st.rerun()
