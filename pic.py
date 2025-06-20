@@ -318,7 +318,15 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
 # ---------------------------------------------------------------------------
-
+def upload_image_to_imgbb(image_path):
+    with open(image_path, "rb") as f:
+        res = requests.post(
+            "https://api.imgbb.com/1/upload",
+            params={"key": IMGBB_API_KEY},
+            files={"image": f}
+        )
+    res.raise_for_status()
+    return res.json()["data"]["url"]
 
 import requests
 from bs4 import BeautifulSoup
