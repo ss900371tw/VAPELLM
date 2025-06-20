@@ -13,7 +13,7 @@ google-api-python-client>=2.110
 playwright
 requests_html
 lxml[html_clean]
-google_images_search 
+google_images_search==1.4.4 
 opencv-python
 requests
 seleniumbase 
