@@ -627,7 +627,7 @@ def main():
         st.session_state.selected_mode = None
 
     # 集中處理按鈕事件
-    col1, col2, col3 , col4= st.columns(3)
+    col1, col2, col3 , col4= st.columns(4)
     with col1:
         render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片", key="single")
     with col2:
