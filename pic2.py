@@ -38,7 +38,6 @@ import streamlit as st
 from PIL import Image
 import tempfile
 import os
-import cv2
 from google_images_search import GoogleImagesSearch
 
 
