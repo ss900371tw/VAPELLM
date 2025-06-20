@@ -13,4 +13,3 @@ google-api-python-client>=2.110
 markdown-it-py==3.0.0
 rich==14.0.0
 ollama
-
