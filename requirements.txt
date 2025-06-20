@@ -15,4 +15,4 @@ requests_html
 lxml[html_clean]
 requests
 seleniumbase 
-serpapi==0.3.0
+serpapi--upgrade
