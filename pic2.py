@@ -15,6 +15,7 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from urllib.parse import urljoin
 import pickle
+import tempfile
 from googleapiclient.discovery import build
 from PIL import Image
 from io import BytesIO
