@@ -264,45 +264,42 @@ import tempfile
 from PIL import Image
 from bs4 import BeautifulSoup
 import time
-def google_image_search_with_playwright(uploaded_image, max_results=10):
+def encode_image_to_base64(uploaded_image):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
         img = Image.open(uploaded_image)
         img.save(tmp.name)
-        image_path = tmp.name
+        with open(tmp.name, "rb") as f:
+            encoded_string = base64.b64encode(f.read()).decode("utf-8")
+    return encoded_string
 
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
-        )
-        page = context.new_page()
+# ---------------------------- 呼叫 Google Search API ----------------------------
+def google_image_search_via_api(uploaded_image, max_results=10):
+    if not GOOGLE_API_KEY or not GOOGLE_CX_ID:
+        st.error("❌ 尚未設定 Google Search API 金鑰與搜尋引擎 ID。")
+        return []
 
-        # ✅ 進入圖片上傳頁面
-        page.goto("https://www.google.com/searchbyimage/upload", timeout=60000)
+    encoded_img = encode_image_to_base64(uploaded_image)
+    search_url = "https://customsearch.googleapis.com/customsearch/v1"
 
-        try:
-            file_input = page.locator("input[type='file']")
-            file_input.wait_for(state="visible", timeout=10000)
-            file_input.set_input_files(image_path)
-        except Exception as e:
-            st.error("❌ 圖片上傳失敗，可能是 Google 頁面阻擋或結構變動。")
-            browser.close()
-            return []
+    headers = {"Content-Type": "application/json"}
+    params = {
+        "key": GOOGLE_API_KEY,
+        "cx": GOOGLE_CX_ID,
+        "searchType": "image",
+        "q": "vape",  # 加上預設查詢詞
+        "num": max_results
+    }
 
-        time.sleep(8)  # 等待圖片上傳與搜尋完成
+    response = requests.get(search_url, headers=headers, params=params)
+    data = response.json()
 
-        html = page.content()
-        soup = BeautifulSoup(html, "html.parser")
+    urls = []
+    for item in data.get("items", []):
+        if "link" in item:
+            urls.append(item["link"])
+    return urls
 
-        links = soup.find_all("a", href=True)
-        result_urls = []
-        for link in links:
-            href = link["href"]
-            if href.startswith("http") and "google.com" not in href:
-                result_urls.append(href)
 
-        browser.close()
-        return list(set(result_urls))[:max_results]
 
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
