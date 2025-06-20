@@ -265,13 +265,6 @@ from PIL import Image
 from bs4 import BeautifulSoup
 import time
 def google_image_search_with_playwright(uploaded_image, max_results=10):
-    from playwright.sync_api import sync_playwright
-    import tempfile
-    from PIL import Image
-    from bs4 import BeautifulSoup
-    import time
-
-    # 儲存暫存圖片
     with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
         img = Image.open(uploaded_image)
         img.save(tmp.name)
@@ -279,18 +272,25 @@ def google_image_search_with_playwright(uploaded_image, max_results=10):
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        context = browser.new_context()
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36"
+        )
         page = context.new_page()
 
-        # ✅ 直接進入圖片上傳專頁
+        # ✅ 進入圖片上傳頁面
         page.goto("https://www.google.com/searchbyimage/upload", timeout=60000)
 
-        # 找到上傳按鈕並送出圖片
-        file_input = page.locator("input[type='file']")
-        file_input.set_input_files(image_path)
-        time.sleep(8)  # 等待圖片上傳 + 轉跳完成
+        try:
+            file_input = page.locator("input[type='file']")
+            file_input.wait_for(state="visible", timeout=10000)
+            file_input.set_input_files(image_path)
+        except Exception as e:
+            st.error("❌ 圖片上傳失敗，可能是 Google 頁面阻擋或結構變動。")
+            browser.close()
+            return []
 
-        # 取得結果頁面連結
+        time.sleep(8)  # 等待圖片上傳與搜尋完成
+
         html = page.content()
         soup = BeautifulSoup(html, "html.parser")
 
@@ -303,7 +303,6 @@ def google_image_search_with_playwright(uploaded_image, max_results=10):
 
         browser.close()
         return list(set(result_urls))[:max_results]
-
 
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
@@ -1211,21 +1210,22 @@ div[role="status"] > div > span {
     """, unsafe_allow_html=True)
         elif "以圖搜尋分析" in mode:
             st.markdown("## 📷 以圖搜尋電子菸相關網站", unsafe_allow_html=True)
-        
+            
             uploaded_image = st.file_uploader("請上傳一張電子菸圖片", type=["jpg", "jpeg", "png"])
             limit = st.number_input("🔢 最多擷取幾組相關網址？", min_value=1, max_value=30, value=10)
     
             if uploaded_image and st.button("🚀 執行 Google 圖片搜尋"):
                 st.image(uploaded_image, caption="已上傳圖片", use_container_width=True)
                 with st.spinner("⏳ 使用 Google 圖片搜尋中..."):
-                    filtered_urls = google_image_search_with_playwright(uploaded_image, max_results=limit)
+                    urls = google_image_search_with_playwright(uploaded_image, max_results=limit)
     
-                if filtered_urls:
+                if urls:
                     st.success(f"✅ 找到 {len(urls)} 個網址")
-                    for url in filtered_urls:
+                    for url in urls:
                         st.markdown(f"- [{url}]({url})")
                 else:
                     st.warning("⚠️ 沒有找到相關網址")
+
         
                 high_risk_urls = []
         
