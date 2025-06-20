@@ -1219,7 +1219,7 @@ div[role="status"] > div > span {
                 st.image(uploaded_image, caption="已上傳圖片", use_column_width=True)
         
                 with st.spinner("⏳ 使用 Google 以圖搜尋中..."):
-                    all_urls = google_reverse_image_search(uploaded_image, max_results=limit)
+                    all_urls = google_image_search_with_playwright(uploaded_image, max_results=limit)
         
                 st.markdown(f"""
         <p style="color:white;">
