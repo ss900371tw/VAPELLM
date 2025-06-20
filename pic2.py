@@ -257,28 +257,38 @@ from undetected_chromedriver import Chrome, ChromeOptions
 from bs4 import BeautifulSoup
 
 from undetected_chromedriver import Chrome, ChromeOptions
+import os
 
 def google_reverse_image_search(image_file, max_results=20):
-    import tempfile
     from PIL import Image
-    from bs4 import BeautifulSoup
+    import tempfile
     import time
+    from bs4 import BeautifulSoup
+    from undetected_chromedriver import Chrome, ChromeOptions
 
+    # 儲存臨時圖片
     with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
         img = Image.open(image_file)
         img.save(tmp.name)
         img_path = tmp.name
 
-    # 加上 binary location
     options = ChromeOptions()
-    options.binary_location = "/usr/bin/google-chrome"  # <-- 修改這一行為你系統上的 chrome 路徑
     options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    driver = Chrome(options=options)
+    # 嘗試推測 chrome 路徑
+    chrome_paths = ["/usr/bin/google-chrome", "/usr/bin/chromium-browser"]
+    chrome_path = next((p for p in chrome_paths if os.path.exists(p)), None)
+
+    if not chrome_path:
+        st.error("❌ 找不到 Chrome 可執行檔，請確認已安裝 google-chrome 或 chromium-browser。")
+        return []
+
+    options.binary_location = chrome_path
 
     try:
+        driver = Chrome(options=options, browser_executable_path=chrome_path)
         driver.get("https://images.google.com/")
         driver.find_element("css selector", 'div[jscontroller="fNwCu"]').click()
         driver.switch_to.frame(driver.find_element("tag name", "iframe"))
@@ -290,11 +300,11 @@ def google_reverse_image_search(image_file, max_results=20):
         results = soup.select('a[href^="http"]')
         urls = [a["href"] for a in results if "http" in a["href"]][:max_results]
         return list(set(urls))
-
+    except Exception as e:
+        st.error(f"❌ 以圖搜尋失敗：{e}")
+        return []
     finally:
         driver.quit()
-
-
 
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
