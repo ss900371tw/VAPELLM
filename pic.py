@@ -1149,7 +1149,7 @@ div[role="status"] > div > span {
                         file_name="google_high_risk_urls.txt",
                         mime="text/plain"
                     )
-                else:
+                else: 
                     st.markdown("""
     <div style="
         background-color: #d4edda;
