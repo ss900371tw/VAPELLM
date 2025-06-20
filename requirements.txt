@@ -17,3 +17,5 @@ google_images_search
 opencv-python
 requests
 seleniumbase 
+markdown-it-py==3.0.0
+rich==14.0.0
