@@ -631,7 +631,7 @@ def main():
     with col3:
         render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站", key="search")
     with col4:
-        render_card("📸", "以圖搜尋分析", "根據關鍵字自動搜尋網站", key="search")
+        render_card("📸", "以圖搜尋分析", "根據關鍵字自動搜尋網站", key="picture")
     
     mode = st.session_state.get("selected_mode")
     
