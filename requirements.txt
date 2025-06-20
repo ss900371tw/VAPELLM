@@ -15,4 +15,4 @@ requests_html
 lxml[html_clean]
 requests
 seleniumbase 
-
+serpapi 
