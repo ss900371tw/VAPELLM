@@ -15,4 +15,4 @@ requests_html
 lxml[html_clean]
 requests
 seleniumbase 
-git+https://github.com/serpapi/serpapi-python.git@master
+serpapi==0.3.1
