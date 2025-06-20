@@ -15,5 +15,4 @@ requests_html
 lxml[html_clean]
 requests
 seleniumbase 
-google-chrome
-chromium-browser
+
