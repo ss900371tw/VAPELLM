@@ -32,7 +32,6 @@ import time
 import sys
 import time
 import undetected_chromedriver as uc
-# 🔍 以圖搜尋分析電子菸網站（GoogleImagesSearch 以圖找圖）
 import streamlit as st
 from PIL import Image
 import tempfile
