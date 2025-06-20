@@ -10,10 +10,9 @@ langchain>=0.1.16
 langchain-openai>=0.1.6
 langchain-groq>=0.0.6
 google-api-python-client>=2.110
-playwright
+
 requests_html
 lxml[html_clean]
-google_images_search==1.4.4 
 opencv-python
 requests
 seleniumbase 
