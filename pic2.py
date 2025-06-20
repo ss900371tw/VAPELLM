@@ -30,7 +30,6 @@ from bs4 import BeautifulSoup
 import requests
 import time
 import sys
-from bs4 import BeautifulSoup
 import time
 import undetected_chromedriver as uc
 # 🔍 以圖搜尋分析電子菸網站（GoogleImagesSearch 以圖找圖）
@@ -38,7 +37,6 @@ import streamlit as st
 from PIL import Image
 import tempfile
 import os
-from google_images_search import GoogleImagesSearch
 
 
 
