@@ -348,7 +348,7 @@ def search_similar_images_via_serpapi(image_url):
 
     image_results = results.get("image_results", [])
     urls = [item.get("link") for item in image_results if "link" in item]
-    return urls[:10]
+    return urls
 
 import requests
 from bs4 import BeautifulSoup
