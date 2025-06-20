@@ -282,43 +282,23 @@ def encode_image_to_base64(uploaded_image):
     return encoded_string
 
 # ---------------------------- 呼叫 Google Search API ----------------------------
-# 初始化 GoogleImagesSearch
-gis = GoogleImagesSearch(GOOGLE_API_KEY, GOOGLE_CX_ID)
+from serpapi import GoogleSearch
+import requests
 
-# 圖片搜尋函數（以圖找圖）
-def search_image_with_gis(uploaded_image, num_results=10):
-    try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
-            img = Image.open(uploaded_image)
-            img.save(tmp.name)
-            image_path = tmp.name
+def upload_to_imgbb(image_file, api_key):
+    files = {'image': image_file.getvalue()}
+    res = requests.post(f'https://api.imgbb.com/1/upload?key={api_key}', files=files)
+    return res.json()['data']['url']
 
-        # 檢查大小，OpenCV 壓縮 > 5MB 的圖片
-        file_size = os.path.getsize(image_path)
-        if file_size > 5 * 1024 * 1024:
-            img_cv = cv2.imread(image_path)
-            scale_factor = (5 * 1024 * 1024) / file_size
-            new_size = (int(img_cv.shape[1] * scale_factor), int(img_cv.shape[0] * scale_factor))
-            resized = cv2.resize(img_cv, new_size)
-            cv2.imwrite(image_path, resized)
-
-        # 搜尋圖片所在網址
-        gis.search({
-            'q': '',
-            'num': num_results,
-            'file_type': 'jpg',
-            'img_type': 'photo',
-            'search_type': 'image',
-            'img_size': 'medium',
-            'img_color_type': 'color'
-        }, image_path=image_path)
-
-        return [result.url for result in gis.results()]  # 回傳網址清單
-    except Exception as e:
-        st.error(f"❌ 搜索出錯: {e}")
-        return []
-
-
+def search_image_with_serpapi(image_url, api_key, limit=10):
+    params = {
+        "engine": "google_reverse_image",
+        "image_url": image_url,
+        "api_key": api_key
+    }
+    search = GoogleSearch(params)
+    results = search.get_dict()
+    return [r['link'] for r in results.get('image_results', [])[:limit]]
 
 
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
@@ -1228,19 +1208,31 @@ div[role="status"] > div > span {
         elif "以圖搜尋分析" in mode:
             uploaded_image = st.file_uploader("請上傳一張電子菸圖片", type=["jpg", "jpeg", "png"])
             limit = st.number_input("🔢 最多擷取幾組相似圖片網址？", min_value=1, max_value=30, value=10)
-    
+        
+            serpapi_key = st.secrets["SERPAPI_KEY"]  # ← 建議放在 Streamlit secrets
+            imgbb_key = st.secrets["IMGBB_API_KEY"]  # ← 建議放在 Streamlit secrets
+        
             if uploaded_image and st.button("🚀 搜尋與這張圖相似的網站"):
                 st.image(uploaded_image, caption="已上傳圖片", use_container_width=True)
-                with st.spinner("⏳ 正在透過 GoogleImagesSearch 搜圖..."):
-                    urls = search_image_with_gis(uploaded_image, num_results=limit)
-    
+        
+                with st.spinner("⏳ 正在上傳圖片與搜尋相似網站..."):
+                    try:
+                        # 上傳到 imgbb 並取得 URL
+                        image_url = upload_to_imgbb(uploaded_image, imgbb_key)
+        
+                        # 用 SerpAPI 做反向圖片搜尋
+                        urls = search_image_with_serpapi(image_url, serpapi_key, limit=limit)
+                    except Exception as e:
+                        st.error(f"❌ 發生錯誤：{str(e)}")
+                        return
+        
                 if not urls:
                     st.warning("⚠️ 沒有找到相關圖片網址")
                     return
-    
+        
                 st.success(f"✅ 找到 {len(urls)} 個相關網址")
                 high_risk_urls = []
-    
+        
                 for idx, url in enumerate(urls, start=1):
                     st.markdown(f"""
                     <hr style="border-top: 1px solid white;"/>
@@ -1248,16 +1240,15 @@ div[role="status"] > div > span {
                     🔗 [{idx}/{len(urls)}] 分析網址：<a href="{url}" target="_blank" style="color:white; text-decoration:underline;">{url}</a>
                     </h3>
                     """, unsafe_allow_html=True)
-    
+        
                     with st.spinner("⏳ 正在分析..."):
                         text_content = crawl_all_text(url)
                         text_result = chain.invoke(text_content)
-    
                         image_urls = crawl_images(url)
                         flagged_images = 0
-    
+        
                         col1, col2 = st.columns([5, 5])
-    
+        
                     with col1:
                         st.markdown(f"""
                         <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
@@ -1265,7 +1256,7 @@ div[role="status"] > div > span {
                             <pre style="white-space:pre-wrap;font-size:0.92rem;font-family:inherit;">{text_result}</pre>
                         </div>
                         """, unsafe_allow_html=True)
-    
+        
                     with col2:
                         if not image_urls:
                             st.markdown(f"""
@@ -1287,7 +1278,7 @@ div[role="status"] > div > span {
                                 """, unsafe_allow_html=True)
                                 if "Warning" in img_result:
                                     flagged_images += 1
-    
+        
                     st.markdown("---")
                     if "(1)" in text_result or flagged_images > 0:
                         st.markdown("""
@@ -1314,12 +1305,11 @@ div[role="status"] > div > span {
                             ✅ <strong>安全網站</strong>：未偵測出高風險內容
                         </div>
                         """, unsafe_allow_html=True)
-    
-                # 總結區塊
+        
                 st.markdown("---")
                 st.markdown("<h2 style='color:white;'>📋 分析總結</h2>", unsafe_allow_html=True)
                 high_risk_urls = sorted(set(high_risk_urls))
-    
+        
                 if high_risk_urls:
                     st.warning(f"⚠️ 偵測到高風險網址：{len(high_risk_urls)} 筆")
                     st.download_button(
