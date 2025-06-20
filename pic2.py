@@ -259,52 +259,49 @@ from bs4 import BeautifulSoup
 from undetected_chromedriver import Chrome, ChromeOptions
 import os
 
-def google_reverse_image_search(image_file, max_results=20):
-    from PIL import Image
-    import tempfile
-    import time
-    from bs4 import BeautifulSoup
-    from undetected_chromedriver import Chrome, ChromeOptions
+from playwright.sync_api import sync_playwright
+import tempfile
+from PIL import Image
+from bs4 import BeautifulSoup
+import time
 
-    # 儲存臨時圖片
+def google_image_search_with_playwright(uploaded_image, max_results=10):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
-        img = Image.open(image_file)
+        img = Image.open(uploaded_image)
         img.save(tmp.name)
-        img_path = tmp.name
+        image_path = tmp.name
 
-    options = ChromeOptions()
-    options.add_argument("--headless=new")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        context = browser.new_context()
+        page = context.new_page()
+        page.goto("https://images.google.com/")
 
-    # 嘗試推測 chrome 路徑
-    chrome_paths = ["/usr/bin/google-chrome", "/usr/bin/chromium-browser"]
-    chrome_path = next((p for p in chrome_paths if os.path.exists(p)), None)
+        # 點擊圖片搜尋按鈕
+        page.click("button[jscontroller='fNwCu']")
+        page.wait_for_timeout(1000)
 
-    if not chrome_path:
-        st.error("❌ 找不到 Chrome 可執行檔，請確認已安裝 google-chrome 或 chromium-browser。")
-        return []
-
-    options.binary_location = chrome_path
-
-    try:
-        driver = Chrome(options=options, browser_executable_path=chrome_path)
-        driver.get("https://images.google.com/")
-        driver.find_element("css selector", 'div[jscontroller="fNwCu"]').click()
-        driver.switch_to.frame(driver.find_element("tag name", "iframe"))
-        file_input = driver.find_element("css selector", 'input[type="file"]')
-        file_input.send_keys(img_path)
+        # 切換 iframe 上傳圖片
+        frame = page.frame_locator("iframe").first
+        file_input = frame.locator("input[type='file']")
+        file_input.set_input_files(image_path)
         time.sleep(6)
 
-        soup = BeautifulSoup(driver.page_source, "html.parser")
-        results = soup.select('a[href^="http"]')
-        urls = [a["href"] for a in results if "http" in a["href"]][:max_results]
-        return list(set(urls))
-    except Exception as e:
-        st.error(f"❌ 以圖搜尋失敗：{e}")
-        return []
-    finally:
-        driver.quit()
+        # 抓搜尋結果
+        links = page.locator("a").all()
+        result_urls = []
+        for a in links:
+            try:
+                href = a.get_attribute("href")
+                if href and href.startswith("http") and "google.com" not in href:
+                    result_urls.append(href)
+            except:
+                continue
+
+        browser.close()
+        return list(set(result_urls))[:max_results]
+
+
 
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
     try:
