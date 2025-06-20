@@ -1198,7 +1198,7 @@ div[role="status"] > div > span {
             uploaded_file = st.file_uploader("請上傳圖片 (jpg, jpeg, png)", type=["jpg", "jpeg", "png"])
 
             if uploaded_file:
-                st.image(uploaded_file, caption="你上傳的圖片", use_column_width=True)
+                st.image(uploaded_file, caption="你上傳的圖片", use_container_width =True)
 
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp_file:
                     tmp_file.write(uploaded_file.read())
@@ -1208,14 +1208,45 @@ div[role="status"] > div > span {
                     with st.spinner("📤 上傳圖片中..."):
                         try:
                             image_url = upload_image_to_imgbb(tmp_path)
-                            st.success("✅ 圖片上傳成功")
-                            st.markdown(f"[🔗 查看圖片連結]({image_url})", unsafe_allow_html=True)
-
-                            st.info("🔍 使用 Google 搜尋相似圖片...")
+                            st.markdown("""
+    <div style="
+        background-color: #d4edda;
+        color: #155724;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid #c3e6cb;
+        font-size: 16px;
+    ">
+    ✅ 圖片上傳成功
+    </div>
+    """, unsafe_allow_html=True)
+                            st.markdown("<h3 style='color:white;'>🔗 查看圖片連結]({image_url})", unsafe_allow_html=True)
+                            st.markdown("""
+    <div style="
+        background-color: #d4edda;
+        color: #155724;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid #c3e6cb;
+        font-size: 16px;
+    ">
+    🔍 使用 Google 搜尋相似圖片...
+    </div>
+    """, unsafe_allow_html=True)
                             urls = search_similar_images_via_serpapi(image_url)
                             if urls:
-                                st.success(f"✅ 找到 {len(urls)} 筆相似圖片網站：")
-
+                                st.markdown("""
+    <div style="
+        background-color: #d4edda;
+        color: #155724;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid #c3e6cb;
+        font-size: 16px;
+    ">
+    ✅ 找到 {len(urls)} 筆相似圖片網站：
+    </div>
+    """, unsafe_allow_html=True)
                                 # 顯示每個搜尋回來的網址，並依序分析
                                 high_risk_urls = []
 
@@ -1264,17 +1295,63 @@ div[role="status"] > div > span {
 
                                     st.markdown("---")
                                     if "(1)" in text_result and flagged_images > 0:
-                                        st.warning("⚠️ 高風險網站：可能涉及電子煙販售")
+                                        st.markdown("""
+    <div style="
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 1rem;
+        border-radius: 10px;
+        border: 1px solid #ffeeba;
+        font-size: 16px;
+    ">
+    ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+    </div>
+    """, unsafe_allow_html=True)
+                        high_risk_urls.append(url)
+
+                                    if "(1)" in text_result:
+                                        st.markdown("""
+                    <div style="
+                        background-color: #fff3cd;
+                        color: #856404;
+                        padding: 1rem;
+                        border-radius: 10px;
+                        border: 1px solid #ffeeba;
+                        font-size: 16px;
+                    ">
+                    ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+                    </div>
+                    """, unsafe_allow_html=True)
                                         high_risk_urls.append(url)
-                                    elif "(1)" in text_result:
-                                        st.warning("⚠️ 高風險網站：文字內容顯示疑似銷售")
-                                        high_risk_urls.append(url)
+                
                                     else:
-                                        st.success("✅ 安全網站：未偵測到可疑內容")
+                                        st.markdown("""
+                    <div style="
+                        background-color: #d4edda;
+                        color: #155724;
+                        padding: 1rem;
+                        border-radius: 10px;
+                        border: 1px solid #c3e6cb;
+                        font-size: 16px;
+                    ">
+                    ✅ <strong>安全網站</strong>：未偵測出高風險內容
+                    </div>
+                    """, unsafe_allow_html=True)
 
                                 st.markdown("<h3 style='color:white;'>📋 分析總結</h3>", unsafe_allow_html=True)
                                 if high_risk_urls:
-                                    st.warning(f"⚠️ 偵測到高風險網址 {len(high_risk_urls)} 筆")
+                                    st.markdown("""
+                    <div style="
+                        background-color: #fff3cd;
+                        color: #856404;
+                        padding: 1rem;
+                        border-radius: 10px;
+                        border: 1px solid #ffeeba;
+                        font-size: 16px;
+                    ">
+                    ⚠️ 偵測到高風險網址 {len(high_risk_urls)} 筆
+                    </div>
+                    """, unsafe_allow_html=True)
                                     st.download_button(
                                         label="📥 下載高風險網址清單",
                                         data="\n".join(high_risk_urls),
@@ -1282,10 +1359,32 @@ div[role="status"] > div > span {
                                         mime="text/plain"
                                     )
                                 else:
-                                    st.success("✅ 所有搜尋結果皆未偵測到高風險內容")
+                                    st.markdown("""
+                    <div style="
+                        background-color: #d4edda;
+                        color: #155724;
+                        padding: 1rem;
+                        border-radius: 10px;
+                        border: 1px solid #c3e6cb;
+                        font-size: 16px;
+                    ">
+                    ✅ 所有搜尋結果皆未偵測到高風險內容
+                    </div>
+                    """, unsafe_allow_html=True)
+          
                             else:
-                                st.warning("⚠️ 沒找到相似圖片結果，圖片可能內容太模糊或不具代表性。")
-
+                                st.markdown("""
+                    <div style="
+                        background-color: #fff3cd;
+                        color: #856404;
+                        padding: 1rem;
+                        border-radius: 10px;
+                        border: 1px solid #ffeeba;
+                        font-size: 16px;
+                    ">
+                    ⚠️ 沒找到相似圖片結果，圖片可能內容太模糊或不具代表性。
+                    </div>
+                    """, unsafe_allow_html=True)
                         except Exception as e:
                             st.error(f"❌ 發生錯誤：{e}")
 
