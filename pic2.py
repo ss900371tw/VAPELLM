@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as stMore actions
 import requests
 import os
 import shutil
@@ -15,7 +15,6 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from urllib.parse import urljoin
 import pickle
-import tempfile
 from googleapiclient.discovery import build
 from PIL import Image
 from io import BytesIO
@@ -30,14 +29,9 @@ from bs4 import BeautifulSoup
 import requests
 import time
 import sys
+from bs4 import BeautifulSoup
 import time
 import undetected_chromedriver as uc
-import streamlit as st
-from PIL import Image
-import tempfile
-import os
-
-
 
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY","")
@@ -270,8 +264,41 @@ import tempfile
 from PIL import Image
 from bs4 import BeautifulSoup
 import time
-from serpapi import GoogleSearch
-import requests
+def encode_image_to_base64(uploaded_image):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
+        img = Image.open(uploaded_image)
+        img.save(tmp.name)
+        with open(tmp.name, "rb") as f:
+            encoded_string = base64.b64encode(f.read()).decode("utf-8")
+    return encoded_string
+
+# ---------------------------- 呼叫 Google Search API ----------------------------
+def google_image_search_via_api(uploaded_image, max_results=10):
+    if not GOOGLE_API_KEY or not GOOGLE_CX_ID:
+        st.error("❌ 尚未設定 Google Search API 金鑰與搜尋引擎 ID。")
+        return []
+
+    encoded_img = encode_image_to_base64(uploaded_image)
+    search_url = "https://customsearch.googleapis.com/customsearch/v1"
+
+    headers = {"Content-Type": "application/json"}
+    params = {
+        "key": GOOGLE_API_KEY,
+        "cx": GOOGLE_CX_ID,
+        "searchType": "image",
+        "q": "vape",  # 加上預設查詢詞
+        "num": max_results
+    }
+
+    response = requests.get(search_url, headers=headers, params=params)
+    data = response.json()
+
+    urls = []
+    for item in data.get("items", []):
+        if "link" in item:
+            urls.append(item["link"])
+    return urls
+
 
 
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
@@ -477,7 +504,7 @@ def classify_image(image_input, model):
     except Exception as e:
         return f"圖片讀取或分析失敗: {e}"
 
-        
+
 # -------------------- 7. Google Search --------------------
 def google_search(query, count=10):
     api_key = os.getenv("GOOGLE_API_KEY")
@@ -521,7 +548,7 @@ def is_blacklisted_url(url: str) -> bool:
     url_lower = url.lower()
     return any(domain in url_lower for domain in blacklist_domains) or \
            any(kw in url_lower for kw in blacklist_keywords_in_url)
-    
+
 # -------------------- 9. Streamlit 主程式 --------------------
 def main():
     st.markdown("<h1 style='text-align:center;color:white;'>電子菸網站偵測系統</h1>", unsafe_allow_html=True)
@@ -562,13 +589,13 @@ def main():
         st.session_state.selected_mode = None
 
 
-                
+
     def render_card(icon, title, desc, key):
         selected = st.session_state.get("selected_mode") == title
         border = "4px solid #3EB489" if selected else "1px solid #999999"
         shadow = "0 0 20px #3EB489" if selected else "none"
         bg = "#0c1b2a" if selected else "#1a1f2b"
-    
+
         with st.container():
             st.markdown(f"""
             <style>
@@ -602,7 +629,7 @@ def main():
             }}
             </style>
             """, unsafe_allow_html=True)
-    
+
             # ✅ 把所有內容寫在這一個 HTML block 裡
             st.markdown(f"""
             <div id="{key}_card">
@@ -611,12 +638,12 @@ def main():
                 <div style="font-size: 0.9rem; color: #ccc;">{desc}</div>
                 <div style="margin-top: 10px;">
             """, unsafe_allow_html=True)
-    
+
             # ✅ Streamlit 的按鈕也放在 div 裡面
             if st.button("選擇", key=f"{key}_btn"):
                 st.session_state.selected_mode = title
                 st.rerun()
-    
+
             st.markdown("</div></div>", unsafe_allow_html=True)  # 關閉兩層 div
 
     # 模式選擇
@@ -652,14 +679,14 @@ def main():
         render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站", key="search")
     with col4:
         render_card("📸", "以圖搜尋分析", "根據關鍵字自動搜尋網站", key="picture")
-    
+
     mode = st.session_state.get("selected_mode")
-    
+
     if mode:    
         if "單一網址分析" in mode:
             # 建立左右排列欄位
             # 自訂按鈕樣式讓它貼齊 text_input 高度
-            
+
             # CSS：美化按鈕與輸入框容器
             # --- 自訂樣式 ---
 
@@ -694,17 +721,17 @@ def main():
             }
             </style>
             """, unsafe_allow_html=True)
-            
+
             # --- 輸入表單區塊 ---
             with st.form("url_input_form"):
                 col1, col2 = st.columns([5, 1])
-            
+
                 with col1:
                     url = st.text_input("", placeholder="請輸入網址：", label_visibility="collapsed")
-            
+
                 with col2:
                     submitted = st.form_submit_button("確定")
-            
+
             # --- 分析邏輯在表單外判斷，才能正確中止流程 ---
             if submitted:
                 if not url.strip():
@@ -729,13 +756,13 @@ def main():
                 with st.spinner(" "): 
                     text_content = crawl_all_text(url)
                     text_result = chain.invoke(text_content)
-    
+
                     image_urls = crawl_images(url)
                     flagged_images = 0
-    
+
                     # 分成兩欄顯示分析結果
                     col1,  col2 = st.columns([5,  5])
-    
+
                     with col1:
                         st.markdown(f"""
     <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
@@ -765,9 +792,9 @@ def main():
     </div>""", unsafe_allow_html=True)
                                 if "Warning" in img_result:
                                     flagged_images += 1
-    
-    
-    
+
+
+
                 st.markdown("---")
                 st.markdown("<h3 style='color:white;'>📋 綜合結論</h3>", unsafe_allow_html=True)
                 if "(1)" in text_result and flagged_images > 0:
@@ -809,7 +836,7 @@ def main():
 ✅ <strong>安全網站</strong>：未偵測出高風險內容
 </div>
 """, unsafe_allow_html=True)
-    
+
         elif "批量網址分析" in mode:
             st.markdown("""
 <style>
@@ -829,7 +856,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
 # 檔案上傳元件
 
             uploaded_file = st.file_uploader("請上傳 .txt 檔案（每行一個網址）", type=["txt"])
-    
+
             if st.button("🚀 開始批次分析"):
                 if uploaded_file is None:
                     st.markdown("""
@@ -845,12 +872,12 @@ section[data-testid="stFileUploader"] div[aria-label] p {
 </div>
 """, unsafe_allow_html=True)
                     return
-    
+
                 urls = [line.strip().decode("utf-8") for line in uploaded_file.readlines() if line]
                 st.markdown(f"<h3 style='color:white;'>📄 共有 {len(urls)} 個網址將進行分析", unsafe_allow_html=True)
 
                 high_risk_urls = []
-    
+
                 for idx, url in enumerate(urls, start=1):
                     st.markdown(f"<h3 style='color:white;'>\n 🔗 [{idx}/{len(urls)}] 分析網址：{url}", unsafe_allow_html=True)
 
@@ -870,10 +897,10 @@ div[role="status"] > div > span {
                         text_result = chain.invoke(text_content)
                         image_urls = crawl_images(url)
                         flagged_images = 0
-    
+
                         # 左右分區：文字 / 圖像
                         col1,  col2 = st.columns([5, 5])
-    
+
                     with col1:
                         st.markdown(f"""
     <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
@@ -904,8 +931,8 @@ div[role="status"] > div > span {
     """, unsafe_allow_html=True)
                                 if "Warning" in img_result:
                                     flagged_images += 1
-    
-    
+
+
                     st.markdown("---")
                     # 綜合判斷
                     if "(1)" in text_result and flagged_images > 0:
@@ -956,7 +983,7 @@ div[role="status"] > div > span {
 
                 if high_risk_urls:
                     st.markdown(f"<h3 style='color:white;'>⚠️ 共偵測到高風險網址 {len(high_risk_urls)} 筆", unsafe_allow_html=True)
-    
+
                     st.download_button(
                         label="📥 下載高風險網址清單",
                         data="\n".join(high_risk_urls),
@@ -976,7 +1003,7 @@ div[role="status"] > div > span {
 ✅ 所有網址皆未偵測到高風險內容
 </div>
 """, unsafe_allow_html=True)
-    
+
         elif "關鍵字搜尋分析" in mode:
             # 輸入關鍵字
             # 自訂文字顏色為白色
@@ -994,20 +1021,20 @@ div[role="status"] > div > span {
             }
             </style>
             """, unsafe_allow_html=True)
-            
+
             # UI 元件
             keywords_text = st.text_area(
                 "🔤 請輸入搜尋關鍵字（每行一個）",
                 "vape\ne-juice\ne-cigarette\n電子煙"
             )
-            
+
             limit = st.number_input("🔢 每個關鍵字最多擷取幾組網址？", min_value=1, max_value=50, value=10)
-    
+
             if st.button("🚀 執行 Google 搜尋並分析"):
                 if not keywords_text.strip():
                     st.warning("⚠️ 請先輸入關鍵字")
                     return
-    
+
                 keywords_list = [kw.strip() for kw in keywords_text.split("\n") if kw.strip()]
                 st.markdown(f"""
 <div style='
@@ -1021,7 +1048,7 @@ div[role="status"] > div > span {
 🔍 將針對 <strong>{len(keywords_list)}</strong> 個關鍵字，各擷取 <strong>{limit}</strong> 組搜尋結果
 </div>
 """, unsafe_allow_html=True)
-    
+
                 all_urls = []
                 for kw in keywords_list:
                     st.markdown(f"""
@@ -1029,13 +1056,13 @@ div[role="status"] > div > span {
 """, unsafe_allow_html=True)
                     found = google_search(kw, count=limit)
                     all_urls.extend([url for url in found if url not in all_urls])
-    
+
                 st.markdown(f"""
 <p style="color:white; font-size:1rem;">
 📥 總共取得 <strong>{len(all_urls)}</strong> 個原始網址
 </p>
 """, unsafe_allow_html=True)
-    
+
                 # 過濾黑名單
                 filtered_urls = [url for url in all_urls if not is_blacklisted_url(url)]
                 st.markdown(f"""
@@ -1051,9 +1078,9 @@ div[role="status"] > div > span {
 </div>
 """, unsafe_allow_html=True)
 
-    
+
                 high_risk_urls = []
-    
+
                 for idx, url in enumerate(filtered_urls, start=1):
                     st.markdown(f"""
 <hr style="border-top: 1px solid white;"/>
@@ -1061,17 +1088,17 @@ div[role="status"] > div > span {
 🔗 [{idx}/{len(filtered_urls)}] 分析網址：<a href="{url}" target="_blank" style="color:white; text-decoration:underline;">{url}</a>
 </h3>
 """, unsafe_allow_html=True)
-    
+
                     with st.spinner("⏳ 正在分析..."):
                         text_content = crawl_all_text(url)
                         text_result = chain.invoke(text_content)
-    
+
                         image_urls = crawl_images(url)
                         flagged_images = 0
-    
+
                         # 分兩欄顯示文字與圖像
                         col1,  col2 = st.columns([5,  5])
-    
+
                     with col1:
                         st.markdown(f"""
     <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
@@ -1102,10 +1129,10 @@ div[role="status"] > div > span {
     """, unsafe_allow_html=True)
                                 if "Warning" in img_result:
                                     flagged_images += 1
-    
-    
-    
-                    
+
+
+
+
                     st.markdown("---")
                     # 綜合判斷
                     if "(1)" in text_result and flagged_images > 0:
@@ -1151,7 +1178,7 @@ div[role="status"] > div > span {
     ✅ <strong>安全網站</strong>：未偵測出高風險內容
     </div>
     """, unsafe_allow_html=True)
-    
+
                 # 總結與下載
                 st.markdown("---")
                 st.markdown("<h2 style='color:white;'>📋 分析總結</h2>", unsafe_allow_html=True)
@@ -1178,8 +1205,135 @@ div[role="status"] > div > span {
     ✅ 所有搜尋結果均未偵測到高風險內容
     </div>
     """, unsafe_allow_html=True)
+        elif "以圖搜尋分析" in mode:
+            st.markdown("## 📷 以圖搜尋電子菸相關網站", unsafe_allow_html=True)
+
+            uploaded_image = st.file_uploader("請上傳一張電子菸圖片", type=["jpg", "jpeg", "png"])
+            limit = st.number_input("🔢 最多擷取幾組相關網址？", min_value=1, max_value=30, value=10)
+
+            if uploaded_image and st.button("🚀 執行 Google 圖片搜尋"):
+            if uploaded_image and st.button("🚀 執行 Google API 搜尋"):
+                st.image(uploaded_image, caption="已上傳圖片", use_container_width=True)
+                with st.spinner("⏳ 使用 Google 圖片搜尋中..."):
+                    urls = google_image_search_with_playwright(uploaded_image, max_results=limit)
+                with st.spinner("⏳ 使用 Google Search API 分析中..."):
+                    urls = google_image_search_via_api(uploaded_image, max_results=limit)
+
+                if urls:
+                    st.success(f"✅ 找到 {len(urls)} 個網址")
+                    for url in urls:
+                        st.markdown(f"- [{url}]({url})")
+                else:
+                    st.warning("⚠️ 沒有找到相關網址")
+
+
+                high_risk_urls = []
+
+                for idx, url in enumerate(urls, start=1):
+                    st.markdown(f"""
+        <hr style="border-top: 1px solid white;"/>
+        <h3 style="color:white;">
+        🔗 [{idx}/{len(filtered_urls)}] 分析網址：<a href="{url}" target="_blank" style="color:white; text-decoration:underline;">{url}</a>
+        </h3>
+        """, unsafe_allow_html=True)
+
+                    with st.spinner("⏳ 正在分析..."):
+                        text_content = crawl_all_text(url)
+                        text_result = chain.invoke(text_content)
+
+                        image_urls = crawl_images(url)
+                        flagged_images = 0
+
+                        col1, col2 = st.columns([5, 5])
+
+                    with col1:
+                        st.markdown(f"""
+        <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
+            <h4 style="margin-bottom:0.8rem;">📄 文字分類結果</h4>
+            <pre style="white-space:pre-wrap;font-size:0.92rem;font-family:inherit;">{text_result}</pre>
+        </div>
+        """, unsafe_allow_html=True)
+
+                    with col2:
+                        if not image_urls:
+                            st.markdown(f"""
+        <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
+            <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+            <div style="font-size:0.9rem;"><b>(未找到圖片)</b></div>
+        </div>
+        """, unsafe_allow_html=True)
+                        else:
+                            sample_size = min(2, len(image_urls))
+                            for img in random.sample(image_urls, sample_size):
+                                img_result = classify_image(img, llm_image)
+                                st.markdown(f"""
+        <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
+            <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+            <img src="{img}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
+            <div style="font-size:0.9rem;"><b>分類結果：</b>{img_result}</div>
+        </div>
+        """, unsafe_allow_html=True)
+                                if "Warning" in img_result:
+                                    flagged_images += 1
+
+                    st.markdown("---")
+                    if "(1)" in text_result or flagged_images > 0:
+                        st.markdown("""
+        <div style="
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid #ffeeba;
+            font-size: 16px;
+        ">
+        ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+        </div>
+        """, unsafe_allow_html=True)
+                        high_risk_urls.append(url)
+                    else:
+                        st.markdown("""
+        <div style="
+            background-color: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid #c3e6cb;
+            font-size: 16px;
+        ">
+        ✅ <strong>安全網站</strong>：未偵測出高風險內容
+        </div>
+        """, unsafe_allow_html=True)
+
+                # 總結區塊
+                st.markdown("---")
+                st.markdown("<h2 style='color:white;'>📋 分析總結</h2>", unsafe_allow_html=True)
+                high_risk_urls = sorted(set(high_risk_urls))
+
+                if high_risk_urls:
+                    st.warning(f"⚠️ 偵測到高風險網址：{len(high_risk_urls)} 筆")
+                    st.download_button(
+                        label="📥 下載高風險網址清單",
+                        data="\n".join(high_risk_urls),
+                        file_name="image_high_risk_urls.txt",
+                        mime="text/plain"
+                    )
+                else:
+                    st.markdown("""
+        <div style="
+            background-color: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid #c3e6cb;
+            font-size: 16px;
+        ">
+        ✅ 所有搜尋結果均未偵測到高風險內容
+        </div>
+        """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
+
 
 
