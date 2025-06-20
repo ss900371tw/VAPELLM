@@ -251,6 +251,43 @@ from urllib.parse import urlparse
 from playwright.sync_api import sync_playwright
 import pickle
 import os
+from PIL import Image
+import tempfile
+from undetected_chromedriver import Chrome, ChromeOptions
+from bs4 import BeautifulSoup
+
+def google_reverse_image_search(image_file, max_results=20):
+    # 儲存暫存圖片
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
+        img = Image.open(image_file)
+        img.save(tmp.name)
+        img_path = tmp.name
+
+    # 啟動 headless 瀏覽器
+    options = ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    driver = Chrome(options=options)
+
+    try:
+        driver.get("https://images.google.com/")
+        upload_button = driver.find_element("css selector", 'div[jscontroller="fNwCu"]')
+        upload_button.click()
+
+        # 等待 iframe 進來
+        driver.switch_to.frame(driver.find_element("tag name", "iframe"))
+        file_input = driver.find_element("css selector", 'input[type="file"]')
+        file_input.send_keys(img_path)
+
+        time.sleep(5)  # 等待搜尋完成
+
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+        results = soup.select('a[href^="http"]')
+        urls = [a["href"] for a in results if "http" in a["href"]][:max_results]
+
+        return list(set(urls))  # 去重
+    finally:
+        driver.quit()
 
 
 
