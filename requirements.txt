@@ -1,4 +1,4 @@
-undetected-chromedriver==3.5.5 More actions
+undetected-chromedriver==3.5.5
 ollama
 langchain-core
 streamlit>=1.32
