@@ -21,3 +21,4 @@ chardet==4.0.0
 -e .
 idna==2.10
 urllib3==1.26.9
+serpapi --upgrade
