@@ -16,3 +16,4 @@ lxml[html_clean]
 requests
 seleniumbase 
 google-search-results
+serpapi
