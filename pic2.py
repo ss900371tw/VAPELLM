@@ -271,32 +271,8 @@ import tempfile
 from PIL import Image
 from bs4 import BeautifulSoup
 import time
-def encode_image_to_base64(uploaded_image):
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
-        img = Image.open(uploaded_image)
-        img.save(tmp.name)
-        with open(tmp.name, "rb") as f:
-            encoded_string = base64.b64encode(f.read()).decode("utf-8")
-    return encoded_string
-
-# ---------------------------- 呼叫 Google Search API ----------------------------
 from serpapi import GoogleSearch
 import requests
-
-def upload_to_imgbb(image_file, api_key):
-    files = {'image': image_file.getvalue()}
-    res = requests.post(f'https://api.imgbb.com/1/upload?key={api_key}', files=files)
-    return res.json()['data']['url']
-
-def search_image_with_serpapi(image_url, api_key, limit=10):
-    params = {
-        "engine": "google_reverse_image",
-        "image_url": image_url,
-        "api_key": api_key
-    }
-    search = GoogleSearch(params)
-    results = search.get_dict()
-    return [r['link'] for r in results.get('image_results', [])[:limit]]
 
 
 def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
