@@ -33,7 +33,7 @@ import sys
 from bs4 import BeautifulSoup
 import time
 import undetected_chromedriver as uc
-from serpapi import GoogleSearch
+from serpapi.google_search import GoogleSearch
 
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY","")
