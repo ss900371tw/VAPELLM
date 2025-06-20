@@ -1211,10 +1211,10 @@ div[role="status"] > div > span {
             uploaded_image = st.file_uploader("請上傳一張電子菸圖片", type=["jpg", "jpeg", "png"])
             limit = st.number_input("🔢 最多擷取幾組相關網址？", min_value=1, max_value=30, value=10)
     
-            if uploaded_image and st.button("🚀 執行 Google 圖片搜尋"):
+            if uploaded_image and st.button("🚀 執行 Google API 搜尋"):
                 st.image(uploaded_image, caption="已上傳圖片", use_container_width=True)
-                with st.spinner("⏳ 使用 Google 圖片搜尋中..."):
-                    urls = google_image_search_with_playwright(uploaded_image, max_results=limit)
+                with st.spinner("⏳ 使用 Google Search API 分析中..."):
+                    urls = google_image_search_via_api(uploaded_image, max_results=limit)
     
                 if urls:
                     st.success(f"✅ 找到 {len(urls)} 個網址")
