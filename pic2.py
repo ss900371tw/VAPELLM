@@ -623,13 +623,15 @@ def main():
         st.session_state.selected_mode = None
 
     # 集中處理按鈕事件
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     with col1:
         render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片", key="single")
     with col2:
         render_card("📂", "批量網址分析", "上傳文字檔，分析多個網站", key="batch")
     with col3:
         render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站", key="search")
+    with col4:
+        render_card("📸", "以圖搜尋分析", "根據關鍵字自動搜尋網站", key="search")
     
     mode = st.session_state.get("selected_mode")
     
