@@ -32,6 +32,15 @@ import sys
 from bs4 import BeautifulSoup
 import time
 import undetected_chromedriver as uc
+# 🔍 以圖搜尋分析電子菸網站（GoogleImagesSearch 以圖找圖）
+import streamlit as st
+from PIL import Image
+import tempfile
+import os
+import cv2
+from google_images_search import GoogleImagesSearch
+
+
 
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY","")
@@ -273,31 +282,42 @@ def encode_image_to_base64(uploaded_image):
     return encoded_string
 
 # ---------------------------- 呼叫 Google Search API ----------------------------
-def google_image_search_via_api(uploaded_image, max_results=10):
-    if not GOOGLE_API_KEY or not GOOGLE_CX_ID:
-        st.error("❌ 尚未設定 Google Search API 金鑰與搜尋引擎 ID。")
+# 初始化 GoogleImagesSearch
+gis = GoogleImagesSearch(GOOGLE_API_KEY, GOOGLE_CX_ID)
+
+# 圖片搜尋函數（以圖找圖）
+def search_image_with_gis(uploaded_image, num_results=10):
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
+            img = Image.open(uploaded_image)
+            img.save(tmp.name)
+            image_path = tmp.name
+
+        # 檢查大小，OpenCV 壓縮 > 5MB 的圖片
+        file_size = os.path.getsize(image_path)
+        if file_size > 5 * 1024 * 1024:
+            img_cv = cv2.imread(image_path)
+            scale_factor = (5 * 1024 * 1024) / file_size
+            new_size = (int(img_cv.shape[1] * scale_factor), int(img_cv.shape[0] * scale_factor))
+            resized = cv2.resize(img_cv, new_size)
+            cv2.imwrite(image_path, resized)
+
+        # 搜尋圖片所在網址
+        gis.search({
+            'q': '',
+            'num': num_results,
+            'file_type': 'jpg',
+            'img_type': 'photo',
+            'search_type': 'image',
+            'img_size': 'medium',
+            'img_color_type': 'color'
+        }, image_path=image_path)
+
+        return [result.url for result in gis.results()]  # 回傳網址清單
+    except Exception as e:
+        st.error(f"❌ 搜索出錯: {e}")
         return []
 
-    encoded_img = encode_image_to_base64(uploaded_image)
-    search_url = "https://customsearch.googleapis.com/customsearch/v1"
-
-    headers = {"Content-Type": "application/json"}
-    params = {
-        "key": GOOGLE_API_KEY,
-        "cx": GOOGLE_CX_ID,
-        "searchType": "image",
-        "q": "vape",  # 加上預設查詢詞
-        "num": max_results
-    }
-
-    response = requests.get(search_url, headers=headers, params=params)
-    data = response.json()
-
-    urls = []
-    for item in data.get("items", []):
-        if "link" in item:
-            urls.append(item["link"])
-    return urls
 
 
 
@@ -1209,19 +1229,19 @@ div[role="status"] > div > span {
             st.markdown("## 📷 以圖搜尋電子菸相關網站", unsafe_allow_html=True)
             
             uploaded_image = st.file_uploader("請上傳一張電子菸圖片", type=["jpg", "jpeg", "png"])
-            limit = st.number_input("🔢 最多擷取幾組相關網址？", min_value=1, max_value=30, value=10)
+            limit = st.number_input("🔢 最多擷取幾組相似圖片網址？", min_value=1, max_value=30, value=10)
     
-            if uploaded_image and st.button("🚀 執行 Google API 搜尋"):
+            if uploaded_image and st.button("🚀 搜尋與這張圖相似的網站"):
                 st.image(uploaded_image, caption="已上傳圖片", use_container_width=True)
-                with st.spinner("⏳ 使用 Google Search API 分析中..."):
-                    urls = google_image_search_via_api(uploaded_image, max_results=limit)
+                with st.spinner("⏳ 正在透過 GoogleImagesSearch 搜圖..."):
+                    urls = search_image_with_gis(uploaded_image, num_results=limit)
     
                 if urls:
-                    st.success(f"✅ 找到 {len(urls)} 個網址")
+                    st.success(f"✅ 找到 {len(urls)} 個相關網址")
                     for url in urls:
                         st.markdown(f"- [{url}]({url})")
                 else:
-                    st.warning("⚠️ 沒有找到相關網址")
+                    st.warning("⚠️ 沒有找到相關圖片網址")
 
         
                 high_risk_urls = []
