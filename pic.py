@@ -994,7 +994,6 @@ div[role="status"] > div > span {
     
         elif "以圖搜尋分析" in mode:
             st.markdown("<h3 style='color:white;'>📸 上傳圖片以搜尋相似網站</h3>", unsafe_allow_html=True)
-            st.markdown('<label style="color:white;font-size:1rem;">📤 請上傳圖片 (jpg, jpeg, png)</label>', unsafe_allow_html=True)
             st.markdown("""
     <style>
     /* 白色檔名文字 */
@@ -1003,6 +1002,7 @@ div[role="status"] > div > span {
     }
     </style>
 """, unsafe_allow_html=True)
+            st.markdown('<label style="color:white;font-size:1rem;">📤 請上傳圖片 (jpg, jpeg, png)</label>', unsafe_allow_html=True)
             uploaded_file = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
             if uploaded_file:
                 st.image(uploaded_file, caption="你上傳的圖片", use_container_width=True)
