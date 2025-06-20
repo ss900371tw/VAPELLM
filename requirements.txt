@@ -14,8 +14,7 @@ opencv-python
 requests_html
 lxml[html_clean]
 opencv-python
-requests
-seleniumbase 
+requests 
 markdown-it-py==3.0.0
 rich==14.0.0
 serpapi 
