@@ -9,3 +9,7 @@ libxfixes3
 libxrandr2
 libgbm1
 libxkbcommon0
+wget
+libglib2.0-0
+libgdk-pixbuf2.0-0
+libgtk-3-0
