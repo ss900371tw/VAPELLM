@@ -1229,7 +1229,7 @@ div[role="status"] > div > span {
         
                 high_risk_urls = []
         
-                for idx, url in enumerate(filtered_urls, start=1):
+                for idx, url in enumerate(urls, start=1):
                     st.markdown(f"""
         <hr style="border-top: 1px solid white;"/>
         <h3 style="color:white;">
