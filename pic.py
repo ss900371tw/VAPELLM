@@ -328,6 +328,24 @@ def upload_image_to_imgbb(image_path):
     res.raise_for_status()
     return res.json()["data"]["url"]
 
+
+def search_similar_images_via_serpapi(image_url):
+    params = {
+        "engine": "google_reverse_image",
+        "api_key": SERPAPI_API_KEY,
+        "image_url": image_url,
+    }
+
+    search = GoogleSearch(params)
+    results = search.get_dict()
+
+    st.subheader("📦 SerpAPI 回傳內容")
+    st.json(results)
+
+    image_results = results.get("image_results", [])
+    urls = [item.get("link") for item in image_results if "link" in item]
+    return urls[:10]
+
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
