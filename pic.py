@@ -1307,7 +1307,7 @@ div[role="status"] > div > span {
     ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
     </div>
     """, unsafe_allow_html=True)
-                        high_risk_urls.append(url)
+                                        high_risk_urls.append(url)
 
                                     if "(1)" in text_result:
                                         st.markdown("""
@@ -1338,7 +1338,7 @@ div[role="status"] > div > span {
                     </div>
                     """, unsafe_allow_html=True)
 
-                                st.markdown("<h3 style='color:white;'>📋 分析總結</h3>", unsafe_allow_html=True)
+                                        st.markdown("<h3 style='color:white;'>📋 分析總結</h3>", unsafe_allow_html=True)
                                 if high_risk_urls:
                                     st.markdown("""
                     <div style="
