@@ -320,6 +320,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 # ---------------------------------------------------------------------------
 def upload_image_to_imgbb(image_path):
     with open(image_path, "rb") as f:
+        IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
         res = requests.post(
             "https://api.imgbb.com/1/upload",
             params={"key": IMGBB_API_KEY},
@@ -330,6 +331,7 @@ def upload_image_to_imgbb(image_path):
 
 
 def search_similar_images_via_serpapi(image_url):
+    SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
     params = {
         "engine": "google_reverse_image",
         "api_key": SERPAPI_API_KEY,
