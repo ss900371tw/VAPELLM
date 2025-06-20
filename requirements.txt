@@ -1,15 +1,17 @@
+undetected-chromedriver==3.5.5 More actions
+ollama
+langchain-core
 streamlit>=1.32
 requests>=2.31
 beautifulsoup4>=4.12
 python-dotenv>=1.0
 Pillow>=10.0
-lxml[html_clean]
-serpapi
 langchain>=0.1.16
-langchain-core
 langchain-openai>=0.1.6
 langchain-groq>=0.0.6
 google-api-python-client>=2.110
-markdown-it-py==3.0.0
-rich==14.0.0
-ollama
+playwright
+requests_html
+lxml[html_clean]
+requests
+seleniumbase 
