@@ -957,7 +957,7 @@ div[role="status"] > div > span {
 </div>
 """, unsafe_allow_html=True)
     
-        else:
+        elif "關鍵字搜尋分析" in mode:
             # 輸入關鍵字
             # 自訂文字顏色為白色
             st.markdown("""
