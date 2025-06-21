@@ -33,7 +33,7 @@ import sys
 from bs4 import BeautifulSoup
 import time
 import undetected_chromedriver as uc
-from serpapi.google_serch import GoogleSearch
+from serpapi import GoogleSearch
 
 
 load_dotenv()
