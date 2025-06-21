@@ -1119,6 +1119,9 @@ div[role="status"] > div > span {
                 high_risk_urls_all = sorted(set(high_risk_urls_all))
 
                 if high_risk_urls_all:
+                    # 去重 + 排序
+                    unique_sorted_urls = sorted(set(high_risk_urls_all))
+                
                     st.markdown(f"""
                     <div style="
                         background-color: #fff3cd;
@@ -1128,16 +1131,20 @@ div[role="status"] > div > span {
                         border: 1px solid #ffeeba;
                         font-size: 16px;
                     ">
-                    ⚠️ 所有圖片中共偵測到高風險網址 {len(set(high_risk_urls_all))} 筆
+                    ⚠️ 所有圖片中共偵測到高風險網址 {len(unique_sorted_urls)} 筆
                     </div>
                     """, unsafe_allow_html=True)
-                    
-                    st.download_button(
+                
+                    # 加一個 session state 控制是否觸發 rerun
+                    if st.download_button(
                         label="📥 下載高風險網址清單",
-                        data="\n".join(high_risk_urls_all),
+                        data="\n".join(unique_sorted_urls),
                         file_name="high_risk_urls.txt",
-                        mime="text/plain"
-                    )
+                        mime="text/plain",
+                        key="download_btn"
+                    ):
+                        st.success("✅ 檔案已下載")
+
                     
                 else:
                     st.markdown("""
@@ -1152,7 +1159,7 @@ div[role="status"] > div > span {
                     ✅ 所有圖片皆未偵測到高風險內容
                     </div>
                     """, unsafe_allow_html=True)
-                    st.success("✅ 檔案已下載！")
+                
 
 
 
