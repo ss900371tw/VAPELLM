@@ -1105,6 +1105,7 @@ div[role="status"] > div > span {
                                     file_name="imgsearch_high_risk_urls.txt",
                                     mime="text/plain"
                                 )
+                                st.rerun()
                             else:
                                 st.markdown("""
                                     <div style="background-color: #d4edda; color: #155724; padding: 1rem;
@@ -1112,6 +1113,7 @@ div[role="status"] > div > span {
                                         ✅ 所有搜尋結果皆未偵測到高風險內容
                                     </div>
                                 """, unsafe_allow_html=True)
+                                
                         else:
                             st.markdown("""
                                 <div style="background-color: #fff3cd; color: #856404; padding: 1rem;
@@ -1122,13 +1124,7 @@ div[role="status"] > div > span {
                 except Exception as e:
                     st.error(f"❌ 發生錯誤：{e}")
         
-                # ✅ 重新上傳按鈕（清空 session_state 並回到上傳畫面）
-                st.markdown("---")
-                st.markdown("<h4 style='color:white;'>🔁 若要重新分析，請點下方按鈕重新上傳圖片：</h4>", unsafe_allow_html=True)
-                if st.button("🔁 重新上傳圖片"):
-                    for key in st.session_state.keys():
-                        del st.session_state[key]
-                    st.experimental_rerun()  # 如果你使用的是較新版本可改成 st.rerun()
+
 
 
 
