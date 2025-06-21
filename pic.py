@@ -1196,17 +1196,27 @@ div[role="status"] > div > span {
         elif "以圖搜尋分析" in mode:
             st.markdown("<h3 style='color:white;'>📸 上傳圖片以搜尋相似網站</h3>", unsafe_allow_html=True)
         
-            # 🔧 初始化 session_state 欄位
-            if "show_uploader" not in st.session_state:
-                st.session_state["show_uploader"] = True
-            if "uploaded_files" not in st.session_state:
-                st.session_state["uploaded_files"] = None
-            if "start_analysis" not in st.session_state:
-                st.session_state["start_analysis"] = False
-            if "high_risk_urls" not in st.session_state:
-                st.session_state["high_risk_urls"] = set()
+            # ✅ 初始化 session_state 狀態欄位
+            for key, default in {
+                "show_uploader": True,
+                "uploaded_files": None,
+                "start_analysis": False,
+                "high_risk_urls": set(),
+                "reset_after_download": False
+            }.items():
+                if key not in st.session_state:
+                    st.session_state[key] = default
         
-            # 🎨 自訂 CSS（白字上傳區）
+            # ✅ Step 0：下載後自動重設畫面（防止圖片重上傳錯誤）
+            if st.session_state["reset_after_download"]:
+                st.session_state["show_uploader"] = True
+                st.session_state["uploaded_files"] = None
+                st.session_state["start_analysis"] = False
+                st.session_state["high_risk_urls"] = set()
+                st.session_state["reset_after_download"] = False
+                st.experimental_rerun()
+        
+            # 🎨 自訂白色文字樣式
             st.markdown("""
             <style>
             div[data-testid="stFileUploader"] label {
@@ -1220,32 +1230,32 @@ div[role="status"] > div > span {
             </style>
             """, unsafe_allow_html=True)
         
-            # 📤 上傳區顯示
-            if st.session_state.show_uploader:
+            # 📤 上傳圖片介面
+            if st.session_state["show_uploader"]:
                 uploaded_files = st.file_uploader(
                     "請上傳圖片 (jpg, jpeg, png)",
                     type=["jpg", "jpeg", "png"],
                     accept_multiple_files=True
                 )
                 if uploaded_files:
-                    st.session_state.uploaded_files = uploaded_files
-                    st.session_state.show_uploader = False
-                    st.session_state.start_analysis = False
+                    st.session_state["uploaded_files"] = uploaded_files
+                    st.session_state["show_uploader"] = False
+                    st.session_state["start_analysis"] = False
         
             # 🖼️ 預覽圖片
-            if st.session_state.uploaded_files and not st.session_state.start_analysis:
+            if st.session_state["uploaded_files"] and not st.session_state["start_analysis"]:
                 st.markdown("<h4 style='color:white;'>📷 預覽你上傳的圖片：</h4>", unsafe_allow_html=True)
-                for img in st.session_state.uploaded_files:
+                for img in st.session_state["uploaded_files"]:
                     st.image(img, use_container_width=True)
         
                 if st.button("🚀 開始搜尋所有圖片的相似網站"):
-                    st.session_state.start_analysis = True
+                    st.session_state["start_analysis"] = True
         
-            # 🔍 搜尋與分析流程
-            if st.session_state.start_analysis:
+            # 🔍 分析流程
+            if st.session_state["start_analysis"]:
                 all_urls = []
         
-                for idx, uploaded_file in enumerate(st.session_state.uploaded_files, 1):
+                for idx, uploaded_file in enumerate(st.session_state["uploaded_files"], 1):
                     st.markdown(f"<h3 style='color:white;'>📤 處理圖片 {idx}：{uploaded_file.name}</h3>", unsafe_allow_html=True)
         
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp_file:
@@ -1340,7 +1350,7 @@ div[role="status"] > div > span {
         </div>
         """, unsafe_allow_html=True)
         
-                    # 📥 分析總結與下載按鈕
+                    # 📥 分析總結與下載
                     st.markdown("<h3 style='color:white;'>📋 分析總結</h3>", unsafe_allow_html=True)
                     if high_risk_urls:
                         st.session_state["high_risk_urls"] = high_risk_urls
@@ -1350,11 +1360,7 @@ div[role="status"] > div > span {
                             file_name="imgsearch_high_risk_urls.txt",
                             mime="text/plain"
                         ):
-                            # ✅ 下載後重置整個畫面狀態
-                            st.session_state["show_uploader"] = True
-                            st.session_state["start_analysis"] = False
-                            st.session_state["uploaded_files"] = None
-                            st.session_state["high_risk_urls"] = set()
+                            st.session_state["reset_after_download"] = True
                             st.experimental_rerun()
                     else:
                         st.markdown(f"""
@@ -1362,7 +1368,6 @@ div[role="status"] > div > span {
         ✅ 所有搜尋結果皆未偵測出高風險內容
         </div>
         """, unsafe_allow_html=True)
-
 
 if __name__ == "__main__":
     main()
