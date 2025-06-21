@@ -1196,6 +1196,8 @@ div[role="status"] > div > span {
             # 初始化狀態旗標
             if "download_finished" not in st.session_state:
                 st.session_state.download_finished = False
+            if "start_analysis" not in st.session_state:
+                st.session_state.start_analysis = False
         
             # 標題 + 上傳區
             st.markdown("<h3 style='color:white;'>📸 上傳圖片以搜尋相似網站</h3>", unsafe_allow_html=True)
@@ -1205,12 +1207,20 @@ div[role="status"] > div > span {
                 "", type=["jpg", "jpeg", "png"], accept_multiple_files=True, label_visibility="collapsed"
             )
         
-            # 如果有上傳新圖片 → 取消清空狀態
+            # 如果有上傳新圖片 → 重置狀態
             if uploaded_files:
                 st.session_state.download_finished = False
+                st.session_state.start_analysis = False
         
-            # 🔍 分析流程只在「未點擊下載」後才顯示
-            if uploaded_files and not st.session_state.download_finished:
+            # 顯示「開始分析」按鈕
+            if uploaded_files and not st.session_state.start_analysis:
+                if st.button("🚀 開始分析"):
+                    st.session_state.start_analysis = True
+                else:
+                    st.stop()
+        
+            # 🔍 分析流程只在「未點擊下載」+「已按下分析」時執行
+            if uploaded_files and not st.session_state.download_finished and st.session_state.start_analysis:
                 all_high_risk_urls = []
         
                 for img_idx, uploaded_file in enumerate(uploaded_files, 1):
@@ -1317,6 +1327,7 @@ div[role="status"] > div > span {
                         mime="text/plain"
                     ):
                         st.session_state.download_finished = True
+                        st.session_state.start_analysis = False  # 重置分析狀態
                         st.success("✅ 檔案已下載，請重新上傳圖片進行下一輪分析")
                 else:
                     st.markdown("""
