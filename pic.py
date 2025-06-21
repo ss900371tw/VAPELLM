@@ -575,6 +575,8 @@ def main():
     # 初始化
     if "selected_mode" not in st.session_state:
         st.session_state.selected_mode = None
+    if "download_clicked" not in st.session_state:
+        st.session_state.download_clicked = False
 
 
                 
@@ -1302,19 +1304,17 @@ div[role="status"] > div > span {
                     """, unsafe_allow_html=True)
         
 
-                    download_clicked = st.download_button(
+                    download_btn = st.download_button(
                         label="📥 下載高風險網址清單",
                         data="\n".join(unique_urls),
                         file_name="high_risk_urls.txt",
                         mime="text/plain"
                     )
-
-                    if download_clicked:
-                        st.success("✅ 檔案已下載，請重新上傳圖片開始新一輪分析")
-                        # 清空控制旗標
-                        st.session_state["uploaded_files"] = None
-                        st.session_state["analysis_done"] = True
-                        st.stop() 
+                    
+                    if download_btn:
+                        st.session_state.download_clicked = True
+                        st.rerun()
+    
                 else:
                     st.markdown("""
                         <div style="background-color: #d4edda; color: #155724; padding: 1rem;
