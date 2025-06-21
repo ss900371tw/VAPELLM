@@ -1001,14 +1001,13 @@ div[role="status"] > div > span {
             uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed", accept_multiple_files=True)
         
             if uploaded_files:
-                if st.button("🚀 搜尋所有圖片相似網站"):
-                    for file_index, uploaded_file in enumerate(uploaded_files, 1):
-                        st.markdown(f"<hr><h3 style='color:white;'>📷 圖片 {file_index}</h3>", unsafe_allow_html=True)
-                        st.image(uploaded_file, caption=f"圖片 {file_index}", use_container_width=True)
-        
-                        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp_file:
-                            tmp_file.write(uploaded_file.read())
-                            tmp_path = tmp_file.name
+                for i, uploaded_file in enumerate(uploaded_files, 1):
+                    st.markdown(f"<h3 style='color:white;'>📸 第 {i} 張圖片</h3>", unsafe_allow_html=True)
+                    st.image(uploaded_file, caption=f"圖片 {i}", use_container_width=True)
+            
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp_file:
+                        tmp_file.write(uploaded_file.read())
+                        tmp_path = tmp_file.name
         
                         try:
                             image_url = upload_image_to_imgbb(tmp_path)
