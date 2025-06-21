@@ -1199,20 +1199,19 @@ div[role="status"] > div > span {
             # --- 上傳區 ---
             if st.session_state.show_uploader:
                 st.markdown("""
-                <style>
-                /* 改變 file_uploader 標籤為白字 */
-                div[data-testid="stFileUploader"] label {
-                    color: white !important;
-                    font-weight: bold;
-                    font-size: 1rem;
-                }
-                
-                /* 改變檔名文字為白色 */
-                div[data-testid="stFileUploader"] div[aria-label] p {
-                    color: white !important;
-                }
-                </style>
-                """, unsafe_allow_html=True)
+<style>
+/* 將 file_uploader 的標籤與上傳檔名都改為白色 */
+label, .stFileUploader label {
+    color: white !important;
+}
+
+/* 檔名顯示區塊文字（含大小） */
+section[data-testid="stFileUploader"] div[aria-label] p {
+    color: white !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
                 if uploaded_files:
                     st.session_state.uploaded_files = uploaded_files
                     st.session_state.show_uploader = False  # 隱藏上傳器
