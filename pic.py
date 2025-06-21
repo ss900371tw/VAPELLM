@@ -413,13 +413,24 @@ def crawl_images(url: str):
                     img_urls.append(full_url)
                     break
                 elif is_image_url(full_url):
-                    img_urls.append(full_url)
-                    break
+                    try:
+                        # 下載圖片並重新上傳至 imgbb
+                        img_data = requests.get(full_url, headers=headers, timeout=10).content
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp_file:
+                            tmp_file.write(img_data)
+                            tmp_path = tmp_file.name
+                        imgbb_url = upload_image_to_imgbb(tmp_path)
+                        img_urls.append(imgbb_url)
+                        break
+                    except Exception as e:
+                        print(f"[upload to imgbb error]: {e}")
+                        continue
 
         return img_urls
     except Exception as e:
         print(f"[crawl_images error]: {e}")
         return []
+
 
 
 
