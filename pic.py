@@ -998,7 +998,9 @@ div[role="status"] > div > span {
             st.markdown("<h3 style='color:white;'>📸 上傳圖片以搜尋相似網站</h3>", unsafe_allow_html=True)
             st.markdown('<label style="color:white;font-size:1rem;">📤 請上傳圖片 (jpg, jpeg, png)</label>', unsafe_allow_html=True)
         
-            uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed", accept_multiple_files=True)
+            uploaded_files = st.file_uploader(
+                "", type=["jpg", "jpeg", "png"], label_visibility="collapsed", accept_multiple_files=True
+            )
         
             # 初始化 session_state
             if "high_risk_urls_all" not in st.session_state:
@@ -1007,51 +1009,137 @@ div[role="status"] > div > span {
                 st.session_state.start_analysis = False
             if "download_ready" not in st.session_state:
                 st.session_state.download_ready = False
-            
+        
             # 分析按鈕
             if uploaded_files and not st.session_state.start_analysis:
                 if st.button("🚀 開始分析"):
                     st.session_state.start_analysis = True
                     st.session_state.high_risk_urls_all = []
                     st.session_state.download_ready = False
-            
-            # 分析圖片
+        
+            # 分析邏輯
             if uploaded_files and st.session_state.start_analysis and not st.session_state.download_ready:
                 for i, uploaded_file in enumerate(uploaded_files, 1):
                     st.markdown(f"<h3 style='color:white;'>📸 第 {i} 張圖片</h3>", unsafe_allow_html=True)
                     st.image(uploaded_file, caption=f"圖片 {i}", use_container_width=True)
-            
-                    # ✅ 修正 read() 問題
+        
                     file_bytes = uploaded_file.read()
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp_file:
                         tmp_file.write(file_bytes)
                         tmp_path = tmp_file.name
-            
+        
+                    high_risk_urls = []  # ✅ 預先定義，避免 except 出錯
+        
                     try:
                         image_url = upload_image_to_imgbb(tmp_path)
                         st.markdown(f"""
                         <h4 style='color:white;'>🔗 點我查看圖片連結：
                         <a href="{image_url}" target="_blank" style="color:#add8e6;">{image_url}</a></h4>
                         """, unsafe_allow_html=True)
-            
+        
                         with st.spinner("🔍 使用 Google 搜尋相似圖片中..."):
                             urls = search_similar_images_via_serpapi(image_url)
-            
-                        # ... 中略：網址分析部分保留原樣 ...
-            
-                        st.session_state.high_risk_urls_all.extend(high_risk_urls)
-            
+        
+                        if not urls:
+                            st.warning("⚠️ 沒找到相似圖片結果，圖片可能內容太模糊或不具代表性。")
+                            continue
+        
+                        st.markdown(f"""
+                        <div style="
+                            background-color: #d4edda;
+                            color: #155724;
+                            padding: 1rem;
+                            border-radius: 10px;
+                            border: 1px solid #c3e6cb;
+                            font-size: 16px;
+                        ">
+                        ✅ 找到 {len(urls)} 筆相似圖片網站
+                        </div>
+                        """, unsafe_allow_html=True)
+        
+                        for idx, url in enumerate(urls, 1):
+                            st.markdown(f"<h4 style='color:white;'>🔗 [{idx}] 分析網址：<a href='{url}' target='_blank'>{url}</a></h4>", unsafe_allow_html=True)
+        
+                            with st.spinner("⏳ 正在分析..."):
+                                text_content = crawl_all_text(url)
+                                text_result = chain.invoke(text_content)
+                                image_urls = crawl_images(url)
+                                flagged_images = 0
+        
+                                col1, col2 = st.columns([5, 5])
+                                with col1:
+                                    st.markdown(f"""
+                                    <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
+                                        <h4 style="margin-bottom:0.8rem;">📄 文字分類結果</h4>
+                                        <pre style="white-space:pre-wrap;font-size:0.92rem;font-family:inherit;">{text_result}</pre>
+                                    </div>
+                                    """, unsafe_allow_html=True)
+        
+                                with col2:
+                                    if not image_urls:
+                                        st.markdown("""
+                                        <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
+                                            <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+                                            <div style="font-size:0.9rem;"><b>(未找到圖片)</b></div>
+                                        </div>
+                                        """, unsafe_allow_html=True)
+                                    else:
+                                        for img in random.sample(image_urls, min(2, len(image_urls))):
+                                            img_result = classify_image(img, llm_image)
+                                            st.markdown(f"""
+                                            <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
+                                                <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+                                                <img src="{img}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
+                                                <div style="font-size:0.9rem;"><b>分類結果：</b>{img_result}</div>
+                                            </div>
+                                            """, unsafe_allow_html=True)
+                                            if "Warning" in img_result:
+                                                flagged_images += 1
+        
+                            if "(1)" in text_result or flagged_images > 0:
+                                st.markdown("""
+                                <div style="
+                                    background-color: #fff3cd;
+                                    color: #856404;
+                                    padding: 1rem;
+                                    border-radius: 10px;
+                                    border: 1px solid #ffeeba;
+                                    font-size: 16px;
+                                ">
+                                ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+                                </div>
+                                """, unsafe_allow_html=True)
+                                high_risk_urls.append(url)
+                            else:
+                                st.markdown("""
+                                <div style="
+                                    background-color: #d4edda;
+                                    color: #155724;
+                                    padding: 1rem;
+                                    border-radius: 10px;
+                                    border: 1px solid #c3e6cb;
+                                    font-size: 16px;
+                                ">
+                                ✅ <strong>安全網站</strong>：未偵測出高風險內容
+                                </div>
+                                """, unsafe_allow_html=True)
+        
+                            st.markdown("---")
+        
                     except Exception as e:
                         st.error(f"❌ 發生錯誤：{e}")
-            
-                # ✅ 所有圖片處理完成才顯示下載區
+        
+                    # 無論成功與否，都記錄
+                    st.session_state.high_risk_urls_all.extend(high_risk_urls)
+        
+                # 所有圖片處理完成
                 st.session_state.download_ready = True
-            
-            # ✅ 所有圖片處理完畢才出現這個區塊
+        
+            # 下載區塊：所有圖片處理完才顯示
             if st.session_state.download_ready:
                 unique_sorted_urls = sorted(set(st.session_state.high_risk_urls_all))
                 st.markdown("<hr><h3 style='color:white;'>📥 所有圖片總結下載</h3>", unsafe_allow_html=True)
-            
+        
                 if unique_sorted_urls:
                     st.markdown(f"""
                     <div style="
@@ -1065,7 +1153,7 @@ div[role="status"] > div > span {
                     ⚠️ 所有圖片中共偵測到高風險網址 {len(unique_sorted_urls)} 筆
                     </div>
                     """, unsafe_allow_html=True)
-            
+        
                     st.download_button(
                         label="📥 下載高風險網址清單",
                         data="\n".join(unique_sorted_urls),
@@ -1085,7 +1173,6 @@ div[role="status"] > div > span {
                     ✅ 所有圖片皆未偵測到高風險內容
                     </div>
                     """, unsafe_allow_html=True)
-
 
 
 if __name__ == "__main__":
