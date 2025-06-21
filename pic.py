@@ -1213,11 +1213,25 @@ div[role="status"] > div > span {
                 st.session_state.start_analysis = False
         
             # 顯示「開始分析」按鈕
-            if uploaded_files and not st.session_state.start_analysis:
-                if st.button("🚀 開始分析"):
-                    st.session_state.start_analysis = True
-                else:
+            if st.button("🚀 開始分析"):
+                if not uploaded_files:
+                    st.markdown("""
+                    <div style="
+                        background-color: #fff3cd;
+                        color: #856404;
+                        padding: 1rem;
+                        border-radius: 10px;
+                        border: 1px solid #ffeeba;
+                        font-size: 16px;
+                    ">
+                    ⚠️ 請先上傳圖片檔案 (.jpg, .jpeg, .png)
+                    </div>
+                    """, unsafe_allow_html=True)
                     st.stop()
+                else:
+                    st.session_state.start_analysis = True
+            else:
+                st.stop()
         
             # 🔍 分析流程只在「未點擊下載」+「已按下分析」時執行
             if uploaded_files and not st.session_state.download_finished and st.session_state.start_analysis:
