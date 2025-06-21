@@ -1193,24 +1193,24 @@ div[role="status"] > div > span {
     """, unsafe_allow_html=True)
         elif "以圖搜尋分析" in mode:
         
-            # 初始化狀態
-            if "download_clicked" not in st.session_state:
-                st.session_state.download_clicked = False
+            # 初始化狀態旗標
+            if "download_finished" not in st.session_state:
+                st.session_state.download_finished = False
         
-            # ✅ 若已下載，清空畫面只保留 uploader
-            if st.session_state.download_clicked:
-                st.session_state.download_clicked = False  # reset flag
-                st.markdown("<h3 style='color:white;'>📸 上傳圖片以搜尋相似網站</h3>", unsafe_allow_html=True)
-                st.markdown('<label style="color:white;font-size:1rem;">📤 請重新上傳圖片 (jpg, jpeg, png)</label>', unsafe_allow_html=True)
-                st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True, label_visibility="collapsed")
-                st.stop()
-        
-            # 🖼️ 正常流程
+            # 標題 + 上傳區
             st.markdown("<h3 style='color:white;'>📸 上傳圖片以搜尋相似網站</h3>", unsafe_allow_html=True)
             st.markdown('<label style="color:white;font-size:1rem;">📤 請上傳圖片 (jpg, jpeg, png)</label>', unsafe_allow_html=True)
-            uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True, label_visibility="collapsed")
         
+            uploaded_files = st.file_uploader(
+                "", type=["jpg", "jpeg", "png"], accept_multiple_files=True, label_visibility="collapsed"
+            )
+        
+            # 如果有上傳新圖片 → 取消清空狀態
             if uploaded_files:
+                st.session_state.download_finished = False
+        
+            # 🔍 分析流程只在「未點擊下載」後才顯示
+            if uploaded_files and not st.session_state.download_finished:
                 all_high_risk_urls = []
         
                 for img_idx, uploaded_file in enumerate(uploaded_files, 1):
@@ -1300,8 +1300,9 @@ div[role="status"] > div > span {
         
                 # 📋 分析總結
                 st.markdown("<h3 style='color:white;'>📋 所有圖片分析總結</h3>", unsafe_allow_html=True)
-                if all_high_risk_urls:
-                    unique_urls = sorted(set(all_high_risk_urls))
+                unique_urls = sorted(set(all_high_risk_urls))
+        
+                if unique_urls:
                     st.markdown(f"""
                         <div style="background-color: #fff3cd; color: #856404; padding: 1rem;
                                     border-radius: 10px; border: 1px solid #ffeeba; font-size: 16px;">
@@ -1309,17 +1310,14 @@ div[role="status"] > div > span {
                         </div>
                     """, unsafe_allow_html=True)
         
-                    download_clicked = st.download_button(
+                    if st.download_button(
                         label="📥 下載高風險網址清單",
                         data="\n".join(unique_urls),
-                        file_name="high_risk_urls.txt",
+                        file_name="imgsearch_high_risk_urls.txt",
                         mime="text/plain"
-                    )
-        
-                    if download_clicked:
-                        st.session_state.download_clicked = True
-                        st.rerun()
-        
+                    ):
+                        st.session_state.download_finished = True
+                        st.success("✅ 檔案已下載，請重新上傳圖片進行下一輪分析")
                 else:
                     st.markdown("""
                         <div style="background-color: #d4edda; color: #155724; padding: 1rem;
@@ -1327,7 +1325,7 @@ div[role="status"] > div > span {
                             ✅ 所有搜尋結果皆未偵測出高風險內容
                         </div>
                     """, unsafe_allow_html=True)
-
+        
 
 
 if __name__ == "__main__":
