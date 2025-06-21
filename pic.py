@@ -1132,7 +1132,7 @@ div[role="status"] > div > span {
                     
                     st.download_button(
                         label="📥 下載高風險網址清單",
-                        data="\n".join(high_risk_urls),
+                        data="\n".join(high_risk_urls_all),
                         file_name="high_risk_urls.txt",
                         mime="text/plain"
                     )
