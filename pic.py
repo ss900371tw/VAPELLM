@@ -1105,7 +1105,6 @@ div[role="status"] > div > span {
                                     file_name="imgsearch_high_risk_urls.txt",
                                     mime="text/plain"
                                 )
-                                st.rerun()
                             else:
                                 st.markdown("""
                                     <div style="background-color: #d4edda; color: #155724; padding: 1rem;
