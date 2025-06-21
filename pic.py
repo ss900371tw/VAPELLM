@@ -658,13 +658,13 @@ def main():
     # 集中處理按鈕事件
     col1, col2, col3 , col4= st.columns(4)
     with col1:
-        render_card("🔍", "單網址分析", "分析單一網站圖文", key="single")
+        render_card("🔍", "單網址分析", "分析個別網站的圖文", key="single")
     with col2:
         render_card("📂", "批量分析", "上傳多網站txt檔分析", key="batch")
     with col3:
         render_card("🌐", "關鍵字分析", "根據關鍵字爬蟲分析", key="search")
     with col4:
-        render_card("📸", "以圖分析", "以圖爬蟲進行分析", key="picture")
+        render_card("📸", "以圖分析", "以圖搜圖並爬蟲分析", key="picture")
     
     mode = st.session_state.get("selected_mode")
     
