@@ -997,15 +997,22 @@ div[role="status"] > div > span {
         elif "以圖搜尋分析" in mode:
             st.markdown("<h3 style='color:white;'>📸 上傳圖片以搜尋相似網站</h3>", unsafe_allow_html=True)
             st.markdown('<label style="color:white;font-size:1rem;">📤 請上傳圖片 (jpg, jpeg, png)</label>', unsafe_allow_html=True)
-            
+        
             uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed", accept_multiple_files=True)
         
             # 初始化 session_state
             if "high_risk_urls_all" not in st.session_state:
                 st.session_state.high_risk_urls_all = None
+            if "start_analysis" not in st.session_state:
+                st.session_state.start_analysis = False
+        
+            # 分析按鈕
+            if uploaded_files:
+                if st.button("🚀 開始分析"):
+                    st.session_state.start_analysis = True
         
             # 圖片分析階段
-            if uploaded_files:
+            if uploaded_files and st.session_state.start_analysis:
                 high_risk_urls_all = []
         
                 for i, uploaded_file in enumerate(uploaded_files, 1):
@@ -1119,7 +1126,7 @@ div[role="status"] > div > span {
                     except Exception as e:
                         st.error(f"❌ 發生錯誤：{e}")
         
-                # 儲存分析結果以防止下載觸發重新執行
+                # 儲存分析結果避免下載觸發重跑
                 st.session_state.high_risk_urls_all = high_risk_urls_all
         
             # === 下載區塊（僅當有結果時顯示） ===
