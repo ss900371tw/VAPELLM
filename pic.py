@@ -1129,10 +1129,11 @@ div[role="status"] > div > span {
                     ⚠️ 所有圖片中共偵測到高風險網址 {len(set(high_risk_urls_all))} 筆
                     </div>
                     """, unsafe_allow_html=True)
+                    
                     st.download_button(
-                        label="📥 下載所有高風險網址清單",
-                        data="\\n".join(set(high_risk_urls_all)),
-                        file_name="all_high_risk_urls.txt",
+                        label="📥 下載高風險網址清單",
+                        data="\n".join(high_risk_urls),
+                        file_name="high_risk_urls.txt",
                         mime="text/plain"
                     )
                     
