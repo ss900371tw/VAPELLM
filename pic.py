@@ -658,18 +658,18 @@ def main():
     # 集中處理按鈕事件
     col1, col2, col3 , col4= st.columns(4)
     with col1:
-        render_card("🔍", "單一網址分析", "分析單個網站的文字與圖片", key="single")
+        render_card("🔍", "單網址分析", "分析單一網站圖文", key="single")
     with col2:
-        render_card("📂", "批量網址分析", "上傳文字檔，分析多個網站", key="batch")
+        render_card("📂", "批量分析", "上傳多網站txt檔分析", key="batch")
     with col3:
-        render_card("🌐", "關鍵字搜尋分析", "根據關鍵字自動搜尋網站", key="search")
+        render_card("🌐", "關鍵字分析", "根據關鍵字爬蟲分析", key="search")
     with col4:
-        render_card("📸", "以圖搜尋分析", "以上傳圖片進行爬蟲分析", key="picture")
+        render_card("📸", "以圖分析", "以圖爬蟲進行分析", key="picture")
     
     mode = st.session_state.get("selected_mode")
     
     if mode:    
-        if "單一網址分析" in mode:
+        if "單網址分析" in mode:
             # 建立左右排列欄位
             # 自訂按鈕樣式讓它貼齊 text_input 高度
             
@@ -823,7 +823,7 @@ def main():
 </div>
 """, unsafe_allow_html=True)
     
-        elif "批量網址分析" in mode:
+        elif "批量分析" in mode:
             st.markdown("""
 <style>
 /* 將 file_uploader 的標籤與上傳檔名都改為白色 */
@@ -990,7 +990,7 @@ div[role="status"] > div > span {
 </div>
 """, unsafe_allow_html=True)
     
-        elif "關鍵字搜尋分析" in mode:
+        elif "關鍵字分析" in mode:
             # 輸入關鍵字
             # 自訂文字顏色為白色
             st.markdown("""
@@ -1191,7 +1191,7 @@ div[role="status"] > div > span {
     ✅ 所有搜尋結果均未偵測到高風險內容
     </div>
     """, unsafe_allow_html=True)
-        elif "以圖搜尋分析" in mode:
+        elif "以圖分析" in mode:
         
             # 初始化狀態旗標
             if "download_finished" not in st.session_state:
