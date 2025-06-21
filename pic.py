@@ -343,7 +343,7 @@ def search_similar_images_via_serpapi(image_url):
     search = GoogleSearch(params)
     results = search.get_dict()
 
-    st.subheader("📦 SerpAPI 回傳內容")
+    st.markdown("<h3 style='color:white;'>📦 SerpAPI 回傳內容</h3>", unsafe_allow_html=True)
     st.json(results)
 
     image_results = results.get("image_results", [])
