@@ -1270,6 +1270,73 @@ div[role="status"] > div > span {
                                                 <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;
                                                             border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
                                                     <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+                                                             <div style="font-size:0.9rem;"><b>(未找到圖片)</b></div>
+                                    </div>
+                                """, unsafe_allow_html=True)
+                            else:
+                                for img in random.sample(image_urls, min(2, len(image_urls))):
+                                    img_result = classify_image(img, llm_image)
+                                    st.markdown(f"""
+                                        <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;
+                                                    border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
+                                            <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+                                            <img src="{img}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
+                                            <div style="font-size:0.9rem;"><b>分類結果：</b>{img_result}</div>
+                                        </div>
+                                    """, unsafe_allow_html=True)
+                                    if "Warning" in img_result:
+                                        flagged_images += 1
+
+                    if "(1)" in text_result or flagged_images > 0:
+                        st.markdown("""
+                            <div style="background-color: #fff3cd; color: #856404; padding: 1rem;
+                                        border-radius: 10px; border: 1px solid #ffeeba; font-size: 16px;">
+                                ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+                            </div>
+                        """, unsafe_allow_html=True)
+                        all_high_risk_urls.append(url)
+                    else:
+                        st.markdown("""
+                            <div style="background-color: #d4edda; color: #155724; padding: 1rem;
+                                        border-radius: 10px; border: 1px solid #c3e6cb; font-size: 16px;">
+                                ✅ <strong>安全網站</strong>
+                            </div>
+                        """, unsafe_allow_html=True)
+
+                    st.markdown("---")
+
+            except Exception as e:
+                st.error(f"❌ 發生錯誤：{e}")
+
+        # 📋 分析總結
+        st.markdown("<h3 style='color:white;'>📋 所有圖片分析總結</h3>", unsafe_allow_html=True)
+        if all_high_risk_urls:
+            unique_urls = sorted(set(all_high_risk_urls))
+            st.markdown(f"""
+                <div style="background-color: #fff3cd; color: #856404; padding: 1rem;
+                            border-radius: 10px; border: 1px solid #ffeeba; font-size: 16px;">
+                    ⚠️ 共偵測到高風險網址 {len(unique_urls)} 筆
+                </div>
+            """, unsafe_allow_html=True)
+
+            download_clicked = st.download_button(
+                label="📥 下載高風險網址清單",
+                data="\n".join(unique_urls),
+                file_name="high_risk_urls.txt",
+                mime="text/plain"
+            )
+
+            if download_clicked:
+                st.session_state.download_clicked = True
+                st.rerun()
+
+        else:
+            st.markdown("""
+                <div style="background-color: #d4edda; color: #155724; padding: 1rem;
+                            border-radius: 10px; border: 1px solid #c3e6cb; font-size: 16px;">
+                    ✅ 所有搜尋結果皆未偵測出高風險內容
+                </div>
+            """, unsafe_allow_html=True)
 
 
 
