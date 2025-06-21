@@ -997,9 +997,14 @@ div[role="status"] > div > span {
         elif "以圖搜尋分析" in mode:
             st.markdown("<h3 style='color:white;'>📸 上傳圖片以搜尋相似網站</h3>", unsafe_allow_html=True)
             st.markdown('<label style="color:white;font-size:1rem;">📤 請上傳圖片 (jpg, jpeg, png)</label>', unsafe_allow_html=True)
-        
+            
             uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed", accept_multiple_files=True)
         
+            # 初始化 session_state
+            if "high_risk_urls_all" not in st.session_state:
+                st.session_state.high_risk_urls_all = None
+        
+            # 圖片分析階段
             if uploaded_files:
                 high_risk_urls_all = []
         
@@ -1114,14 +1119,15 @@ div[role="status"] > div > span {
                     except Exception as e:
                         st.error(f"❌ 發生錯誤：{e}")
         
-                # ✅ 所有圖片處理完後的總結與下載
+                # 儲存分析結果以防止下載觸發重新執行
+                st.session_state.high_risk_urls_all = high_risk_urls_all
+        
+            # === 下載區塊（僅當有結果時顯示） ===
+            if st.session_state.high_risk_urls_all is not None:
                 st.markdown("<hr><h3 style='color:white;'>📥 所有圖片總結下載</h3>", unsafe_allow_html=True)
-                high_risk_urls_all = sorted(set(high_risk_urls_all))
-
-                if high_risk_urls_all:
-                    # 去重 + 排序
-                    unique_sorted_urls = sorted(set(high_risk_urls_all))
-                
+                unique_sorted_urls = sorted(set(st.session_state.high_risk_urls_all))
+        
+                if unique_sorted_urls:
                     st.markdown(f"""
                     <div style="
                         background-color: #fff3cd;
@@ -1134,18 +1140,13 @@ div[role="status"] > div > span {
                     ⚠️ 所有圖片中共偵測到高風險網址 {len(unique_sorted_urls)} 筆
                     </div>
                     """, unsafe_allow_html=True)
-                
-                    # 加一個 session state 控制是否觸發 rerun
-                    if st.download_button(
+        
+                    st.download_button(
                         label="📥 下載高風險網址清單",
                         data="\n".join(unique_sorted_urls),
                         file_name="high_risk_urls.txt",
-                        mime="text/plain",
-                        key="download_btn"
-                    ):
-                        st.success("✅ 檔案已下載")
-
-                    
+                        mime="text/plain"
+                    )
                 else:
                     st.markdown("""
                     <div style="
@@ -1159,8 +1160,6 @@ div[role="status"] > div > span {
                     ✅ 所有圖片皆未偵測到高風險內容
                     </div>
                     """, unsafe_allow_html=True)
-                
-
 
 
 
