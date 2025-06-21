@@ -1361,7 +1361,6 @@ div[role="status"] > div > span {
                             mime="text/plain"
                         ):
                             st.session_state["reset_after_download"] = True
-                            st.experimental_rerun()
                     else:
                         st.markdown(f"""
         <div style="background-color:#d4edda;color:#155724;padding:1rem;border-radius:10px;border:1px solid #c3e6cb;font-size:16px;">
