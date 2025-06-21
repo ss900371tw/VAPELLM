@@ -575,11 +575,7 @@ def main():
     # 初始化
     if "selected_mode" not in st.session_state:
         st.session_state.selected_mode = None
-    if "download_clicked" not in st.session_state:
-        st.session_state.download_clicked = False
 
-
-                
     def render_card(icon, title, desc, key):
         selected = st.session_state.get("selected_mode") == title
         border = "4px solid #3EB489" if selected else "1px solid #999999"
@@ -1196,9 +1192,22 @@ div[role="status"] > div > span {
     </div>
     """, unsafe_allow_html=True)
         elif "以圖搜尋分析" in mode:
+        
+            # 初始化狀態
+            if "download_clicked" not in st.session_state:
+                st.session_state.download_clicked = False
+        
+            # ✅ 若已下載，清空畫面只保留 uploader
+            if st.session_state.download_clicked:
+                st.session_state.download_clicked = False  # reset flag
+                st.markdown("<h3 style='color:white;'>📸 上傳圖片以搜尋相似網站</h3>", unsafe_allow_html=True)
+                st.markdown('<label style="color:white;font-size:1rem;">📤 請重新上傳圖片 (jpg, jpeg, png)</label>', unsafe_allow_html=True)
+                st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True, label_visibility="collapsed")
+                st.stop()
+        
+            # 🖼️ 正常流程
             st.markdown("<h3 style='color:white;'>📸 上傳圖片以搜尋相似網站</h3>", unsafe_allow_html=True)
             st.markdown('<label style="color:white;font-size:1rem;">📤 請上傳圖片 (jpg, jpeg, png)</label>', unsafe_allow_html=True)
-        
             uploaded_files = st.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True, label_visibility="collapsed")
         
             if uploaded_files:
@@ -1213,7 +1222,6 @@ div[role="status"] > div > span {
                         tmp_path = tmp_file.name
         
                     try:
-                        # 圖片上傳
                         image_url = upload_image_to_imgbb(tmp_path)
                         st.markdown(f"""
                             <div style="background-color: #d4edda; color: #155724; padding: 1rem;
@@ -1222,7 +1230,6 @@ div[role="status"] > div > span {
                             </div>
                         """, unsafe_allow_html=True)
         
-                        # 搜尋相似圖片網址
                         with st.spinner("🔍 使用 Google 搜尋相似圖片中..."):
                             urls = search_similar_images_via_serpapi(image_url)
         
@@ -1263,65 +1270,7 @@ div[role="status"] > div > span {
                                                 <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;
                                                             border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
                                                     <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-                                                    <img src="{img}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
-                                                    <div style="font-size:0.9rem;"><b>分類結果：</b>{img_result}</div>
-                                                </div>
-                                            """, unsafe_allow_html=True)
-                                            if "Warning" in img_result:
-                                                flagged_images += 1
-        
-                            # 風險判斷
-                            if "(1)" in text_result or flagged_images > 0:
-                                st.markdown("""
-                                    <div style="background-color: #fff3cd; color: #856404; padding: 1rem;
-                                                border-radius: 10px; border: 1px solid #ffeeba; font-size: 16px;">
-                                        ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
-                                    </div>
-                                """, unsafe_allow_html=True)
-                                all_high_risk_urls.append(url)
-                            else:
-                                st.markdown("""
-                                    <div style="background-color: #d4edda; color: #155724; padding: 1rem;
-                                                border-radius: 10px; border: 1px solid #c3e6cb; font-size: 16px;">
-                                        ✅ <strong>安全網站</strong>
-                                    </div>
-                                """, unsafe_allow_html=True)
-        
-                            st.markdown("---")
-        
-                    except Exception as e:
-                        st.error(f"❌ 發生錯誤：{e}")
-        
-                # 🔚 最後總結所有高風險網址
-                st.markdown("<h3 style='color:white;'>📋 所有圖片分析總結</h3>", unsafe_allow_html=True)
-                if all_high_risk_urls:
-                    unique_urls = sorted(set(all_high_risk_urls))
-                    st.markdown(f"""
-                        <div style="background-color: #fff3cd; color: #856404; padding: 1rem;
-                                    border-radius: 10px; border: 1px solid #ffeeba; font-size: 16px;">
-                            ⚠️ 共偵測到高風險網址 {len(unique_urls)} 筆
-                        </div>
-                    """, unsafe_allow_html=True)
-        
 
-                    download_btn = st.download_button(
-                        label="📥 下載高風險網址清單",
-                        data="\n".join(unique_urls),
-                        file_name="high_risk_urls.txt",
-                        mime="text/plain"
-                    )
-                    
-                    if download_btn:
-                        st.session_state.download_clicked = True
-                        st.rerun()
-    
-                else:
-                    st.markdown("""
-                        <div style="background-color: #d4edda; color: #155724; padding: 1rem;
-                                    border-radius: 10px; border: 1px solid #c3e6cb; font-size: 16px;">
-                            ✅ 所有搜尋結果皆未偵測出高風險內容
-                        </div>
-                    """, unsafe_allow_html=True)
 
 
 
