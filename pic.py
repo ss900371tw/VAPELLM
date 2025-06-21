@@ -1148,8 +1148,7 @@ div[role="status"] > div > span {
                     ✅ 所有圖片皆未偵測到高風險內容
                     </div>
                     """, unsafe_allow_html=True)
-                        except Exception as e:
-                            st.error(f"❌ 發生錯誤：{e}")
+
 
 
 
