@@ -1005,14 +1005,17 @@ div[role="status"] > div > span {
                 st.session_state.high_risk_urls_all = None
             if "start_analysis" not in st.session_state:
                 st.session_state.start_analysis = False
+            if "download_clicked" not in st.session_state:
+                st.session_state.download_clicked = False
         
             # 分析按鈕
-            if uploaded_files:
+            if uploaded_files and not st.session_state.start_analysis:
                 if st.button("🚀 開始分析"):
                     st.session_state.start_analysis = True
+                    st.session_state.download_clicked = False
         
-            # 圖片分析階段
-            if uploaded_files and st.session_state.start_analysis:
+            # 分析區段（避免在下載後重新分析）
+            if uploaded_files and st.session_state.start_analysis and not st.session_state.download_clicked:
                 high_risk_urls_all = []
         
                 for i, uploaded_file in enumerate(uploaded_files, 1):
@@ -1126,47 +1129,47 @@ div[role="status"] > div > span {
                     except Exception as e:
                         st.error(f"❌ 發生錯誤：{e}")
         
-                # 儲存分析結果避免下載觸發重跑
                 st.session_state.high_risk_urls_all = high_risk_urls_all
         
-                # === 下載區塊（僅當有結果時顯示） ===
-                if st.session_state.high_risk_urls_all is not None:
-                    st.markdown("<hr><h3 style='color:white;'>📥 所有圖片總結下載</h3>", unsafe_allow_html=True)
-                    unique_sorted_urls = sorted(set(st.session_state.high_risk_urls_all))
-            
-                    if unique_sorted_urls:
-                        st.markdown(f"""
-                        <div style="
-                            background-color: #fff3cd;
-                            color: #856404;
-                            padding: 1rem;
-                            border-radius: 10px;
-                            border: 1px solid #ffeeba;
-                            font-size: 16px;
-                        ">
-                        ⚠️ 所有圖片中共偵測到高風險網址 {len(unique_sorted_urls)} 筆
-                        </div>
-                        """, unsafe_allow_html=True)
-            
-                        st.download_button(
-                            label="📥 下載高風險網址清單",
-                            data="\n".join(unique_sorted_urls),
-                            file_name="high_risk_urls.txt",
-                            mime="text/plain"
-                        )
-                    else:
-                        st.markdown("""
-                        <div style="
-                            background-color: #d4edda;
-                            color: #155724;
-                            padding: 1rem;
-                            border-radius: 10px;
-                            border: 1px solid #c3e6cb;
-                            font-size: 16px;
-                        ">
-                        ✅ 所有圖片皆未偵測到高風險內容
-                        </div>
-                        """, unsafe_allow_html=True)
+            # 下載區塊
+            if st.session_state.high_risk_urls_all is not None:
+                st.markdown("<hr><h3 style='color:white;'>📥 所有圖片總結下載</h3>", unsafe_allow_html=True)
+                unique_sorted_urls = sorted(set(st.session_state.high_risk_urls_all))
+        
+                if unique_sorted_urls:
+                    st.markdown(f"""
+                    <div style="
+                        background-color: #fff3cd;
+                        color: #856404;
+                        padding: 1rem;
+                        border-radius: 10px;
+                        border: 1px solid #ffeeba;
+                        font-size: 16px;
+                    ">
+                    ⚠️ 所有圖片中共偵測到高風險網址 {len(unique_sorted_urls)} 筆
+                    </div>
+                    """, unsafe_allow_html=True)
+        
+                    st.download_button(
+                        label="📥 下載高風險網址清單",
+                        data="\n".join(unique_sorted_urls),
+                        file_name="high_risk_urls.txt",
+                        mime="text/plain",
+                        on_click=lambda: st.session_state.update({"download_clicked": True})
+                    )
+                else:
+                    st.markdown("""
+                    <div style="
+                        background-color: #d4edda;
+                        color: #155724;
+                        padding: 1rem;
+                        border-radius: 10px;
+                        border: 1px solid #c3e6cb;
+                        font-size: 16px;
+                    ">
+                    ✅ 所有圖片皆未偵測到高風險內容
+                    </div>
+                    """, unsafe_allow_html=True)
 
 
 
