@@ -1116,6 +1116,8 @@ div[role="status"] > div > span {
         
                 # ✅ 所有圖片處理完後的總結與下載
                 st.markdown("<hr><h3 style='color:white;'>📥 所有圖片總結下載</h3>", unsafe_allow_html=True)
+                high_risk_urls_all = sorted(set(high_risk_urls_all))
+
                 if high_risk_urls_all:
                     st.markdown(f"""
                     <div style="
