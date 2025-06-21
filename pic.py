@@ -1126,7 +1126,7 @@ div[role="status"] > div > span {
                 st.markdown("---")
                 st.markdown("<h4 style='color:white;'>🔁 若要重新分析，請點下方按鈕重新上傳圖片：</h4>", unsafe_allow_html=True)
                 if st.button("🔁 重新上傳圖片"):
-                    st.experimental_rerun()
+                    st.rerun()
 
 
 
