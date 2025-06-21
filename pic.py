@@ -1122,11 +1122,13 @@ div[role="status"] > div > span {
                 except Exception as e:
                     st.error(f"❌ 發生錯誤：{e}")
         
-                # ✅ 重新上傳按鈕
+                # ✅ 重新上傳按鈕（清空 session_state 並回到上傳畫面）
                 st.markdown("---")
                 st.markdown("<h4 style='color:white;'>🔁 若要重新分析，請點下方按鈕重新上傳圖片：</h4>", unsafe_allow_html=True)
                 if st.button("🔁 重新上傳圖片"):
-                    st.rerun()
+                    for key in st.session_state.keys():
+                        del st.session_state[key]
+                    st.experimental_rerun()  # 如果你使用的是較新版本可改成 st.rerun()
 
 
 
