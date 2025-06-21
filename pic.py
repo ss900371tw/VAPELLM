@@ -1354,13 +1354,21 @@ div[role="status"] > div > span {
                     st.markdown("<h3 style='color:white;'>📋 分析總結</h3>", unsafe_allow_html=True)
                     if high_risk_urls:
                         st.session_state["high_risk_urls"] = high_risk_urls
-                        if st.download_button(
-                            label="📥 下載高風險網址清單",
-                            data="\n".join(list(high_risk_urls)),
-                            file_name="imgsearch_high_risk_urls.txt",
-                            mime="text/plain"
-                        ):
-                            st.session_state["reset_after_download"] = True
+                        download_clicked = st.download_button(
+    label="📥 下載高風險網址清單",
+    data="\n".join(list(high_risk_urls)),
+    file_name="imgsearch_high_risk_urls.txt",
+    mime="text/plain"
+                    )
+                    
+                    if download_clicked:
+                        # 暫時不要 rerun，改為用 flag 控制畫面顯示邏輯
+                        st.session_state["show_uploader"] = True
+                        st.session_state["start_analysis"] = False
+                        st.session_state["uploaded_files"] = None
+                        st.session_state["high_risk_urls"] = set()
+                        st.success("✅ 檔案下載成功，請重新上傳圖片開始新的搜尋")
+
                     else:
                         st.markdown(f"""
         <div style="background-color:#d4edda;color:#155724;padding:1rem;border-radius:10px;border:1px solid #c3e6cb;font-size:16px;">
