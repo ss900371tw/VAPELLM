@@ -1373,7 +1373,7 @@ div[role="status"] > div > span {
                     ">
                     ⚠️ 請先上傳圖片檔案 (.jpg, .jpeg, .png)
                     </div>
-                    """, unsafe_allow_html=True)
+                    """, unsafe_allow_html=True) 
                     st.stop()
                 else:
                     st.session_state.start_analysis = True
