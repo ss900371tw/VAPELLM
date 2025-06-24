@@ -505,16 +505,20 @@ from io import BytesIO
 import base64
 
 
+from langchain.schema.messages import HumanMessage
+from io import BytesIO
+
 def classify_image(image_input, model):
     """
     image_input 可以是：
     - 圖片網址 (str)
     - BytesIO 圖片資料（目前不支援）
-    - 本地檔案路徑 (str)
+    - 本地檔案路徑 (str)（未來擴充）
+
     model: ChatOpenAI 類型模型（如 gpt-4-vision-preview）
     """
     try:
-        # 如果是網址
+        # 🌐 如果是圖片網址（推薦方式）
         if isinstance(image_input, str) and image_input.startswith("http"):
             message = HumanMessage(
                 content=[
@@ -522,16 +526,20 @@ def classify_image(image_input, model):
                     {"type": "image_url", "image_url": {"url": image_input}},
                 ]
             )
-        elif isinstance(image_input, BytesIO):
-            raise ValueError("LangChain 不支援 BytesIO 圖片輸入，請改用 OpenAI SDK")
-        else:
-            raise TypeError("不支援的圖片輸入類型")
+            result = model.invoke([message])
+            return result.content
 
-        result = model.invoke([message])
-        return result.content
+        # 🚫 BytesIO 不支援（OpenAI SDK 才能處理）
+        elif isinstance(image_input, BytesIO):
+            return "❌ BytesIO 輸入尚不支援，請先上傳到圖床取得網址後再判斷"
+
+        # 🧯 其他類型錯誤
+        else:
+            return f"❌ 不支援的圖片輸入類型（收到類型：{type(image_input)}）"
 
     except Exception as e:
-        return f"圖片讀取或分析失敗: {e}"
+        return f"⚠️ 圖片分析失敗：{e}"
+
 
 from langchain.schema.messages import HumanMessage
 from io import BytesIO
