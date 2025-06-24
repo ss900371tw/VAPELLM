@@ -535,6 +535,55 @@ def upload_bytesio_to_imgbb(img_io: BytesIO) -> str:
     res.raise_for_status()
     return res.json()["data"]["url"]
 
+
+import base64
+import os
+import requests
+from datetime import datetime
+from io import BytesIO
+
+def upload_bytesio_to_github_raw(img_io: BytesIO, filename_prefix="image") -> str:
+    """
+    將 BytesIO 圖片上傳到 GitHub 指定 Repo，並回傳 raw.githubusercontent.com 的圖片 URL
+    """
+    # 讀環境變數
+    token = os.getenv("GITHUB_TOKEN")
+    username = os.getenv("GITHUB_USERNAME")
+    repo = os.getenv("GITHUB_REPO")
+    branch = os.getenv("GITHUB_BRANCH", "main")
+    path = os.getenv("GITHUB_IMAGE_PATH", "images")
+
+    if not all([token, username, repo]):
+        raise ValueError("❌ 缺少必要 GitHub 環境變數：GITHUB_TOKEN, GITHUB_USERNAME, GITHUB_REPO")
+
+    # 檔名（加上時間戳避免覆蓋）
+    timestamp = datetime.utcnow().strftime("%Y%m%d-%H%M%S-%f")
+    filename = f"{filename_prefix}_{timestamp}.png"
+    full_path = f"{path}/{filename}" if path else filename
+
+    # 圖片轉 base64
+    img_io.seek(0)
+    encoded_image = base64.b64encode(img_io.read()).decode("utf-8")
+
+    # GitHub API 上傳
+    url = f"https://api.github.com/repos/{username}/{repo}/contents/{full_path}"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json"
+    }
+    payload = {
+        "message": f"Upload image {filename}",
+        "content": encoded_image,
+        "branch": branch
+    }
+    res = requests.put(url, headers=headers, json=payload)
+    res.raise_for_status()
+
+    # 回傳 raw 連結
+    raw_url = f"https://raw.githubusercontent.com/{username}/{repo}/{branch}/{full_path}"
+    return raw_url
+
+
 def classify_image(image_input, model):
     """
     支援圖片網址（str）與 BytesIO 圖片資料（自動上傳到 imgbb）
@@ -584,7 +633,32 @@ def classify_image(image_input, model):
     except Exception as e:
         return f"⚠️ 圖片分析失敗：{e}"
 
+def classify_image(image_input, model):
+    """
+    支援圖片網址（str）或 BytesIO 圖片 → 上傳 GitHub Raw
+    """
+    from langchain.schema.messages import HumanMessage
+    try:
+        if isinstance(image_input, str) and image_input.startswith("http"):
+            image_url = image_input
 
+        elif isinstance(image_input, BytesIO):
+            image_url = upload_bytesio_to_github_raw(image_input)
+
+        else:
+            return f"❌ 不支援的圖片輸入類型（收到類型：{type(image_input)}）"
+
+        message = HumanMessage(
+            content=[
+                {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
+                {"type": "image_url", "image_url": {"url": image_url}},
+            ]
+        )
+        result = model.invoke([message])
+        return result.content
+
+    except Exception as e:
+        return f"⚠️ 圖片分析失敗：{e}"
 
 
 # -------------------- 7. Google Search --------------------
