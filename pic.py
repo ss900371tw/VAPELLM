@@ -513,6 +513,10 @@ from io import BytesIO
 
 from langchain.schema.messages import HumanMessage
 from io import BytesIO
+import requests
+import os
+from io import BytesIO
+from langchain.schema.messages import HumanMessage
 
 def upload_bytesio_to_imgbb(img_io: BytesIO) -> str:
     """
@@ -520,7 +524,7 @@ def upload_bytesio_to_imgbb(img_io: BytesIO) -> str:
     """
     IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
     if not IMGBB_API_KEY:
-        raise ValueError("請設定環境變數 IMGBB_API_KEY")
+        raise ValueError("❌ 請設定環境變數 IMGBB_API_KEY")
 
     img_io.seek(0)
     res = requests.post(
@@ -531,28 +535,30 @@ def upload_bytesio_to_imgbb(img_io: BytesIO) -> str:
     res.raise_for_status()
     return res.json()["data"]["url"]
 
-
-from langchain.schema.messages import HumanMessage
-
 def classify_image(image_input, model):
     """
     image_input 可以是：
-    - 圖片網址 (str)
-    - BytesIO 圖片資料（會自動上傳至 imgbb）
-    model: ChatOpenAI 視覺模型
+    - 網址 (str)
+    - BytesIO 圖片資料（會自動上傳到 imgbb）
+
+    model: ChatOpenAI 視覺模型（如 gpt-4-vision-preview）
     """
     try:
+        # ✅ 判斷輸入型別
         if isinstance(image_input, str) and image_input.startswith("http"):
             image_url = image_input
 
         elif isinstance(image_input, BytesIO):
+            print("📤 檢測到 BytesIO，上傳中...")
             image_url = upload_bytesio_to_imgbb(image_input)
             if not image_url:
                 return "❌ 圖片上傳失敗"
 
         else:
+            print("⚠️ DEBUG | image_input 類型為：", type(image_input))
             return f"❌ 不支援的圖片輸入類型（收到類型：{type(image_input)}）"
 
+        # 🧠 呼叫模型分析圖片
         message = HumanMessage(
             content=[
                 {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
@@ -564,6 +570,10 @@ def classify_image(image_input, model):
 
     except Exception as e:
         return f"⚠️ 圖片分析失敗：{e}"
+
+
+
+
 # -------------------- 7. Google Search --------------------
 def google_search(query, count=10):
     api_key = os.getenv("GOOGLE_API_KEY")
