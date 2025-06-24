@@ -508,74 +508,62 @@ import base64
 from langchain.schema.messages import HumanMessage
 from io import BytesIO
 
-def classify_image(image_input, model):
-    """
-    image_input 可以是：
-    - 圖片網址 (str)
-    - BytesIO 圖片資料（目前不支援）
-    - 本地檔案路徑 (str)（未來擴充）
 
-    model: ChatOpenAI 類型模型（如 gpt-4-vision-preview）
-    """
-    try:
-        # 🌐 如果是圖片網址（推薦方式）
-        if isinstance(image_input, str) and image_input.startswith("http"):
-            message = HumanMessage(
-                content=[
-                    {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
-                    {"type": "image_url", "image_url": {"url": image_input}},
-                ]
-            )
-            result = model.invoke([message])
-            return result.content
-
-        # 🚫 BytesIO 不支援（OpenAI SDK 才能處理）
-        elif isinstance(image_input, BytesIO):
-            return "❌ BytesIO 輸入尚不支援，請先上傳到圖床取得網址後再判斷"
-
-        # 🧯 其他類型錯誤
-        else:
-            return f"❌ 不支援的圖片輸入類型（收到類型：{type(image_input)}）"
-
-    except Exception as e:
-        return f"⚠️ 圖片分析失敗：{e}"
 
 
 from langchain.schema.messages import HumanMessage
 from io import BytesIO
 
+def upload_bytesio_to_imgbb(img_io: BytesIO) -> str:
+    """
+    將 BytesIO 圖片上傳至 imgbb，回傳圖片網址
+    """
+    IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
+    if not IMGBB_API_KEY:
+        raise ValueError("請設定環境變數 IMGBB_API_KEY")
+
+    img_io.seek(0)
+    res = requests.post(
+        "https://api.imgbb.com/1/upload",
+        params={"key": IMGBB_API_KEY},
+        files={"image": ("image.png", img_io, "image/png")}
+    )
+    res.raise_for_status()
+    return res.json()["data"]["url"]
+
+
+from langchain.schema.messages import HumanMessage
+
 def classify_image(image_input, model):
     """
     image_input 可以是：
     - 圖片網址 (str)
-    - BytesIO 圖片資料（目前不支援）
-    - 本地檔案路徑 (str)（未來擴充）
-
-    model: ChatOpenAI 類型模型（如 gpt-4-vision-preview）
+    - BytesIO 圖片資料（會自動上傳至 imgbb）
+    model: ChatOpenAI 視覺模型
     """
     try:
-        # 🌐 如果是圖片網址（推薦方式）
         if isinstance(image_input, str) and image_input.startswith("http"):
-            message = HumanMessage(
-                content=[
-                    {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
-                    {"type": "image_url", "image_url": {"url": image_input}},
-                ]
-            )
-            result = model.invoke([message])
-            return result.content
+            image_url = image_input
 
-        # 🚫 BytesIO 不支援（OpenAI SDK 才能處理）
         elif isinstance(image_input, BytesIO):
-            return "❌ BytesIO 輸入尚不支援，請先上傳到圖床取得網址後再判斷"
+            image_url = upload_bytesio_to_imgbb(image_input)
+            if not image_url:
+                return "❌ 圖片上傳失敗"
 
-        # 🧯 其他類型錯誤
         else:
             return f"❌ 不支援的圖片輸入類型（收到類型：{type(image_input)}）"
 
+        message = HumanMessage(
+            content=[
+                {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
+                {"type": "image_url", "image_url": {"url": image_url}},
+            ]
+        )
+        result = model.invoke([message])
+        return result.content
+
     except Exception as e:
         return f"⚠️ 圖片分析失敗：{e}"
-
 # -------------------- 7. Google Search --------------------
 def google_search(query, count=10):
     api_key = os.getenv("GOOGLE_API_KEY")
