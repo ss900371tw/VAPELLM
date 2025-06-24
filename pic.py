@@ -357,75 +357,33 @@ from urllib.parse import urljoin
 from io import BytesIO
 from PIL import Image
 
-def normalize_src(src: str, base_url: str) -> str:
-    if not src:
-        return ""
-    if src.startswith("//"):
-        return "https:" + src
-    return urljoin(base_url, src)
-
-def crawl_images(url: str):
-    try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                          "AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/114.0.0.0 Safari/537.36"
-        }
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        img_tags = soup.find_all("img")
-
-        valid_extensions = {".jpg", ".jpeg", ".png", ".webp"}
-        seen = set()
-        img_urls = []
-
-        for img in img_tags:
-            src_candidates = [
-                img.get("src"),
-                img.get("data-src"),
-                img.get("data-original"),
-                img.get("data-image"),
-                img.get("data-lazy"),
-            ]
-
-            for src in src_candidates:
-                if not src:
-                    continue
-                full_url = normalize_src(src, url)
-                if full_url in seen or len(full_url) < 10 or "base64" in full_url:
-                    continue
-                seen.add(full_url)
-
-                lower_url = full_url.lower()
-                if any(lower_url.endswith(ext) for ext in valid_extensions):
-                    img_urls.append(full_url)
-                    break
-                elif is_image_url(full_url):
-                    img_urls.append(full_url)
-                    break
-
-        return img_urls
-    except Exception as e:
-        print(f"[crawl_images error]: {e}")
-        return []
 
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse, parse_qs, unquote
 from io import BytesIO
 from PIL import Image
+import os
+import shutil
+import requests
+from urllib.parse import urlparse, parse_qs, unquote, urljoin
+from bs4 import BeautifulSoup
+from PIL import Image
+from io import BytesIO
 
+from IPython.display import display, Image as IPyImage  # 用於 Jupyter 顯示圖片
+
+# --- 從 Next.js 優化網址取出原圖 ---
 def extract_real_image_url(next_image_url: str) -> str:
-    """從 Next.js 優化圖網址擷取出真實圖片網址"""
     try:
         query = urlparse(next_image_url).query
         params = parse_qs(query)
         real_url = params.get("url", [""])[0]
         return unquote(real_url)
     except:
-        return next_image_url  # fallback
+        return next_image_url
 
+# --- 規範化 src ---
 def normalize_src(src: str, base_url: str) -> str:
     if not src:
         return ""
@@ -433,7 +391,8 @@ def normalize_src(src: str, base_url: str) -> str:
         return "https:" + src
     return urljoin(base_url, src)
 
-def crawl_images(url: str, max_images=10):
+# --- 爬圖片 ---
+def crawl_images(url: str, max_images=2):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                       "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -465,7 +424,6 @@ def crawl_images(url: str, max_images=10):
                     continue
                 seen.add(img_url)
 
-                # 🧠 如果是 Next.js 圖片代理格式，自動還原原始圖片
                 if "_next/image" in img_url and "url=" in img_url:
                     img_url = extract_real_image_url(img_url)
 
@@ -479,10 +437,10 @@ def crawl_images(url: str, max_images=10):
                     img_io.seek(0)
 
                     results.append((img_io, img_url))
-                    break  # 該 img tag 成功後就不用繼續試其他 src
+                    break
 
                 except Exception as e:
-                    continue  # 該張圖失敗，跳過
+                    continue
 
             if len(results) >= max_images:
                 break
@@ -494,21 +452,6 @@ def crawl_images(url: str, max_images=10):
         return []
 
 
-# -------------------- 5. 下載圖片 --------------------
-def download_image(img_url, save_path="images"):
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
-
-    img_name = os.path.join(save_path, os.path.basename(img_url.split("?")[0]))
-
-    try:
-        response = requests.get(img_url, stream=True, timeout=10)
-        response.raise_for_status()
-        with open(img_name, "wb") as out_file:
-            shutil.copyfileobj(response.raw, out_file)
-        return img_name
-    except:
-        return None
 
 
 # -------------------- 6. 分析圖片 --------------------
