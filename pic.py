@@ -1250,15 +1250,16 @@ div[role="status"] > div > span {
                             sample_size = min(2, len(image_urls))
                             for img_io, img_url in random.sample(image_urls, sample_size):
                                 img_result = classify_image(img_io, llm_image)
+                                verdict, uploaded_img_url = img_result
                                 st.markdown(f"""
-    <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
-        <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-        <img src="{img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
-        <div style="font-size:0.9rem;">
-            <b>分類結果：</b>{img_result}<br>
-            <b>圖片連結：</b><a href="{img_url}" target="_blank">{img_url}</a>
-        </div>
-    </div>""", unsafe_allow_html=True)
+<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
+    <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+    <img src="{uploaded_img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
+    <div style="font-size:0.9rem;">
+        <b>分類結果：</b>{verdict}<br>
+        <b>圖片連結：</b><a href="{uploaded_img_url}" target="_blank">{uploaded_img_url}</a>
+    </div>
+</div>""", unsafe_allow_html=True)
                                 if "Warning" in img_result:
                                     flagged_images += 1
     
