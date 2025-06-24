@@ -404,6 +404,66 @@ def crawl_images(url: str):
         print(f"[crawl_images error]: {e}")
         return []
 
+from io import BytesIO
+
+def crawl_images(url: str, max_images=10):
+    """
+    從網站中擷取可成功下載的圖片，回傳為 (BytesIO, 原始網址) tuple。
+    """
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/114.0.0.0 Safari/537.36"
+    }
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        img_tags = soup.find_all("img")
+
+        valid_extensions = {".jpg", ".jpeg", ".png", ".webp"}
+        seen = set()
+        image_results = []
+
+        for img in img_tags:
+            src_candidates = [
+                img.get("src"),
+                img.get("data-src"),
+                img.get("data-original"),
+                img.get("data-image"),
+                img.get("data-lazy"),
+            ]
+
+            for src in src_candidates:
+                if not src:
+                    continue
+                full_url = normalize_src(src, url)
+                if full_url in seen or len(full_url) < 10 or "base64" in full_url:
+                    continue
+                seen.add(full_url)
+
+                try:
+                    img_response = requests.get(full_url, headers=headers, timeout=5)
+                    content_type = img_response.headers.get("Content-Type", "")
+                    if img_response.status_code != 200:
+                        continue
+                    if not content_type.startswith("image/"):
+                        continue
+                    image_obj = BytesIO(img_response.content)
+                    image_results.append((image_obj, full_url))
+                    break  # 若此圖片成功，跳出 src candidate 嘗試
+
+                except Exception as e:
+                    continue  # 此圖片下載失敗，換下一個
+
+            if len(image_results) >= max_images:
+                break
+
+        return image_results
+
+    except Exception as e:
+        print(f"[crawl_images error]: {e}")
+        return []
 
 
 # -------------------- 5. 下載圖片 --------------------
