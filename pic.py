@@ -533,7 +533,41 @@ def classify_image(image_input, model):
     except Exception as e:
         return f"圖片讀取或分析失敗: {e}"
 
-        
+from langchain.schema.messages import HumanMessage
+from io import BytesIO
+
+def classify_image(image_input, model):
+    """
+    image_input 可以是：
+    - 圖片網址 (str)
+    - BytesIO 圖片資料（目前不支援）
+    - 本地檔案路徑 (str)（未來擴充）
+
+    model: ChatOpenAI 類型模型（如 gpt-4-vision-preview）
+    """
+    try:
+        # 🌐 如果是圖片網址（推薦方式）
+        if isinstance(image_input, str) and image_input.startswith("http"):
+            message = HumanMessage(
+                content=[
+                    {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
+                    {"type": "image_url", "image_url": {"url": image_input}},
+                ]
+            )
+            result = model.invoke([message])
+            return result.content
+
+        # 🚫 BytesIO 不支援（OpenAI SDK 才能處理）
+        elif isinstance(image_input, BytesIO):
+            return "❌ BytesIO 輸入尚不支援，請先上傳到圖床取得網址後再判斷"
+
+        # 🧯 其他類型錯誤
+        else:
+            return f"❌ 不支援的圖片輸入類型（收到類型：{type(image_input)}）"
+
+    except Exception as e:
+        return f"⚠️ 圖片分析失敗：{e}"
+
 # -------------------- 7. Google Search --------------------
 def google_search(query, count=10):
     api_key = os.getenv("GOOGLE_API_KEY")
