@@ -537,28 +537,41 @@ def upload_bytesio_to_imgbb(img_io: BytesIO) -> str:
 
 def classify_image(image_input, model):
     """
-    image_input 可以是：
-    - 網址 (str)
-    - BytesIO 圖片資料（會自動上傳到 imgbb）
-
-    model: ChatOpenAI 視覺模型（如 gpt-4-vision-preview）
+    支援圖片網址（str）與 BytesIO 圖片資料（自動上傳到 imgbb）
+    model: LangChain 的 ChatOpenAI 模型（gpt-4-vision-preview）
     """
+    from langchain.schema.messages import HumanMessage
+    import requests
+    from io import BytesIO
+    import os
+
+    def upload_bytesio_to_imgbb(img_io: BytesIO) -> str:
+        IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
+        if not IMGBB_API_KEY:
+            raise ValueError("❌ 請設定 IMGBB_API_KEY 環境變數")
+        img_io.seek(0)
+        res = requests.post(
+            "https://api.imgbb.com/1/upload",
+            params={"key": IMGBB_API_KEY},
+            files={"image": ("image.png", img_io, "image/png")}
+        )
+        res.raise_for_status()
+        return res.json()["data"]["url"]
+
     try:
-        # ✅ 判斷輸入型別
+        # 圖片網址
         if isinstance(image_input, str) and image_input.startswith("http"):
             image_url = image_input
 
+        # BytesIO 圖片
         elif isinstance(image_input, BytesIO):
-            print("📤 檢測到 BytesIO，上傳中...")
             image_url = upload_bytesio_to_imgbb(image_input)
-            if not image_url:
-                return "❌ 圖片上傳失敗"
 
+        # 不支援其他類型
         else:
-            print("⚠️ DEBUG | image_input 類型為：", type(image_input))
             return f"❌ 不支援的圖片輸入類型（收到類型：{type(image_input)}）"
 
-        # 🧠 呼叫模型分析圖片
+        # 發送給 Vision 模型分析
         message = HumanMessage(
             content=[
                 {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
@@ -848,14 +861,14 @@ def main():
     """, unsafe_allow_html=True)
                         else:
                             sample_size = min(2, len(image_urls))
-                            for img in random.sample(image_urls, sample_size):
-                                img_result = classify_image(img, llm_image)
+                            for img_io, img_url in random.sample(image_urls, sample_size):
+                                img_result = classify_image(img_io, llm_image)
                                 st.markdown(f"""
-    <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
-        <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-        <img src="{img}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
-        <div style="font-size:0.9rem;"><b>分類結果：</b>{img_result}</div>
-    </div>""", unsafe_allow_html=True)
+                            <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
+                                <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+                                <img src="{img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
+                                <div style="font-size:0.9rem;"><b>分類結果：</b>{img_result}</div>
+                            </div>""", unsafe_allow_html=True)
                                 if "Warning" in img_result:
                                     flagged_images += 1
     
