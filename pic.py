@@ -351,6 +351,12 @@ def is_image_url(url: str) -> bool:
     except:
         return False
 
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+from io import BytesIO
+from PIL import Image
+
 def normalize_src(src: str, base_url: str) -> str:
     if not src:
         return ""
@@ -358,21 +364,22 @@ def normalize_src(src: str, base_url: str) -> str:
         return "https:" + src
     return urljoin(base_url, src)
 
-def crawl_images(url: str):
+def crawl_images(url: str, max_images=10):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/114.0.0.0 Safari/537.36",
+        "Referer": url  # 解決部分防盜連網站
+    }
+
     try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                          "AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/114.0.0.0 Safari/537.36"
-        }
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         img_tags = soup.find_all("img")
 
-        valid_extensions = {".jpg", ".jpeg", ".png", ".webp"}
         seen = set()
-        img_urls = []
+        results = []
 
         for img in img_tags:
             src_candidates = [
@@ -384,27 +391,35 @@ def crawl_images(url: str):
             ]
 
             for src in src_candidates:
-                if not src:
+                img_url = normalize_src(src, url)
+                if not img_url or img_url in seen or "base64" in img_url:
                     continue
-                full_url = normalize_src(src, url)
-                if full_url in seen or len(full_url) < 10 or "base64" in full_url:
-                    continue
-                seen.add(full_url)
+                seen.add(img_url)
 
-                lower_url = full_url.lower()
-                if any(lower_url.endswith(ext) for ext in valid_extensions):
-                    img_urls.append(full_url)
-                    break
-                elif is_image_url(full_url):
-                    img_urls.append(full_url)
-                    break
+                try:
+                    img_resp = requests.get(img_url, headers=headers, timeout=5)
+                    img_resp.raise_for_status()
 
-        return img_urls
+                    # 使用 PIL 讀取並轉為 PNG
+                    img = Image.open(BytesIO(img_resp.content)).convert("RGB")
+                    png_buffer = BytesIO()
+                    img.save(png_buffer, format="PNG")
+                    png_buffer.seek(0)
+
+                    results.append((png_buffer, img_url))
+                    break  # 成功就跳出 src_candidates 嘗試
+
+                except Exception as e:
+                    continue  # 圖片下載或轉換失敗則跳過
+
+            if len(results) >= max_images:
+                break
+
+        return results
+
     except Exception as e:
         print(f"[crawl_images error]: {e}")
         return []
-
-
 
 # -------------------- 5. 下載圖片 --------------------
 def download_image(img_url, save_path="images"):
