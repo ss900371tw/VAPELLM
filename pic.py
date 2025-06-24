@@ -410,6 +410,88 @@ def crawl_images(url: str):
         print(f"[crawl_images error]: {e}")
         return []
 
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse, parse_qs, unquote
+from io import BytesIO
+from PIL import Image
+
+def extract_real_image_url(next_image_url: str) -> str:
+    """從 Next.js 優化圖網址擷取出真實圖片網址"""
+    try:
+        query = urlparse(next_image_url).query
+        params = parse_qs(query)
+        real_url = params.get("url", [""])[0]
+        return unquote(real_url)
+    except:
+        return next_image_url  # fallback
+
+def normalize_src(src: str, base_url: str) -> str:
+    if not src:
+        return ""
+    if src.startswith("//"):
+        return "https:" + src
+    return urljoin(base_url, src)
+
+def crawl_images(url: str, max_images=10):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/114.0.0.0 Safari/537.36",
+        "Referer": url
+    }
+
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        img_tags = soup.find_all("img")
+
+        results = []
+        seen = set()
+
+        for img in img_tags:
+            src_candidates = [
+                img.get("src"),
+                img.get("data-src"),
+                img.get("data-original"),
+                img.get("data-image"),
+                img.get("data-lazy"),
+            ]
+
+            for raw_src in src_candidates:
+                img_url = normalize_src(raw_src, url)
+                if not img_url or "base64" in img_url or img_url in seen:
+                    continue
+                seen.add(img_url)
+
+                # 🧠 如果是 Next.js 圖片代理格式，自動還原原始圖片
+                if "_next/image" in img_url and "url=" in img_url:
+                    img_url = extract_real_image_url(img_url)
+
+                try:
+                    img_resp = requests.get(img_url, headers=headers, timeout=5)
+                    img_resp.raise_for_status()
+                    img = Image.open(BytesIO(img_resp.content)).convert("RGB")
+
+                    img_io = BytesIO()
+                    img.save(img_io, format="PNG")
+                    img_io.seek(0)
+
+                    results.append((img_io, img_url))
+                    break  # 該 img tag 成功後就不用繼續試其他 src
+
+                except Exception as e:
+                    continue  # 該張圖失敗，跳過
+
+            if len(results) >= max_images:
+                break
+
+        return results
+
+    except Exception as e:
+        print(f"❌ crawl_images 發生錯誤: {e}")
+        return []
 
 
 # -------------------- 5. 下載圖片 --------------------
