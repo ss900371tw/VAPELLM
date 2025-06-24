@@ -405,11 +405,22 @@ def crawl_images(url: str):
         return []
 
 from io import BytesIO
+from io import BytesIO
+from bs4 import BeautifulSoup
+import requests
+from urllib.parse import urljoin
 
-def crawl_images(url: str, max_images: int = 10):
+def normalize_src(src: str, base_url: str) -> str:
+    if not src:
+        return ""
+    if src.startswith("//"):
+        return "https:" + src
+    return urljoin(base_url, src)
+
+def crawl_images(url: str, max_images=10):
     """
-    從指定網頁中擷取圖片，回傳格式為 List[Tuple[BytesIO, 原始圖片 URL]]
-    僅包含可成功下載的 image 類型。
+    從指定網站下載圖片，回傳格式：
+    List[Tuple[BytesIO 圖片物件, 原始圖片 URL]]
     """
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -418,50 +429,48 @@ def crawl_images(url: str, max_images: int = 10):
     }
 
     try:
-        resp = requests.get(url, headers=headers, timeout=10)
-        resp.raise_for_status()
-        soup = BeautifulSoup(resp.text, "html.parser")
+        r = requests.get(url, headers=headers, timeout=10)
+        r.raise_for_status()
+        soup = BeautifulSoup(r.text, "html.parser")
         img_tags = soup.find_all("img")
 
-        image_results = []
-        seen_urls = set()
+        results = []
+        seen = set()
 
-        for img in img_tags:
-            src_candidates = [
-                img.get("src"),
-                img.get("data-src"),
-                img.get("data-original"),
-                img.get("data-image"),
-                img.get("data-lazy"),
+        for tag in img_tags:
+            srcs = [
+                tag.get("src"),
+                tag.get("data-src"),
+                tag.get("data-original"),
+                tag.get("data-image"),
+                tag.get("data-lazy"),
             ]
-
-            for src in src_candidates:
-                full_url = normalize_src(src, url)
-                if not full_url or full_url in seen_urls or "base64" in full_url:
+            for src in srcs:
+                img_url = normalize_src(src, url)
+                if not img_url or img_url in seen or "base64" in img_url:
                     continue
-                seen_urls.add(full_url)
+                seen.add(img_url)
 
                 try:
-                    r = requests.get(full_url, headers=headers, timeout=5)
-                    r.raise_for_status()
-                    if not r.headers.get("Content-Type", "").startswith("image/"):
+                    img_res = requests.get(img_url, headers=headers, timeout=5)
+                    if img_res.status_code != 200 or not img_res.headers.get("Content-Type", "").startswith("image/"):
                         continue
 
-                    img_data = BytesIO(r.content)
-                    image_results.append((img_data, full_url))
-                    break  # 成功擷取一張，跳出 src_candidates 嘗試
+                    img_bytes = BytesIO(img_res.content)
+                    results.append((img_bytes, img_url))
+                    break  # 成功就跳過其他來源欄位
+                except:
+                    continue
 
-                except Exception:
-                    continue  # 忽略這張失敗的
-
-            if len(image_results) >= max_images:
+            if len(results) >= max_images:
                 break
 
-        return image_results
+        return results
 
     except Exception as e:
-        print(f"[crawl_images error]: {e}")
+        print(f"[crawl_images error] {e}")
         return []
+
 
 
 # -------------------- 5. 下載圖片 --------------------
