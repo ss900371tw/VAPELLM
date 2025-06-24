@@ -364,22 +364,21 @@ def normalize_src(src: str, base_url: str) -> str:
         return "https:" + src
     return urljoin(base_url, src)
 
-def crawl_images(url: str, max_images=10):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                      "AppleWebKit/537.36 (KHTML, like Gecko) "
-                      "Chrome/114.0.0.0 Safari/537.36",
-        "Referer": url  # 解決部分防盜連網站
-    }
-
+def crawl_images(url: str):
     try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                          "AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/114.0.0.0 Safari/537.36"
+        }
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         img_tags = soup.find_all("img")
 
+        valid_extensions = {".jpg", ".jpeg", ".png", ".webp"}
         seen = set()
-        results = []
+        img_urls = []
 
         for img in img_tags:
             src_candidates = [
@@ -391,35 +390,27 @@ def crawl_images(url: str, max_images=10):
             ]
 
             for src in src_candidates:
-                img_url = normalize_src(src, url)
-                if not img_url or img_url in seen or "base64" in img_url:
+                if not src:
                     continue
-                seen.add(img_url)
+                full_url = normalize_src(src, url)
+                if full_url in seen or len(full_url) < 10 or "base64" in full_url:
+                    continue
+                seen.add(full_url)
 
-                try:
-                    img_resp = requests.get(img_url, headers=headers, timeout=5)
-                    img_resp.raise_for_status()
+                lower_url = full_url.lower()
+                if any(lower_url.endswith(ext) for ext in valid_extensions):
+                    img_urls.append(full_url)
+                    break
+                elif is_image_url(full_url):
+                    img_urls.append(full_url)
+                    break
 
-                    # 使用 PIL 讀取並轉為 PNG
-                    img = Image.open(BytesIO(img_resp.content)).convert("RGB")
-                    png_buffer = BytesIO()
-                    img.save(png_buffer, format="PNG")
-                    png_buffer.seek(0)
-
-                    results.append((png_buffer, img_url))
-                    break  # 成功就跳出 src_candidates 嘗試
-
-                except Exception as e:
-                    continue  # 圖片下載或轉換失敗則跳過
-
-            if len(results) >= max_images:
-                break
-
-        return results
-
+        return img_urls
     except Exception as e:
         print(f"[crawl_images error]: {e}")
         return []
+
+
 
 # -------------------- 5. 下載圖片 --------------------
 def download_image(img_url, save_path="images"):
@@ -488,50 +479,34 @@ import requests
 from io import BytesIO
 import base64
 
+
 def classify_image(image_input, model):
     """
-    支援圖片網址（str）與 BytesIO 物件。
-    若圖片網址無法被 OpenAI 存取，會自動 fallback 下載轉為 BytesIO。
+    image_input 可以是：
+    - 圖片網址 (str)
+    - BytesIO 圖片資料（目前不支援）
+    - 本地檔案路徑 (str)
+    model: ChatOpenAI 類型模型（如 gpt-4-vision-preview）
     """
-    def prepare_image_message(img):
-        return [
-            {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
-            img
-        ]
-
     try:
-        # Case 1: 是 URL，先嘗試直接傳 URL 給 OpenAI
+        # 如果是網址
         if isinstance(image_input, str) and image_input.startswith("http"):
-            try:
-                msg = prepare_image_message({
-                    "type": "image_url",
-                    "image_url": {"url": image_input}
-                })
-                response = model.invoke([{"role": "user", "content": msg}])
-                return response.content
-            except Exception as e:
-                # fallback: 試著用 requests 抓下來轉 BytesIO
-                r = requests.get(image_input)
-                if r.status_code != 200 or 'image' not in r.headers.get('Content-Type', ''):
-                    return f"❌ 圖片無法下載或非圖片格式（狀態碼 {r.status_code}）"
-                image_input = BytesIO(r.content)  # 繼續往下 BytesIO 流程
-
-        # Case 2: 是 BytesIO
-        if isinstance(image_input, BytesIO):
-            mime = "jpeg"  # 預設 MIME 類型
-            b64 = base64.b64encode(image_input.getvalue()).decode("utf-8")
-            msg = prepare_image_message({
-                "type": "image_url",
-                "image_url": {"url": f"data:image/{mime};base64,{b64}"}
-            })
-            response = model.invoke([{"role": "user", "content": msg}])
-            return response.content
-
+            message = HumanMessage(
+                content=[
+                    {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
+                    {"type": "image_url", "image_url": {"url": image_input}},
+                ]
+            )
+        elif isinstance(image_input, BytesIO):
+            raise ValueError("LangChain 不支援 BytesIO 圖片輸入，請改用 OpenAI SDK")
         else:
-            return "❌ 不支援的圖片輸入類型，請提供圖片網址或 BytesIO"
+            raise TypeError("不支援的圖片輸入類型")
+
+        result = model.invoke([message])
+        return result.content
 
     except Exception as e:
-        return f"❌ 圖片讀取或分析失敗: {e}"
+        return f"圖片讀取或分析失敗: {e}"
 
         
 # -------------------- 7. Google Search --------------------
