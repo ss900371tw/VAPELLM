@@ -1210,7 +1210,7 @@ div[role="status"] > div > span {
         <img src="{uploaded_img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
         <div style="font-size:0.9rem;">
             <b>分類結果：</b>{img_result}<br>
-            <b>圖片連結：</b><a href="{uploaded_img_url}" target="_blank">{uploaded_img_url}</a>
+            <b>圖片連結：</b><a href="{img_url}" target="_blank">{img_url}</a>
         </div>
     </div>""", unsafe_allow_html=True)
                                 if "Warning" in img_result:
