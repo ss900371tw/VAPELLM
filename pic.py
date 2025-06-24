@@ -469,34 +469,51 @@ from openai.types.chat import ChatCompletionMessage
 from io import BytesIO
 import base64
 
+import requests
+from io import BytesIO
+import base64
+
 def classify_image(image_input, model):
     """
-    image_input: 圖片輸入，可以是：
-        - 圖片網址 (str)
-        - BytesIO 圖片資料
-    model: OpenAI SDK 的 ChatModel 物件（需支援 vision，例如 gpt-4-vision-preview）
+    支援圖片網址（str）與 BytesIO 物件。
+    若圖片網址無法被 OpenAI 存取，會自動 fallback 下載轉為 BytesIO。
     """
-    try:
-        if isinstance(image_input, str) and image_input.startswith("http"):
-            content = [
-                {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
-                {"type": "image_url", "image_url": {"url": image_input}},
-            ]
-        
-        elif isinstance(image_input, BytesIO):
-            # 將 BytesIO 轉 base64 格式
-            base64_data = base64.b64encode(image_input.getvalue()).decode("utf-8")
-            content = [
-                {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
-                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_data}"}},
-            ]
-        
-        else:
-            raise TypeError("不支援的圖片輸入類型，請提供圖片網址或 BytesIO 圖片資料")
+    def prepare_image_message(img):
+        return [
+            {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
+            img
+        ]
 
-        # 呼叫 OpenAI vision 模型
-        response = model.invoke([{"role": "user", "content": content}])
-        return response.content
+    try:
+        # Case 1: 是 URL，先嘗試直接傳 URL 給 OpenAI
+        if isinstance(image_input, str) and image_input.startswith("http"):
+            try:
+                msg = prepare_image_message({
+                    "type": "image_url",
+                    "image_url": {"url": image_input}
+                })
+                response = model.invoke([{"role": "user", "content": msg}])
+                return response.content
+            except Exception as e:
+                # fallback: 試著用 requests 抓下來轉 BytesIO
+                r = requests.get(image_input)
+                if r.status_code != 200 or 'image' not in r.headers.get('Content-Type', ''):
+                    return f"❌ 圖片無法下載或非圖片格式（狀態碼 {r.status_code}）"
+                image_input = BytesIO(r.content)  # 繼續往下 BytesIO 流程
+
+        # Case 2: 是 BytesIO
+        if isinstance(image_input, BytesIO):
+            mime = "jpeg"  # 預設 MIME 類型
+            b64 = base64.b64encode(image_input.getvalue()).decode("utf-8")
+            msg = prepare_image_message({
+                "type": "image_url",
+                "image_url": {"url": f"data:image/{mime};base64,{b64}"}
+            })
+            response = model.invoke([{"role": "user", "content": msg}])
+            return response.content
+
+        else:
+            return "❌ 不支援的圖片輸入類型，請提供圖片網址或 BytesIO"
 
     except Exception as e:
         return f"❌ 圖片讀取或分析失敗: {e}"
