@@ -38,7 +38,6 @@ from serpapi import GoogleSearch
 
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY","")
-openai_api_key = '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'
 
 
 # -------------------- 2. Prompt --------------------
