@@ -305,9 +305,14 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 # ---------------------------------------------------------------------------
 # 4. 爬取網頁的圖片 URL
 # ---------------------------------------------------------------------------
+
+
+
+
+
 def upload_image_to_imgbb(image_path):
     with open(image_path, "rb") as f:
-        IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
+        IMGBB_API_KEY = 'fa40a979a6f06931252ecd6f51f03e2b'
         res = requests.post(
             "https://api.imgbb.com/1/upload",
             params={"key": IMGBB_API_KEY},
@@ -321,7 +326,7 @@ def search_similar_images_via_serpapi(image_url):
     SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
     params = {
         "engine": "google_reverse_image",
-        "api_key": SERPAPI_API_KEY,
+        "api_key": 'b522166f42603b2bd376722f95f83375aa9594271ca9aa338c886a1f0f558a21',
         "image_url": image_url,
     }
 
@@ -641,8 +646,8 @@ def classify_image(image_input, model):
 
 # -------------------- 7. Google Search --------------------
 def google_search(query, count=10):
-    api_key = os.getenv("GOOGLE_API_KEY")
-    cx = os.getenv("GOOGLE_CX")
+    api_key = 'AIzaSyC6UmFPn75-8lXjc6-wAyzP4w53wJxCn-g'
+    cx = '67ad640c105724e6f'
     if not api_key or not cx:
         print("❌ GOOGLE_API_KEY 或 GOOGLE_CX 沒有正確設定")
         return []
