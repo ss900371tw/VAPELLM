@@ -251,7 +251,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
-        return soup.get_text(separator="\n", strip=True)[random.randint(0, max(len(soup.get_text(separator="\n", strip=True)) - 50, 0)) :][:50]
+        return soup.get_text(separator="\n", strip=True)[random.randint(0, max(len(soup.get_text(separator="\n", strip=True)) - 100, 0)) :][:100]
 
     except requests.exceptions.RequestException as e:
         if "403" in str(e):
@@ -295,7 +295,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
                     if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
                         return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
 
-                    return body_text[random.randint(0, max(len(body_text) - 50, 0)) :][:50]
+                    return body_text[random.randint(0, max(len(body_text) - 100, 0)) :][:100]
 
             except Exception as e:
                 return f"{url}"
