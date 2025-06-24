@@ -593,6 +593,52 @@ def classify_image(image_input, model):
     except Exception as e:
         return f"⚠️ 圖片分析失敗：{e}"
 
+
+def classify_image(image_input, model):
+    """
+    回傳：
+    - result_text: 分析結果（✅ Safe / 🚨 Warning）
+    - image_url: 上傳後的圖片網址（raw.githubusercontent.com 或 imgbb）
+    """
+    from langchain.schema.messages import HumanMessage
+    import requests
+    from io import BytesIO
+    import os
+
+    def upload_bytesio_to_imgbb(img_io: BytesIO) -> str:
+        IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
+        if not IMGBB_API_KEY:
+            raise ValueError("❌ 請設定 IMGBB_API_KEY 環境變數")
+        img_io.seek(0)
+        res = requests.post(
+            "https://api.imgbb.com/1/upload",
+            params={"key": IMGBB_API_KEY},
+            files={"image": ("image.png", img_io, "image/png")}
+        )
+        res.raise_for_status()
+        return res.json()["data"]["url"]
+
+    try:
+        if isinstance(image_input, str) and image_input.startswith("http"):
+            image_url = image_input
+        elif isinstance(image_input, BytesIO):
+            image_url = upload_bytesio_to_imgbb(image_input)
+        else:
+            return "❌ 不支援的圖片輸入類型", None
+
+        message = HumanMessage(
+            content=[
+                {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
+                {"type": "image_url", "image_url": {"url": image_url}},
+            ]
+        )
+        result = model.invoke([message])
+        return result.content, image_url  # ⬅️ 回傳兩個值
+
+    except Exception as e:
+        return f"⚠️ 圖片分析失敗：{e}", None
+
+
 # -------------------- 7. Google Search --------------------
 def google_search(query, count=10):
     api_key = os.getenv("GOOGLE_API_KEY")
