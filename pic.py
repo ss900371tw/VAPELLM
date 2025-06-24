@@ -406,24 +406,25 @@ def crawl_images(url: str):
 
 from io import BytesIO
 
-def crawl_images(url: str, max_images=10):
+def crawl_images(url: str, max_images: int = 10):
     """
-    從網站中擷取可成功下載的圖片，回傳為 (BytesIO, 原始網址) tuple。
+    從指定網頁中擷取圖片，回傳格式為 List[Tuple[BytesIO, 原始圖片 URL]]
+    僅包含可成功下載的 image 類型。
     """
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                       "AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/114.0.0.0 Safari/537.36"
     }
+
     try:
-        response = requests.get(url, headers=headers, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
+        resp = requests.get(url, headers=headers, timeout=10)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "html.parser")
         img_tags = soup.find_all("img")
 
-        valid_extensions = {".jpg", ".jpeg", ".png", ".webp"}
-        seen = set()
         image_results = []
+        seen_urls = set()
 
         for img in img_tags:
             src_candidates = [
@@ -435,26 +436,23 @@ def crawl_images(url: str, max_images=10):
             ]
 
             for src in src_candidates:
-                if not src:
-                    continue
                 full_url = normalize_src(src, url)
-                if full_url in seen or len(full_url) < 10 or "base64" in full_url:
+                if not full_url or full_url in seen_urls or "base64" in full_url:
                     continue
-                seen.add(full_url)
+                seen_urls.add(full_url)
 
                 try:
-                    img_response = requests.get(full_url, headers=headers, timeout=5)
-                    content_type = img_response.headers.get("Content-Type", "")
-                    if img_response.status_code != 200:
+                    r = requests.get(full_url, headers=headers, timeout=5)
+                    r.raise_for_status()
+                    if not r.headers.get("Content-Type", "").startswith("image/"):
                         continue
-                    if not content_type.startswith("image/"):
-                        continue
-                    image_obj = BytesIO(img_response.content)
-                    image_results.append((image_obj, full_url))
-                    break  # 若此圖片成功，跳出 src candidate 嘗試
 
-                except Exception as e:
-                    continue  # 此圖片下載失敗，換下一個
+                    img_data = BytesIO(r.content)
+                    image_results.append((img_data, full_url))
+                    break  # 成功擷取一張，跳出 src_candidates 嘗試
+
+                except Exception:
+                    continue  # 忽略這張失敗的
 
             if len(image_results) >= max_images:
                 break
