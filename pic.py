@@ -410,6 +410,12 @@ from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urljoin
 
+
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+from io import BytesIO
+import requests
+
 def normalize_src(src: str, base_url: str) -> str:
     if not src:
         return ""
@@ -417,48 +423,49 @@ def normalize_src(src: str, base_url: str) -> str:
         return "https:" + src
     return urljoin(base_url, src)
 
-def crawl_images(url: str, max_images=10):
+def crawl_images(url: str, max_images: int = 10):
     """
-    從指定網站下載圖片，回傳格式：
-    List[Tuple[BytesIO 圖片物件, 原始圖片 URL]]
+    從指定網頁中下載可用圖片，回傳格式為 (BytesIO, 原始網址)。
+    解決 elementvape.com 的 lazy loading 與權限問題。
     """
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                       "AppleWebKit/537.36 (KHTML, like Gecko) "
-                      "Chrome/114.0.0.0 Safari/537.36"
+                      "Chrome/122.0.0.0 Safari/537.36",
+        "Referer": url  # 某些網站需要這行
     }
 
     try:
-        r = requests.get(url, headers=headers, timeout=10)
-        r.raise_for_status()
-        soup = BeautifulSoup(r.text, "html.parser")
+        resp = requests.get(url, headers=headers, timeout=10)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "html.parser")
         img_tags = soup.find_all("img")
 
-        results = []
         seen = set()
+        results = []
 
-        for tag in img_tags:
-            srcs = [
-                tag.get("src"),
-                tag.get("data-src"),
-                tag.get("data-original"),
-                tag.get("data-image"),
-                tag.get("data-lazy"),
+        for img in img_tags:
+            src_candidates = [
+                img.get("src"),
+                img.get("data-src"),
+                img.get("data-original"),
+                img.get("data-image"),
+                img.get("data-lazy"),
             ]
-            for src in srcs:
-                img_url = normalize_src(src, url)
-                if not img_url or img_url in seen or "base64" in img_url:
+            for src in src_candidates:
+                full_url = normalize_src(src, url)
+                if not full_url or "base64" in full_url or full_url in seen:
                     continue
-                seen.add(img_url)
+                seen.add(full_url)
 
                 try:
-                    img_res = requests.get(img_url, headers=headers, timeout=5)
-                    if img_res.status_code != 200 or not img_res.headers.get("Content-Type", "").startswith("image/"):
+                    r = requests.get(full_url, headers=headers, timeout=5)
+                    r.raise_for_status()
+                    if not r.headers.get("Content-Type", "").startswith("image/"):
                         continue
-
-                    img_bytes = BytesIO(img_res.content)
-                    results.append((img_bytes, img_url))
-                    break  # 成功就跳過其他來源欄位
+                    img_data = BytesIO(r.content)
+                    results.append((img_data, full_url))
+                    break  # 此圖片成功就結束內層迴圈
                 except:
                     continue
 
@@ -468,7 +475,7 @@ def crawl_images(url: str, max_images=10):
         return results
 
     except Exception as e:
-        print(f"[crawl_images error] {e}")
+        print(f"[crawl_images error]: {e}")
         return []
 
 
