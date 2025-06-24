@@ -1207,7 +1207,7 @@ div[role="status"] > div > span {
                                 st.markdown(f"""
     <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
         <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-        <img src="{uploaded_img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
+        <img src="{img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
         <div style="font-size:0.9rem;">
             <b>分類結果：</b>{img_result}<br>
             <b>圖片連結：</b><a href="{img_url}" target="_blank">{img_url}</a>
