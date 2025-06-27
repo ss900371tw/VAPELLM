@@ -250,7 +250,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
-        return soup.get_text(separator="\n", strip=True)[:5]
+        return soup.get_text(separator="\n", strip=True)[:100]
 
     except requests.exceptions.RequestException as e:
         if "403" in str(e):
@@ -294,7 +294,7 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
                     if "驗證您是人類" in body_text or "Enable JavaScript and cookies to continue" in body_text:
                         return "[⚠️ Cloudflare Verification Failed] Cookie 可能失效或未正確附加"
 
-                    return body_text[:5]
+                    return body_text[:100]
 
             except Exception as e:
                 return f"{url}"
@@ -919,12 +919,16 @@ def main():
                             sample_size = min(2, len(image_urls))
                             for img_io, img_url in random.sample(image_urls, sample_size):
                                 img_result = classify_image(img_io, llm_image)
+                                verdict, uploaded_img_url = img_result
                                 st.markdown(f"""
-                            <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
-                                <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-                                <img src="{img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
-                                <div style="font-size:0.9rem;"><b>分類結果：</b>{img_result}</div>
-                            </div>""", unsafe_allow_html=True)
+<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
+    <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+    <img src="{uploaded_img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
+    <div style="font-size:0.9rem;">
+        <b>分類結果：</b>{verdict}<br>
+        <b>圖片連結：</b><a href="{uploaded_img_url}" target="_blank">{uploaded_img_url}</a>
+    </div>
+</div>""", unsafe_allow_html=True)
                                 if "Warning" in img_result:
                                     flagged_images += 1
     
@@ -1057,12 +1061,16 @@ div[role="status"] > div > span {
                             sample_size = min(2, len(image_urls))
                             for img_io, img_url in random.sample(image_urls, sample_size):
                                 img_result = classify_image(img_io, llm_image)
+                                verdict, uploaded_img_url = img_result
                                 st.markdown(f"""
-                            <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
-                                <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-                                <img src="{img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
-                                <div style="font-size:0.9rem;"><b>分類結果：</b>{img_result}</div>
-                            </div>""", unsafe_allow_html=True)
+<div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
+    <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+    <img src="{uploaded_img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
+    <div style="font-size:0.9rem;">
+        <b>分類結果：</b>{verdict}<br>
+        <b>圖片連結：</b><a href="{uploaded_img_url}" target="_blank">{uploaded_img_url}</a>
+    </div>
+</div>""", unsafe_allow_html=True)
                                 if "Warning" in img_result:
                                     flagged_images += 1
     
@@ -1439,14 +1447,19 @@ div[role="status"] > div > span {
                                             </div>
                                         """, unsafe_allow_html=True)
                                     else:
+                                        sample_size = min(2, len(image_urls))
                                         for img_io, img_url in random.sample(image_urls, sample_size):
                                             img_result = classify_image(img_io, llm_image)
+                                            verdict, uploaded_img_url = img_result
                                             st.markdown(f"""
-                                        <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
-                                            <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-                                            <img src="{img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
-                                            <div style="font-size:0.9rem;"><b>分類結果：</b>{img_result}</div>
-                                        </div>""", unsafe_allow_html=True)
+            <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
+                <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+                <img src="{uploaded_img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
+                <div style="font-size:0.9rem;">
+                    <b>分類結果：</b>{verdict}<br>
+                    <b>圖片連結：</b><a href="{uploaded_img_url}" target="_blank">{uploaded_img_url}</a>
+                </div>
+            </div>""", unsafe_allow_html=True)
                                             if "Warning" in img_result:
                                                 flagged_images += 1
         
