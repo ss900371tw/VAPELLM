@@ -1207,7 +1207,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                 for idx, url in enumerate(filtered_urls, start=1):
                     st.markdown(f"""
 <h3 style='color:white;'>
-🔗 [{idx}/{len(urls)}] 分析網址：
+🔗 [{idx}/{len(filtered_urls)}] 分析網址：
 <a href='{url}' target='_blank' style='color:#00ffff; text-decoration: underline;'>{url}</a>
 </h3>
 """, unsafe_allow_html=True)
