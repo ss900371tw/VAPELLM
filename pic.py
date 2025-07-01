@@ -323,7 +323,6 @@ def upload_image_to_imgbb(image_path):
     return res.json()["data"]["url"]
 
 
-
 def search_similar_images_via_serpapi(image_url):
     SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
     params = {
@@ -368,7 +367,7 @@ div[data-testid="stExpander"] .streamlit-expanderContent {
     image_results = results.get("image_results", [])
     urls = [item.get("link") for item in image_results if "link" in item]
     return urls
-
+    
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
