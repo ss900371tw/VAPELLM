@@ -367,6 +367,46 @@ div[data-testid="stExpander"] .streamlit-expanderContent {
     image_results = results.get("image_results", [])
     urls = [item.get("link") for item in image_results if "link" in item]
     return urls
+
+
+
+
+
+def search_similar_images_via_serpapi(image_url):
+    SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
+    params = {
+        "engine": "google_reverse_image",
+        "api_key": '你的_API_KEY',
+        "image_url": image_url,
+    }
+
+    search = GoogleSearch(params)
+    results = search.get_dict()
+
+    # ✅ 插入 CSS：改善 expander 中 JSON 顯示換行與寬度限制
+    st.markdown("""
+    <style>
+    div[data-testid="stExpander"] .streamlit-expanderContent {
+        max-width: 100%;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+    div[data-testid="stExpander"] .element-container pre {
+        font-size: 0.85rem;
+        padding: 0.5rem;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # ✅ 使用收合元件顯示回傳內容
+    with st.expander("📦 點我查看 SerpAPI 回傳內容"):
+        st.json(results)
+
+    image_results = results.get("image_results", [])
+    urls = [item.get("link") for item in image_results if "link" in item]
+    return urls
+
     
 import requests
 from bs4 import BeautifulSoup
