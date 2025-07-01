@@ -339,6 +339,26 @@ def search_similar_images_via_serpapi(image_url):
     urls = [item.get("link") for item in image_results if "link" in item]
     return urls
 
+def search_similar_images_via_serpapi(image_url):
+    SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
+    params = {
+        "engine": "google_reverse_image",
+        "api_key": 'b522166f42603b2bd376722f95f83375aa9594271ca9aa338c886a1f0f558a21',
+        "image_url": image_url,
+    }
+
+    search = GoogleSearch(params)
+    results = search.get_dict()
+
+    # ✅ 使用收合元件顯示回傳內容
+    with st.expander("📦 點我查看 SerpAPI 回傳內容"):
+        st.json(results)
+
+    image_results = results.get("image_results", [])
+    urls = [item.get("link") for item in image_results if "link" in item]
+    return urls
+
+
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
