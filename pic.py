@@ -334,7 +334,7 @@ def search_similar_images_via_serpapi(image_url):
     results = search.get_dict()
     st.markdown("""
     <style>
-    .stSpinner > div > div {
+    .st-expander > summary {
         color: white !important;
     }
     </style>
