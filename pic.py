@@ -336,9 +336,16 @@ def search_similar_images_via_serpapi(image_url):
     <style>
     .st-expander > summary {
         color: white !important;
+        background-color: #444444 !important;
+    }
+    .st-expander {
+        background-color: #333333 !important;
+        border: 1px solid #555555;
+        border-radius: 6px;
     }
     </style>
 """, unsafe_allow_html=True)
+
     # ✅ 使用收合元件顯示回傳內容
     with st.expander("📦 點我查看 SerpAPI 回傳內容"):
         st.json(results)
