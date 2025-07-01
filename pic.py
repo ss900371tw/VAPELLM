@@ -334,29 +334,30 @@ def search_similar_images_via_serpapi(image_url):
     results = search.get_dict()
     st.markdown("""
 <style>
-/* Expander 標題區域（summary） */
-div[data-testid="stExpander"] > summary {
-    background-color: #333c5f !important;  /* 深藍灰，更亮一點 */
-    color: white !important;               /* 白字 */
-    font-weight: bold;
-    border: 1px solid #4da6ff;             /* 淺藍邊框 */
-    border-radius: 8px;
-    padding: 10px;
+/* Expander 標題（用 summary 明確指定並強制覆蓋） */
+details > summary {
+    background-color: #3b4a6b !important;   /* 比原本亮，偏藍灰 */
+    color: white !important;
+    font-weight: bold !important;
+    border: 1px solid #4da6ff !important;  /* 淺藍邊框 */
+    border-radius: 8px !important;
+    padding: 10px !important;
+    transition: background-color 0.2s ease;
 }
 
-/* Hover 時讓它更亮 */
-div[data-testid="stExpander"] > summary:hover {
-    background-color: #3e4a77 !important;
+/* Hover 更亮一點 */
+details > summary:hover {
+    background-color: #4b5d88 !important;
     cursor: pointer;
 }
 
-/* 展開後內容文字 */
+/* 展開內容顏色 */
 div[data-testid="stExpander"] .streamlit-expanderContent {
     color: #f0f0f0 !important;
-    font-size: 0.95rem;
 }
 </style>
 """, unsafe_allow_html=True)
+
 
     # ✅ 使用收合元件顯示回傳內容
     with st.expander("📦 點我查看 SerpAPI 回傳內容"):
