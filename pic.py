@@ -1329,7 +1329,20 @@ div[role="status"] > div > span {
             # 標題 + 上傳區
             st.markdown("<h3 style='color:white;'>📸 上傳圖片以搜尋相似網站</h3>", unsafe_allow_html=True)
             st.markdown('<label style="color:white;font-size:1rem;">📤 請上傳圖片 (jpg, jpeg, png)</label>', unsafe_allow_html=True)
-        
+            st.markdown("""
+    <style>
+    /* 修改 uploader 中已上傳檔案名稱的文字顏色 */
+    section[data-testid="stFileUploader"] label span {
+        color: white !important;
+    }
+
+    /* 修改檔案上傳後顯示區塊的文字顏色 */
+    section[data-testid="stFileUploader"] div div {
+        color: white !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
             uploaded_files = st.file_uploader(
                 "", type=["jpg", "jpeg", "png"], accept_multiple_files=True, label_visibility="collapsed"
             )
