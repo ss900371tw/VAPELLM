@@ -334,17 +334,16 @@ def search_similar_images_via_serpapi(image_url):
     results = search.get_dict()
     st.markdown("""
     <style>
-    .st-expander > summary {
+    /* Expander 標題與內容白字 */
+    div[role="button"][aria-expanded] {
         color: white !important;
-        background-color: #444444 !important;
     }
-    .st-expander {
-        background-color: #333333 !important;
-        border: 1px solid #555555;
-        border-radius: 6px;
+    div[data-testid="stExpander"] * {
+        color: white !important;
     }
     </style>
 """, unsafe_allow_html=True)
+
 
     # ✅ 使用收合元件顯示回傳內容
     with st.expander("📦 點我查看 SerpAPI 回傳內容"):
