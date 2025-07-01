@@ -853,7 +853,12 @@ def main():
                     """, unsafe_allow_html=True)
                     return
                 else:
-                    st.markdown(f"<h3 style='color:white;'>🔍 正在分析：<a href='{url}' target='_blank' style='color:#66ccff; text-decoration: underline;>{url}</a></h3>", unsafe_allow_html=True)
+                    st.markdown(f"""
+<h3 style='color:white;'>
+🔍 正在分析：<a href='{url}' 
+ target='_blank' style='color:#00ffff; text-decoration: underline;'>{url}</a>
+</h3>
+""", unsafe_allow_html=True)
                     # 這裡可以繼續放分析程式邏輯
                 st.markdown("""
     <style>
