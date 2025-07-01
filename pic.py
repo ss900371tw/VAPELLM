@@ -338,9 +338,11 @@ def search_similar_images_via_serpapi(image_url):
     div[role="button"][aria-expanded] {
         color: white !important;
     }
+    div[data-testid="stExpander"] * {
+        color: brown !important;
+    }
     </style>
 """, unsafe_allow_html=True)
-
 
     # ✅ 使用收合元件顯示回傳內容
     with st.expander("📦 點我查看 SerpAPI 回傳內容"):
