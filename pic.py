@@ -1219,7 +1219,13 @@ section[data-testid="stFileUploader"] div[aria-label] p {
     </style>
 """, unsafe_allow_html=True)
 
-    
+                    st.markdown("""
+    <style>
+    .stSpinner > div > div {
+        color: white !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
                     with st.spinner("⏳ 正在分析..."):
                         text_content = crawl_all_text(url)
                         text_result = chain.invoke(text_content)
@@ -1420,13 +1426,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
 <a href='{url}' target='_blank' style='color:#00ffff; text-decoration: underline;'>{url}</a>
 </h3>
 """, unsafe_allow_html=True)
-                    st.markdown("""
-    <style>
-    .stSpinner > div > div {
-        color: white !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
+                    
 
                             st.markdown("""
     <style>
