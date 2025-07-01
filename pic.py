@@ -356,16 +356,7 @@ def search_similar_images_via_serpapi(image_url):
 
     # ✅ 展開且不會超出邊界
     with st.expander("📦 點我查看 SerpAPI 回傳內容"):
-        st.markdown(
-            f"""
-            <div style="overflow-x:auto; max-width:100%;">
-                <pre style="white-space:pre-wrap; word-break:break-all; color:white; font-size: 0.9rem;">
-{json.dumps(results, indent=2, ensure_ascii=False)}
-                </pre>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        st.json(results)
 
     image_results = results.get("image_results", [])
     urls = [item.get("link") for item in image_results if "link" in item]
