@@ -338,9 +338,6 @@ def search_similar_images_via_serpapi(image_url):
     div[role="button"][aria-expanded] {
         color: white !important;
     }
-    div[data-testid="stExpander"] * {
-        color: white !important;
-    }
     </style>
 """, unsafe_allow_html=True)
 
