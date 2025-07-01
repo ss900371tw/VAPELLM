@@ -334,15 +334,26 @@ def search_similar_images_via_serpapi(image_url):
     results = search.get_dict()
     st.markdown("""
 <style>
-/* Expander 標題字顏色：白色 */
+/* Expander 標題區域（summary） */
 div[data-testid="stExpander"] > summary {
-    color: white !important;
+    background-color: #333c5f !important;  /* 深藍灰，更亮一點 */
+    color: white !important;               /* 白字 */
     font-weight: bold;
+    border: 1px solid #4da6ff;             /* 淺藍邊框 */
+    border-radius: 8px;
+    padding: 10px;
 }
 
-/* Expander 內容文字顏色：可自訂（例如亮藍） */
+/* Hover 時讓它更亮 */
+div[data-testid="stExpander"] > summary:hover {
+    background-color: #3e4a77 !important;
+    cursor: pointer;
+}
+
+/* 展開後內容文字 */
 div[data-testid="stExpander"] .streamlit-expanderContent {
-    color: #e0e0e0 !important;  /* 或用 white, lightgray, #66d9ef 等 */
+    color: #f0f0f0 !important;
+    font-size: 0.95rem;
 }
 </style>
 """, unsafe_allow_html=True)
