@@ -1369,7 +1369,13 @@ div[role="status"] > div > span {
                                 ✅ 圖片上傳成功：<a href="{image_url}" target="_blank">{image_url}</a>
                             </div>
                         """, unsafe_allow_html=True)
-        
+                        st.markdown("""
+    <style>
+    .stSpinner > div > div {
+        color: white !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
                         with st.spinner("🔍 使用 Google 搜尋相似圖片中..."):
                             urls = search_similar_images_via_serpapi(image_url)
         
@@ -1377,7 +1383,13 @@ div[role="status"] > div > span {
         
                         for url_idx, url in enumerate(urls, 1):
                             st.markdown(f"<h4 style='color:white;'>🔗 [{url_idx}] 分析網址：<a href='{url}' target='_blank'>{url}</a></h4>", unsafe_allow_html=True)
-        
+                            st.markdown("""
+    <style>
+    .stSpinner > div > div {
+        color: white !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
                             with st.spinner("⏳ 正在分析網站內容與圖片..."):
                                 text_content = crawl_all_text(url)
                                 text_result = chain.invoke(text_content)
