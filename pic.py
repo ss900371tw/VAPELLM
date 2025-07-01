@@ -333,15 +333,18 @@ def search_similar_images_via_serpapi(image_url):
     search = GoogleSearch(params)
     results = search.get_dict()
     st.markdown("""
-    <style>
-    /* Expander 標題與內容白字 */
-    div[role="button"][aria-expanded] {
-        color: white !important;
-    }
-    div[data-testid="stExpander"] * {
-        color: brown !important;
-    }
-    </style>
+<style>
+/* Expander 標題字顏色：白色 */
+div[data-testid="stExpander"] > summary {
+    color: white !important;
+    font-weight: bold;
+}
+
+/* Expander 內容文字顏色：可自訂（例如亮藍） */
+div[data-testid="stExpander"] .streamlit-expanderContent {
+    color: #e0e0e0 !important;  /* 或用 white, lightgray, #66d9ef 等 */
+}
+</style>
 """, unsafe_allow_html=True)
 
     # ✅ 使用收合元件顯示回傳內容
