@@ -321,23 +321,6 @@ def upload_image_to_imgbb(image_path):
     return res.json()["data"]["url"]
 
 
-def search_similar_images_via_serpapi(image_url):
-    SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
-    params = {
-        "engine": "google_reverse_image",
-        "api_key": 'b522166f42603b2bd376722f95f83375aa9594271ca9aa338c886a1f0f558a21',
-        "image_url": image_url,
-    }
-
-    search = GoogleSearch(params)
-    results = search.get_dict()
-
-    st.markdown("<h3 style='color:white;'>📦 SerpAPI 回傳內容</h3>", unsafe_allow_html=True)
-    st.json(results)
-
-    image_results = results.get("image_results", [])
-    urls = [item.get("link") for item in image_results if "link" in item]
-    return urls
 
 def search_similar_images_via_serpapi(image_url):
     SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
@@ -357,6 +340,33 @@ def search_similar_images_via_serpapi(image_url):
     image_results = results.get("image_results", [])
     urls = [item.get("link") for item in image_results if "link" in item]
     return urls
+
+def search_similar_images_via_serpapi(image_url):
+    SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
+    params = {
+        "engine": "google_reverse_image",
+        "api_key": 'b522166f42603b2bd376722f95f83375aa9594271ca9aa338c886a1f0f558a21',
+        "image_url": image_url,
+    }
+
+    search = GoogleSearch(params)
+    results = search.get_dict()
+
+    # 用 HTML + details 實作白字收合區塊
+    st.markdown("""
+    <details style="margin-top:1rem;">
+        <summary style="color:white; font-size:1.1rem; cursor:pointer;">📦 點我查看 SerpAPI 回傳內容</summary>
+        <div style="margin-top:0.5rem;">
+    """, unsafe_allow_html=True)
+
+    st.json(results)
+
+    st.markdown("</div></details>", unsafe_allow_html=True)
+
+    image_results = results.get("image_results", [])
+    urls = [item.get("link") for item in image_results if "link" in item]
+    return urls
+
 
 
 import requests
