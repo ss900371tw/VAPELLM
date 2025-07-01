@@ -334,7 +334,33 @@ def search_similar_images_via_serpapi(image_url):
 
     search = GoogleSearch(params)
     results = search.get_dict()
-    
+    st.markdown("""
+<style>
+/* Expander 標題（用 summary 明確指定並強制覆蓋） */
+details > summary {
+    background-color: #3b4a6b !important;   /* 比原本亮，偏藍灰 */
+    color: white !important;
+    font-weight: bold !important;
+    border: 1px solid #4da6ff !important;  /* 淺藍邊框 */
+    border-radius: 8px !important;
+    padding: 10px !important;
+    transition: background-color 0.2s ease;
+}
+
+/* Hover 更亮一點 */
+details > summary:hover {
+    background-color: #4b5d88 !important;
+    cursor: pointer;
+}
+
+/* 展開內容顏色 */
+div[data-testid="stExpander"] .streamlit-expanderContent {
+    color: #f0f0f0 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
     # ✅ 使用收合元件顯示回傳內容
     with st.expander("📦 點我查看 SerpAPI 回傳內容"):
         st.json(results)
