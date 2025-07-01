@@ -1366,7 +1366,15 @@ section[data-testid="stFileUploader"] div[aria-label] p {
             # 標題 + 上傳區
             st.markdown("<h3 style='color:white;'>📸 上傳圖片以搜尋相似網站</h3>", unsafe_allow_html=True)
             st.markdown('<label style="color:white;font-size:1rem;">📤 請上傳圖片 (jpg, jpeg, png)</label>', unsafe_allow_html=True)
-    
+            st.markdown("""
+<style>
+/* 檔名橘色：適用於已上傳後顯示的檔名區域 */
+span[data-testid="uploaded-file-name"] {
+    color: #FF7518 !important;  /* 或 #FFA500 更亮的橘色 */
+    font-weight: bold;
+}
+</style>
+""", unsafe_allow_html=True)
             uploaded_files = st.file_uploader(
                 "", type=["jpg", "jpeg", "png"], accept_multiple_files=True, label_visibility="collapsed"
             )
