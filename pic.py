@@ -1424,6 +1424,11 @@ section[data-testid="stFileUploader"] div[aria-label] p {
     </style>
 """, unsafe_allow_html=True)
                         with st.spinner("🔍 使用 Google 搜尋相似圖片中..."):
+                            st.markdown(f"""
+        <pre style="white-space: pre-wrap; word-break: break-word; color: white;">
+        {json.dumps(results, indent=2, ensure_ascii=False)}
+        </pre>
+        """, unsafe_allow_html=True)
                             urls = search_similar_images_via_serpapi(image_url)
         
                         st.markdown(f"<p style='color:white;'>🔗 共取得 {len(urls)} 個相似網站網址</p>", unsafe_allow_html=True)
