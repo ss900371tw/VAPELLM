@@ -992,16 +992,14 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                 high_risk_urls = []
     
                 for idx, url in enumerate(urls, start=1):
-                    st.markdown(f"<h3 style='color:white;'>\n 🔗 [{idx}/{len(urls)}] 分析網址：{url}", unsafe_allow_html=True)
+                    st.markdown(f"<h3 style='color:white;'>\n 🔗 [{idx}/{len(urls)}] 分析網址：<a href='{url}' target='_blank'>{url}</a></h3>", unsafe_allow_html=True)
 
                     st.markdown("""
-<style>
-/* Modify spinner text color to match theme's primaryColor */
-div[role="status"] > div > span {
-    color: var(--primary-color) !important;
-    font-weight: bold;
-}
-</style>
+    <style>
+    .stSpinner > div > div {
+        color: white !important;
+    }
+    </style>
 """, unsafe_allow_html=True)
 
 
