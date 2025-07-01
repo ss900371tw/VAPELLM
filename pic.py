@@ -1330,15 +1330,6 @@ div[role="status"] > div > span {
             st.markdown("<h3 style='color:white;'>📸 上傳圖片以搜尋相似網站</h3>", unsafe_allow_html=True)
             st.markdown('<label style="color:white;font-size:1rem;">📤 請上傳圖片 (jpg, jpeg, png)</label>', unsafe_allow_html=True)
     
-            st.markdown("""
-    <style>
-    /* 只改檔名與大小的文字顏色 */
-    section[data-testid="stFileUploader"] div div p {
-        color: white !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
             uploaded_files = st.file_uploader(
                 "", type=["jpg", "jpeg", "png"], accept_multiple_files=True, label_visibility="collapsed"
             )
