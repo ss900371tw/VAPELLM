@@ -554,55 +554,6 @@ from io import BytesIO
 
 
 
-def classify_image(image_input, model):
-    """
-    支援圖片網址（str）與 BytesIO 圖片資料（自動上傳到 imgbb）
-    model: LangChain 的 ChatOpenAI 模型（gpt-4-vision-preview）
-    """
-    from langchain.schema.messages import HumanMessage
-    import requests
-    from io import BytesIO
-    import os
-
-    def upload_bytesio_to_imgbb(img_io: BytesIO) -> str:
-        IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
-        if not IMGBB_API_KEY:
-            raise ValueError("❌ 請設定 IMGBB_API_KEY 環境變數")
-        img_io.seek(0)
-        res = requests.post(
-            "https://api.imgbb.com/1/upload",
-            params={"key": IMGBB_API_KEY},
-            files={"image": ("image.png", img_io, "image/png")}
-        )
-        res.raise_for_status()
-        return res.json()["data"]["url"]
-
-    try:
-        # 圖片網址
-        if isinstance(image_input, str) and image_input.startswith("http"):
-            image_url = image_input
-
-        # BytesIO 圖片
-        elif isinstance(image_input, BytesIO):
-            image_url = upload_bytesio_to_imgbb(image_input)
-
-        # 不支援其他類型
-        else:
-            return f"❌ 不支援的圖片輸入類型（收到類型：{type(image_input)}）"
-
-        # 發送給 Vision 模型分析
-        message = HumanMessage(
-            content=[
-                {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
-                {"type": "image_url", "image_url": {"url": image_url}},
-            ]
-        )
-        result = model.invoke([message])
-        return result.content
-
-    except Exception as e:
-        return f"⚠️ 圖片分析失敗：{e}"
-
 
 def classify_image(image_input, model):
     """
