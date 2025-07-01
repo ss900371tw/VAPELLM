@@ -332,7 +332,13 @@ def search_similar_images_via_serpapi(image_url):
 
     search = GoogleSearch(params)
     results = search.get_dict()
-
+    st.markdown("""
+    <style>
+    .stSpinner > div > div {
+        color: white !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
     # ✅ 使用收合元件顯示回傳內容
     with st.expander("📦 點我查看 SerpAPI 回傳內容"):
         st.json(results)
