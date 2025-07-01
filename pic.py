@@ -334,33 +334,7 @@ def search_similar_images_via_serpapi(image_url):
 
     search = GoogleSearch(params)
     results = search.get_dict()
-    st.markdown("""
-<style>
-/* Expander 標題（用 summary 明確指定並強制覆蓋） */
-details > summary {
-    background-color: #3b4a6b !important;   /* 比原本亮，偏藍灰 */
-    color: white !important;
-    font-weight: bold !important;
-    border: 1px solid #4da6ff !important;  /* 淺藍邊框 */
-    border-radius: 8px !important;
-    padding: 10px !important;
-    transition: background-color 0.2s ease;
-}
-
-/* Hover 更亮一點 */
-details > summary:hover {
-    background-color: #4b5d88 !important;
-    cursor: pointer;
-}
-
-/* 展開內容顏色 */
-div[data-testid="stExpander"] .streamlit-expanderContent {
-    color: #f0f0f0 !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
+    
     # ✅ 使用收合元件顯示回傳內容
     with st.expander("📦 點我查看 SerpAPI 回傳內容"):
         st.json(results)
@@ -369,6 +343,33 @@ div[data-testid="stExpander"] .streamlit-expanderContent {
     urls = [item.get("link") for item in image_results if "link" in item]
     return urls
 
+def search_similar_images_via_serpapi(image_url):
+    SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
+    params = {
+        "engine": "google_reverse_image",
+        "api_key": SERPAPI_API_KEY,
+        "image_url": image_url,
+    }
+
+    search = GoogleSearch(params)
+    results = search.get_dict()
+
+    # ✅ 展開且不會超出邊界
+    with st.expander("📦 點我查看 SerpAPI 回傳內容"):
+        st.markdown(
+            f"""
+            <div style="overflow-x:auto; max-width:100%;">
+                <pre style="white-space:pre-wrap; word-break:break-all; color:white; font-size: 0.9rem;">
+{json.dumps(results, indent=2, ensure_ascii=False)}
+                </pre>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    image_results = results.get("image_results", [])
+    urls = [item.get("link") for item in image_results if "link" in item]
+    return urls
 
 
 
