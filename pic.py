@@ -1436,6 +1436,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                                 ✅ 圖片上傳成功：<a href="{image_url}" target="_blank">{image_url}</a>
                             </div>
                         """, unsafe_allow_html=True)
+                        
                         st.markdown("""
     <style>
     .stSpinner > div > div {
