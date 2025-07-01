@@ -1211,13 +1211,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
 <a href='{url}' target='_blank' style='color:#00ffff; text-decoration: underline;'>{url}</a>
 </h3>
 """, unsafe_allow_html=True)
-                    st.markdown("""
-    <style>
-    .stSpinner > div > div {
-        color: white !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
+                    
 
                     st.markdown("""
     <style>
