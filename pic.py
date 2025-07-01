@@ -855,7 +855,13 @@ def main():
                 else:
                     st.markdown(f"<h3 style='color:white;'>🔍 正在分析：<a href='{url}' target='_blank'>{url}</a></h3>", unsafe_allow_html=True)
                     # 這裡可以繼續放分析程式邏輯
-
+                st.markdown("""
+    <style>
+    .stSpinner > div > div {
+        color: white !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
                 with st.spinner("⏳ 正在讀取網站內容與圖片"): 
                     text_content = crawl_all_text(url)
                     text_result = chain.invoke(text_content)
