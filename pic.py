@@ -1206,11 +1206,19 @@ section[data-testid="stFileUploader"] div[aria-label] p {
     
                 for idx, url in enumerate(filtered_urls, start=1):
                     st.markdown(f"""
-<hr style="border-top: 1px solid white;"/>
-<h3 style="color:white;">
-🔗 [{idx}/{len(filtered_urls)}] 分析網址：<a href="{url}" target="_blank" style="color:white; text-decoration:underline;">{url}</a>
+<h3 style='color:white;'>
+🔗 [{idx}/{len(urls)}] 分析網址：
+<a href='{url}' target='_blank' style='color:#00ffff; text-decoration: underline;'>{url}</a>
 </h3>
 """, unsafe_allow_html=True)
+                    st.markdown("""
+    <style>
+    .stSpinner > div > div {
+        color: white !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
     
                     with st.spinner("⏳ 正在分析..."):
                         text_content = crawl_all_text(url)
@@ -1406,7 +1414,20 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                         st.markdown(f"<p style='color:white;'>🔗 共取得 {len(urls)} 個相似網站網址</p>", unsafe_allow_html=True)
         
                         for url_idx, url in enumerate(urls, 1):
-                            st.markdown(f"<h4 style='color:white;'>🔗 [{url_idx}] 分析網址：<a href='{url}' target='_blank'>{url}</a></h4>", unsafe_allow_html=True)
+                            st.markdown(f"""
+<h3 style='color:white;'>
+🔗 [{idx}/{len(urls)}] 分析網址：
+<a href='{url}' target='_blank' style='color:#00ffff; text-decoration: underline;'>{url}</a>
+</h3>
+""", unsafe_allow_html=True)
+                    st.markdown("""
+    <style>
+    .stSpinner > div > div {
+        color: white !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
                             st.markdown("""
     <style>
     .stSpinner > div > div {
