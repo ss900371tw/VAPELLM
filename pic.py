@@ -792,18 +792,18 @@ def main():
     # 集中處理按鈕事件
     col1, col2, col3 , col4= st.columns(4)
     with col1:
-        render_card("🔍", "單網址分析", "分析個別網站的圖文", key="single")
+        render_card("🔍", "單網分析", "分析個別網站的圖文", key="single")
     with col2:
         render_card("📂", "批量分析", "上傳多網站txt檔分析", key="batch")
     with col3:
-        render_card("🌐", "關鍵字分析", "根據關鍵字爬蟲分析", key="search")
+        render_card("🌐", "字詞分析", "根據關鍵字爬蟲分析", key="search")
     with col4:
         render_card("📸", "以圖分析", "以圖搜圖並爬蟲分析", key="picture")
     
     mode = st.session_state.get("selected_mode")
     
     if mode:    
-        if "單網址分析" in mode:
+        if "單網分析" in mode:
             # 建立左右排列欄位
             # 自訂按鈕樣式讓它貼齊 text_input 高度
             
@@ -1143,7 +1143,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
 </div>
 """, unsafe_allow_html=True)
     
-        elif "關鍵字分析" in mode:
+        elif "字詞分析" in mode:
             # 輸入關鍵字
             # 自訂文字顏色為白色
             st.markdown("""
