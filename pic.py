@@ -753,7 +753,8 @@ def main():
             # ✅ 把所有內容寫在這一個 HTML block 裡
             st.markdown(f"""
             <div id="{key}_card">
-                <div style="font-size: 1.6rem; font-weight: bold;">{icon}{title}</div>
+                <div style="font-size: 1.8rem;">{icon}</div>
+                <div style="font-size: 1.6rem; font-weight: bold;">{title}</div>
                 <div style="font-size: 1.4rem; color: #ccc;">{desc}</div>
                 <div style="margin-top: 10px;">
             """, unsafe_allow_html=True)
