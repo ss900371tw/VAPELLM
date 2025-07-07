@@ -754,8 +754,8 @@ def main():
             st.markdown(f"""
             <div id="{key}_card">
                 <div style="font-size: 1.8rem;">{icon}</div>
-                <div style="font-size: 1.4rem; font-weight: bold;">{title}</div>
-                <div style="font-size: 1.4rem; color: #ccc;">{desc}</div>
+                <div style="font-size: 1.8rem; font-weight: bold;">{title}</div>
+                <div style="font-size: 1.8rem; color: #ccc;">{desc}</div>
                 <div style="margin-top: 10px;">
             """, unsafe_allow_html=True)
     
