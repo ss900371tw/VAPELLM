@@ -620,7 +620,7 @@ def classify_image(image_input, model):
 
         message = HumanMessage(
             content=[
-                {"type": "text", "text": "請判斷這張圖片是否包含電子菸、毒品或相關符號，回傳：🚨 Warning 或 ✅ Safe"},
+                {"type": "text", "text": "Please check whether this image contains e-cigarettes, drugs, or any related symbols, and return your judgment：🚨 Warning 或 ✅ Safe"},
                 {"type": "image_url", "image_url": {"url": image_url}},
             ]
         )
@@ -628,7 +628,7 @@ def classify_image(image_input, model):
         return result.content, image_url  # ⬅️ 回傳兩個值
 
     except Exception as e:
-        return f"⚠️ 圖片分析失敗：{e}", None
+        return f"⚠️ Image analysis failed：{e}", None
 
 
 # -------------------- 7. Google Search --------------------
@@ -1148,7 +1148,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
 </div>
 """, unsafe_allow_html=True)
     
-        elif "字詞分析" in mode:
+        elif "Keyword Search" in mode:
             # 輸入關鍵字
             # 自訂文字顏色為白色
             st.markdown("""
@@ -1168,15 +1168,15 @@ section[data-testid="stFileUploader"] div[aria-label] p {
             
             # UI 元件
             keywords_text = st.text_area(
-                "🔤 請輸入搜尋關鍵字（每行一個）",
+                "🔤 Please enter search keywords (one per line)",
                 "vape\ne-juice\ne-cigarette\n電子煙"
             )
             
-            limit = st.number_input("🔢 每個關鍵字最多擷取幾組網址？", min_value=1, max_value=50, value=10)
+            limit = st.number_input("🔢 How many URLs should be retrieved per keyword?", min_value=1, max_value=50, value=10)
     
-            if st.button("🚀 執行 Google 搜尋並分析"):
+            if st.button("🚀 Run Google Search and Analyze"):
                 if not keywords_text.strip():
-                    st.warning("⚠️ 請先輸入關鍵字")
+                    st.warning("⚠️ Please enter keywords first.")
                     return
     
                 keywords_list = [kw.strip() for kw in keywords_text.split("\n") if kw.strip()]
@@ -1189,21 +1189,21 @@ section[data-testid="stFileUploader"] div[aria-label] p {
     border-radius: 5px;
     font-size: 1rem;
 '>
-🔍 將針對 <strong>{len(keywords_list)}</strong> 個關鍵字，各擷取 <strong>{limit}</strong> 組搜尋結果
+🔍 A total of <strong>{limit}</strong> results will be retrieved for each of the <strong>{len(keywords_list)}</strong> keywords.
 </div>
 """, unsafe_allow_html=True)
     
                 all_urls = []
                 for kw in keywords_list:
                     st.markdown(f"""
-<h4 style='color:white;'>🔎 搜尋關鍵字：<strong>{kw}</strong></h4>
+<h4 style='color:white;'>🔎 Search Keywords：<strong>{kw}</strong></h4>
 """, unsafe_allow_html=True)
                     found = google_search(kw, count=limit)
                     all_urls.extend([url for url in found if url not in all_urls])
     
                 st.markdown(f"""
 <p style="color:white; font-size:1rem;">
-📥 總共取得 <strong>{len(all_urls)}</strong> 個原始網址
+📥 Retrieved a total of <strong>{len(all_urls)}</strong> original URLs
 </p>
 """, unsafe_allow_html=True)
     
@@ -1218,7 +1218,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
     border-radius: 5px;
     font-size: 1rem;
 '>
-✅ 經過過濾後剩下 <strong>{len(filtered_urls)}</strong> 個可疑網址
+✅ <strong>{len(filtered_urls)}</strong> suspicious URLs remain after filtering
 </div>
 """, unsafe_allow_html=True)
 
@@ -1228,7 +1228,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                 for idx, url in enumerate(filtered_urls, start=1):
                     st.markdown(f"""
 <h3 style='color:white;'>
-🔗 [{idx}/{len(filtered_urls)}] 分析網址：
+🔗 [{idx}/{len(filtered_urls)}] Analyze URL：
 <a href='{url}' target='_blank' style='color:#00ffff; text-decoration: underline;'>{url}</a>
 </h3>
 """, unsafe_allow_html=True)
@@ -1241,7 +1241,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
     }
     </style>
 """, unsafe_allow_html=True)
-                    with st.spinner("⏳ 正在分析..."):
+                    with st.spinner("⏳ Analyzing..."):
                         text_content = crawl_all_text(url)
                         text_result = chain.invoke(text_content)
     
@@ -1254,7 +1254,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                     with col1:
                         st.markdown(f"""
     <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
-        <h4 style="margin-bottom:0.8rem;">📄 文字分類結果</h4>
+        <h4 style="margin-bottom:0.8rem;">📄 Text Classification Result</h4>
         <pre style="white-space:pre-wrap;font-size:0.92rem;font-family:inherit;">
     {text_result}
         </pre>
@@ -1264,7 +1264,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                         if not image_urls:
                             st.markdown(f"""
     <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
-        <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+        <h4 style="margin-bottom:0.8rem;">📷 Image Analysis Result</h4>
         <div style="font-size:0.9rem;"><b>(未找到圖片)</b></div>
     </div>
     """, unsafe_allow_html=True)
@@ -1275,11 +1275,11 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                                 verdict, uploaded_img_url = img_result
                                 st.markdown(f"""
 <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
-    <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+    <h4 style="margin-bottom:0.8rem;">📷 Image Analysis Result</h4>
     <img src="{uploaded_img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
     <div style="font-size:0.9rem;">
-        <b>分類結果：</b>{verdict}<br>
-        <b>圖片連結：</b><a href="{uploaded_img_url}" target="_blank">{uploaded_img_url}</a>
+        <b>Classification Result：</b>{verdict}<br>
+        <b>Image URL：</b><a href="{uploaded_img_url}" target="_blank">{uploaded_img_url}</a>
     </div>
 </div>""", unsafe_allow_html=True)
                                 if "Warning" in img_result:
@@ -1300,7 +1300,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
         border: 1px solid #ffeeba;
         font-size: 16px;
     ">
-    ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+    ⚠️ <strong>High-Risk Website</strong>：This website may be involved in e-cigarette sales
     </div>
     """, unsafe_allow_html=True)
                         high_risk_urls.append(url)
@@ -1315,7 +1315,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
         border: 1px solid #ffeeba;
         font-size: 16px;
     ">
-    ⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+    ⚠️ <strong>High-Risk Website</strong>：This website may be involved in e-cigarette sales
     </div>
     """, unsafe_allow_html=True)
                         high_risk_urls.append(url)
@@ -1330,19 +1330,19 @@ section[data-testid="stFileUploader"] div[aria-label] p {
         border: 1px solid #c3e6cb;
         font-size: 16px;
     ">
-    ✅ <strong>安全網站</strong>：未偵測出高風險內容
+    ✅ <strong>Safe Website</strong>：	No high-risk content detected
     </div>
     """, unsafe_allow_html=True)
     
                 # 總結與下載
                 st.markdown("---")
-                st.markdown("<h2 style='color:white;'>📋 分析總結</h2>", unsafe_allow_html=True)
+                st.markdown("<h2 style='color:white;'>📋 Analysis Summary</h2>", unsafe_allow_html=True)
                 high_risk_urls = sorted(set(high_risk_urls))
 
                 if high_risk_urls:
-                    st.warning(f"⚠️ 偵測到高風險網址：{len(high_risk_urls)} 筆")
+                    st.warning(f"⚠️ High-risk URLs detected: {len(high_risk_urls)}")
                     st.download_button(
-                        label="📥 下載高風險網址清單",
+                        label="📥 Download High-Risk URL List",
                         data="\n".join(high_risk_urls),
                         file_name="google_high_risk_urls.txt",
                         mime="text/plain"
