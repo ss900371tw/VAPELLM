@@ -42,7 +42,7 @@ openai_api_key = os.getenv("OPENAI_API_KEY","")
 
 
 # -------------------- 2. Prompt --------------------
-text_template_en = """
+text_template = """
 As a professional classifier of e-cigarette trading websites,  
 you are capable of analyzing the following HTML content and assigning it to one of the two categories below:
 
