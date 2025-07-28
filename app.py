@@ -4,7 +4,6 @@ import tempfile
 import os
 import shutil
 import json
-
 import time
 import random
 import re
@@ -704,7 +703,7 @@ def main():
     """, unsafe_allow_html=True)
 
     st.markdown("""
-    <p style='text-align:center; font-size: 24px; color: white;'>🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站</p>
+    <p style='text-align:center; font-size: 24px; color: white;'>🧠 Leverage OpenAI and image recognition to automatically classify websites related to e-cigarettes.</p>
     """, unsafe_allow_html=True)
     llm_text = ChatOpenAI(api_key=openai_api_key, model="gpt-4.1", temperature=0)
     llm_image = ChatOpenAI(api_key=openai_api_key, model="gpt-4.1", temperature=0)
@@ -786,7 +785,7 @@ def main():
 </style>
 
 <div class="banner-text">
-請選擇分析模式
+Select Analysis Mode
 </div>
 """, unsafe_allow_html=True)
 
@@ -809,7 +808,7 @@ def main():
     mode = st.session_state.get("selected_mode")
     
     if mode:    
-        if "單網分析" in mode:
+        if "Single URL" in mode:
             # 建立左右排列欄位
             # 自訂按鈕樣式讓它貼齊 text_input 高度
             
@@ -889,7 +888,7 @@ def main():
     }
     </style>
 """, unsafe_allow_html=True)
-                with st.spinner("⏳ 正在讀取網站內容與圖片"): 
+                with st.spinner("⏳ Fetching website content and images..."): 
                     text_content = crawl_all_text(url)
                     text_result = chain.invoke(text_content)
     
@@ -926,8 +925,8 @@ def main():
     <h4 style="margin-bottom:0.8rem;">📷 Image Analysis Result</h4>
     <img src="{uploaded_img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
     <div style="font-size:0.9rem;">
-        <b>分類結果：</b>{verdict}<br>
-        <b>圖片連結：</b><a href="{uploaded_img_url}" target="_blank">{uploaded_img_url}</a>
+        <b>Classification Result：</b>{verdict}<br>
+        <b>Image URL：</b><a href="{uploaded_img_url}" target="_blank">{uploaded_img_url}</a>
     </div>
 </div>""", unsafe_allow_html=True)
                                 if "Warning" in img_result:
@@ -973,11 +972,11 @@ def main():
     border: 1px solid #c3e6cb;
     font-size: 16px;
 ">
-✅ <strong>Safe Site</strong>：未偵測出高風險內容
+✅ <strong>Safe Site</strong>：No high-risk content detected
 </div>
 """, unsafe_allow_html=True)
     
-        elif "批量分析" in mode:
+        elif "Batch URLs" in mode:
             st.markdown("""
 <style>
 /* 將 file_uploader 的標籤與上傳檔名都改為白色 */
@@ -995,9 +994,9 @@ section[data-testid="stFileUploader"] div[aria-label] p {
 
 # 檔案上傳元件
 
-            uploaded_file = st.file_uploader("請上傳 .txt 檔案（每行一個網址）", type=["txt"])
+            uploaded_file = st.file_uploader("Upload a .txt file containing one URL per line", type=["txt"])
     
-            if st.button("🚀 開始批次分析"):
+            if st.button("🚀 Start Batch Analysis"):
                 if uploaded_file is None:
                     st.markdown("""
 <div style="
@@ -1008,20 +1007,20 @@ section[data-testid="stFileUploader"] div[aria-label] p {
     border: 1px solid #ffeeba;
     font-size: 16px;
 ">
-⚠️ 請先上傳 .txt 檔案
+⚠️ You must upload a .txt file first.
 </div>
 """, unsafe_allow_html=True)
                     return
     
                 urls = [line.strip().decode("utf-8") for line in uploaded_file.readlines() if line]
-                st.markdown(f"<h3 style='color:white;'>📄 共有 {len(urls)} 個網址將進行分析", unsafe_allow_html=True)
+                st.markdown(f"<h3 style='color:white;'>📄 A total of {len(urls)} URLs will be analyzed.", unsafe_allow_html=True)
 
                 high_risk_urls = []
     
                 for idx, url in enumerate(urls, start=1):
                     st.markdown(f"""
 <h3 style='color:white;'>
-🔗 [{idx}/{len(urls)}] 分析網址：
+🔗 [{idx}/{len(urls)}] Analyzing URL：
 <a href='{url}' target='_blank' style='color:#00ffff; text-decoration: underline;'>{url}</a>
 </h3>
 """, unsafe_allow_html=True)
@@ -1034,7 +1033,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
 """, unsafe_allow_html=True)
 
 
-                    with st.spinner("⏳ 正在分析..."):
+                    with st.spinner("⏳ Analyzing..."):
                         text_content = crawl_all_text(url)
                         text_result = chain.invoke(text_content)
                         image_urls = crawl_images(url)
@@ -1046,7 +1045,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                     with col1:
                         st.markdown(f"""
     <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
-        <h4 style="margin-bottom:0.8rem;">📄 文字分類結果</h4>
+        <h4 style="margin-bottom:0.8rem;">📄 Text Classification Result</h4>
         <pre style="white-space:pre-wrap;font-size:0.92rem;font-family:inherit;">
     {text_result}
         </pre>
@@ -1056,8 +1055,8 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                         if not image_urls:
                             st.markdown(f"""
     <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
-        <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-        <div style="font-size:0.9rem;"><b>(未找到圖片)</b></div>
+        <h4 style="margin-bottom:0.8rem;">📷 Image Classification Result</h4>
+        <div style="font-size:0.9rem;"><b>(No image detected)</b></div>
     </div>
     """, unsafe_allow_html=True)
                         else:
@@ -1067,11 +1066,11 @@ section[data-testid="stFileUploader"] div[aria-label] p {
                                 verdict, uploaded_img_url = img_result
                                 st.markdown(f"""
 <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
-    <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+    <h4 style="margin-bottom:0.8rem;">📷 Image Analysis Result</h4>
     <img src="{uploaded_img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
     <div style="font-size:0.9rem;">
-        <b>分類結果：</b>{verdict}<br>
-        <b>圖片連結：</b><a href="{uploaded_img_url}" target="_blank">{uploaded_img_url}</a>
+        <b>Classification Result：</b>{verdict}<br>
+        <b>Image URL：</b><a href="{uploaded_img_url}" target="_blank">{uploaded_img_url}</a>
     </div>
 </div>""", unsafe_allow_html=True)
                                 if "Warning" in img_result:
@@ -1090,7 +1089,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
     border: 1px solid #ffeeba;
     font-size: 16px;
 ">
-⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+⚠️ <strong>High-Risk Website</strong>：This website may be involved in e-cigarette sales.
 </div>
 """, unsafe_allow_html=True)
                         high_risk_urls.append(url)
@@ -1104,7 +1103,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
     border: 1px solid #ffeeba;
     font-size: 16px;
 ">
-⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+⚠️ <strong>High-Risk Website</strong>：This website may be involved in e-cigarette sales.
 </div>
 """, unsafe_allow_html=True)
                         high_risk_urls.append(url)
@@ -1119,18 +1118,18 @@ section[data-testid="stFileUploader"] div[aria-label] p {
     border: 1px solid #c3e6cb;
     font-size: 16px;
 ">
-✅ <strong>安全網站</strong>：未偵測出高風險內容
+✅ <strong>Safe Website</strong>：No high-risk content detected.
 </div>
 """, unsafe_allow_html=True)
                 st.markdown("---")
-                st.markdown("<h3 style='color:white;'>📋 批次分析總結</h3>", unsafe_allow_html=True)
+                st.markdown("<h3 style='color:white;'>📋 Batch Analysis Summary</h3>", unsafe_allow_html=True)
                 high_risk_urls = sorted(set(high_risk_urls))
 
                 if high_risk_urls:
-                    st.markdown(f"<h3 style='color:white;'>⚠️ 共偵測到高風險網址 {len(high_risk_urls)} 筆", unsafe_allow_html=True)
+                    st.markdown(f"<h3 style='color:white;'>⚠️ {len(high_risk_urls)} high-risk URLs detected.", unsafe_allow_html=True)
     
                     st.download_button(
-                        label="📥 下載高風險網址清單",
+                        label="📥 Download High-Risk URL List",
                         data="\n".join(high_risk_urls),
                         file_name="high_risk_urls.txt",
                         mime="text/plain"
@@ -1145,7 +1144,7 @@ section[data-testid="stFileUploader"] div[aria-label] p {
     border: 1px solid #c3e6cb;
     font-size: 16px;
 ">
-✅ 所有網址皆未偵測到高風險內容
+✅ No high-risk content detected in any of the URLs.
 </div>
 """, unsafe_allow_html=True)
     
