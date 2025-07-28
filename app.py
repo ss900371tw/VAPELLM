@@ -360,7 +360,7 @@ div[data-testid="stExpander"] .streamlit-expanderContent {
 
 
     # ✅ 使用收合元件顯示回傳內容
-    with st.expander("📦 點我查看 SerpAPI 回傳內容"):
+    with st.expander("📦 Click to view SerpAPI response content"):
         st.json(results)
 
     image_results = results.get("image_results", [])
