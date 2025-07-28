@@ -678,9 +678,8 @@ def is_blacklisted_url(url: str) -> bool:
     
 # -------------------- 9. Streamlit 主程式 --------------------
 def main():
-    st.markdown("<h1 style='text-align:center;color:white;'>電子菸網站偵測系統</h1>", unsafe_allow_html=True)
     # 使用 OpenAI GPT-4o 模型
-
+    st.markdown("<h1 style='text-align:center;color:white;'>E-cigarette Website Detection System</h1>", unsafe_allow_html=True)
 
     # 背景樣式與主題文字
     st.markdown("""
@@ -796,14 +795,16 @@ def main():
 
     # 集中處理按鈕事件
     col1, col2, col3 , col4= st.columns(4)
+    
+
     with col1:
-        render_card("🔍", "單網分析", "分析個別網站的圖文", key="single")
+        render_card("🔍", "Single URL", "Analyze the text and images of one site", key="single")
     with col2:
-        render_card("📂", "批量分析", "上傳多網站txt檔分析", key="batch")
+        render_card("📂", "Batch URLs", "Upload a .txt file and analyze multiple sites", key="batch")
     with col3:
-        render_card("🌐", "字詞分析", "根據關鍵字爬蟲分析", key="search")
+        render_card("🌐", "Keyword Search", "Crawl based on keyword search", key="search")
     with col4:
-        render_card("📸", "以圖分析", "以圖搜圖並爬蟲分析", key="picture")
+        render_card("📸", "Image Search", "Search similar websites by uploading images", key="picture")
     
     mode = st.session_state.get("selected_mode")
     
@@ -852,7 +853,7 @@ def main():
                 col1, col2 = st.columns([5, 1])
             
                 with col1:
-                    url = st.text_input("", placeholder="請輸入網址：", label_visibility="collapsed")
+                    url = st.text_input("", placeholder="Enter website URL:", label_visibility="collapsed")
             
                 with col2:
                     submitted = st.form_submit_button("確定")
@@ -869,14 +870,14 @@ def main():
                         border: 1px solid #ffeeba;
                         font-size: 16px;
                     ">
-                    ⚠️ 請輸入有效網址
+                    ⚠️ Please enter a valid URL.
                     </div>
                     """, unsafe_allow_html=True)
                     return
                 else:
                     st.markdown(f"""
 <h3 style='color:white;'>
-🔍 正在分析：<a href='{url}' 
+🔍 Analyzing：<a href='{url}' 
  target='_blank' style='color:#00ffff; text-decoration: underline;'>{url}</a>
 </h3>
 """, unsafe_allow_html=True)
@@ -901,7 +902,7 @@ def main():
                     with col1:
                         st.markdown(f"""
     <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #1f77b4;margin-bottom:1rem;">
-        <h4 style="margin-bottom:0.8rem;">📄 文字分類結果</h4>
+        <h4 style="margin-bottom:0.8rem;">📄 Text Classification Result</h4>
         <pre style="white-space:pre-wrap;font-size:0.92rem;font-family:inherit;">
     {text_result} 
         </pre>
@@ -911,8 +912,8 @@ def main():
                         if not image_urls:
                             st.markdown(f"""
     <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
-        <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
-        <div style="font-size:0.9rem;"><b>(未找到圖片)</b></div>
+        <h4 style="margin-bottom:0.8rem;">📷 Image Analysis Result</h4>
+        <div style="font-size:0.9rem;"><b>(No images found)</b></div>
     </div>
     """, unsafe_allow_html=True)
                         else:
@@ -922,7 +923,7 @@ def main():
                                 verdict, uploaded_img_url = img_result
                                 st.markdown(f"""
 <div style="background-color:#f7f9fc;padding:1.2rem 1.5rem;border-radius:12px;border-left:6px solid #ff7f0e;margin-bottom:1rem;">
-    <h4 style="margin-bottom:0.8rem;">📷 圖像分析結果</h4>
+    <h4 style="margin-bottom:0.8rem;">📷 Image Analysis Result</h4>
     <img src="{uploaded_img_url}" style="max-width:100%;border-radius:8px;margin-bottom:0.5rem;">
     <div style="font-size:0.9rem;">
         <b>分類結果：</b>{verdict}<br>
@@ -935,7 +936,7 @@ def main():
     
     
                 st.markdown("---")
-                st.markdown("<h3 style='color:white;'>📋 綜合結論</h3>", unsafe_allow_html=True)
+                st.markdown("<h3 style='color:white;'>📋 Summary Judgment</h3>", unsafe_allow_html=True)
                 if "(1)" in text_result and flagged_images > 0:
                     st.markdown("""
 <div style="
@@ -946,7 +947,7 @@ def main():
     border: 1px solid #ffeeba;
     font-size: 16px;
 ">
-⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+⚠️ <strong>High-risk Site</strong>：May involve e-cigarette sales
 </div>
 """, unsafe_allow_html=True)
                 if "(1)" in text_result:
@@ -959,7 +960,7 @@ def main():
     border: 1px solid #ffeeba;
     font-size: 16px;
 ">
-⚠️ <strong>高風險網站</strong>：網站可能涉及電子煙販售
+⚠️ <strong>High-risk Site</strong>：May involve e-cigarette sales
 </div>
 """, unsafe_allow_html=True)
                 else:
@@ -972,7 +973,7 @@ def main():
     border: 1px solid #c3e6cb;
     font-size: 16px;
 ">
-✅ <strong>安全網站</strong>：未偵測出高風險內容
+✅ <strong>Safe Site</strong>：未偵測出高風險內容
 </div>
 """, unsafe_allow_html=True)
     
