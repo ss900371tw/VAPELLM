@@ -43,59 +43,54 @@ openai_api_key = os.getenv("OPENAI_API_KEY","")
 
 # -------------------- 2. Prompt --------------------
 text_template = """
-As a professional classifier of e-cigarette trading websites,  
+As a professional classifier of e-cigarette trading and promotional websites,  
 you are capable of analyzing the following HTML content and assigning it to one of the two categories below:
 
 Please classify into one of the following:
 
-(1) E-cigarette sales website  
+(1) E-cigarette sales or promotional website  
 (2) Not in this category
 
-Since product names, brands, and expressions are infinite in variation, do not rely solely on specific keywords.  
-Instead, make your decision based on general indicators, especially the following:
+🧭 Classification principles:
 
-1) Usage context or marketing claims  
-Pay attention to any explicit or implicit claims about mood changes, stress relief, improved focus, sleep assistance, or overall relaxation.  
-If a product is promoted as having extraordinary benefits (e.g., "ultra relaxing", "strong pleasure", "sleep aid miracle", "boost work focus"), it may suggest the e-cigarette or vape juice contains special additives.  
-Devices and e-liquids (vape juices) presented with such claims should be treated as part of e-cigarette sales websites.
+1) **Sales or promotional intent**
+If the content presents e-cigarette products, brands, or device models (even without explicit pricing),  
+and appears to promote, advertise, or display these products — such as a brand homepage, product showcase, or catalog —  
+it should still be considered **(1) E-cigarette sales or promotional website**.  
+Even if there is no visible purchase button, these sites serve a marketing and commercial purpose.
 
-2) Transactional cues  
-Look for signs such as pricing mentions, or phrases like “DM me”, “secret formula”, “contact on LINE”, “discreet shipping”, or “private message”.  
-These often indicate restricted or illegal product sales.  
-If the site includes:
-- Add to cart  
-- Quick order  
-- Product catalog browsing  
+Typical signals include:
+- Mentions of brand or product names (e.g., "SLIMSTICK", "JUUL", "RELX", "Vuse")  
+- Nicotine or vape-related warnings  
+- Images or names of vape devices, pods, or e-liquids  
+- Phrases like “discover our products”, “flavors”, “new collection”, “device lineup”
 
-→ Even if it appears legal on the surface, it could be a disguised illegal sales website.  
-→ Stay cautious about ambiguous or contradictory statements.  
-⚠️ Note: A professional appearance or scientific terminology does not justify the sale of controlled substances.
+2) **Transactional cues (strong evidence)**
+Direct purchase options like “add to cart”, prices, order forms, contact for buying, or “discreet shipping”  
+also indicate category (1).  
+Both promotional and direct-sale websites belong to the same category.
 
-3) Informational or educational websites  
-If the content is limited to health knowledge, medical references, or public health campaigns,  
-and there is no mention of product purchase, pricing, contact info, or ordering features, classify it as (2) Not in this category.
+3) **Informational or educational websites**
+If the site’s purpose is only to provide health knowledge, public health information, research data,  
+or smoking cessation guidance — with no brand promotion, purchase guidance, or product showcasing —  
+classify as **(2) Not in this category**.
 
-Such sites may include:
-- Health encyclopedias (e.g., WebMD, NIH, Mayo Clinic)  
-- Medical or pharmaceutical databases (e.g., drugs.com)  
-- Government agencies or nonprofit health platforms  
-- Articles on health effects of e-cigarettes, ingredient analysis, or quitting advice  
+🧠 Ambiguity handling:
+If a page looks like a product or brand site but has no visible cart or pricing,  
+still classify as (1) unless its primary purpose is clearly educational or news-related.
 
-Even if e-cigarette brands, ingredients, or devices are mentioned,  
-as long as there is no sales behavior, shopping functionality, pricing, or purchase guidance, they should be categorized as educational.
-
-🧠 Special note: Do **not** misclassify educational sites as sales websites.
+---
 
 🔎【HTML content to classify】:
 
 {html}
 
 📋 Summary Report:  
-Final Classification: (1) E-cigarette sales website  or  (2) Not in this category
+Final Classification: (1) E-cigarette sales or promotional website  or  (2) Not in this category
 
 General reasoning behind this classification (based on rules 1–3 above)
 
-If there is any ambiguity (e.g., a site looks professional but still engages in sales), please explain how you handled it.
+If there is any ambiguity (e.g., brand landing page without prices), explain how you handled it.
 """
 
 prompt = PromptTemplate.from_template(template=text_template)
