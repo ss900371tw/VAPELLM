@@ -548,12 +548,12 @@ from io import BytesIO
 
 
 
-from langchain.schema.messages import HumanMessage
+from langchain_core.schema.messages import HumanMessage
 from io import BytesIO
 import requests
 import os
 from io import BytesIO
-from langchain.schema.messages import HumanMessage
+from langchain_core.schema.messages import HumanMessage
 
 def upload_bytesio_to_imgbb(img_io: BytesIO) -> str:
     """
