@@ -546,7 +546,7 @@ from io import BytesIO
 import base64
 
 
-from langchain.schema.messages import HumanMessage
+from langchain_core.schema.messages import HumanMessage
 from io import BytesIO
 
 
