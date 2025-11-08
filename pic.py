@@ -588,7 +588,7 @@ def classify_image(image_input, model):
     - result_text: 分析結果（✅ Safe / 🚨 Warning）
     - image_url: 上傳後的圖片網址（raw.githubusercontent.com 或 imgbb）
     """
-    from langchain.schema.messages import HumanMessage
+    from langchain_core.messages import HumanMessage
     import requests
     from io import BytesIO
     import os
