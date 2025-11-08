@@ -15,7 +15,7 @@ from googleapiclient.discovery import build
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage
 from langchain_openai import ChatOpenAI
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from urllib.parse import urljoin
 import pickle
 from googleapiclient.discovery import build
