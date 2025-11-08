@@ -673,7 +673,7 @@ def is_blacklisted_url(url: str) -> bool:
 # -------------------- 9. Streamlit 主程式 --------------------
 def main():
     # 使用 OpenAI GPT-4o 模型
-    st.markdown("<h1 style='text-align:center;color:white;'>E-cigarette Website Detection System</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center;color:white;'>E-cigarette Transaction Website Detection System</h1>", unsafe_allow_html=True)
 
     # 背景樣式與主題文字
     st.markdown("""
