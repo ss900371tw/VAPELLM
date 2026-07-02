@@ -636,7 +636,7 @@ def classify_image(image_input, model):
 
 from duckduckgo_search import DDGS
 
-def google_search(query, count=10, taiwan_only=True):
+def google_search(query, count=10, taiwan_only=False):
     """
     使用 DuckDuckGo 替代 Google 搜尋。
     taiwan_only: 若為 True，會自動限定在 .tw 網域
