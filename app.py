@@ -703,13 +703,13 @@ def main():
     """, unsafe_allow_html=True)
     llm_text = ChatGoogleGenerativeAI(
     google_api_key=gemini_api_key, 
-    model="gemini-1.5-pro",  # 或使用 "gemini-pro"
+    model="gemini-2.5-pro",  # 或使用 "gemini-pro"
     temperature=0
     )
 
     llm_image = ChatGoogleGenerativeAI(
     google_api_key=gemini_api_key, 
-    model="gemini-1.5-pro",  # 具備強大圖片分析能力的多模態模型
+    model="gemini-2.5-pro",  # 具備強大圖片分析能力的多模態模型
     temperature=0
     )
     parser = StrOutputParser()
