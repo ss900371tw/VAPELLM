@@ -1375,7 +1375,7 @@ span[data-testid="uploaded-file-name"] {
 </style>
 """, unsafe_allow_html=True)
             uploaded_files = st.file_uploader(
-                "", type=["jpg", "jpeg", "png"], accept_multiple_files=True, label_visibility="collapsed"
+                "上傳圖片", type=["jpg", "jpeg", "png"], accept_multiple_files=True, label_visibility="collapsed"
             )
         
             # 如果有上傳新圖片 → 重置狀態
