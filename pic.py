@@ -702,8 +702,8 @@ def main():
     st.markdown("""
     <p style='text-align:center; font-size: 24px; color: white;'>🧠 利用 OpenAI + 圖片辨識，自動分類電子煙相關網站</p>
     """, unsafe_allow_html=True)
-    llm_text = ChatOpenAI(api_key=openai_api_key, model="gpt-4.1", temperature=0)
-    llm_image = ChatOpenAI(api_key=openai_api_key, model="gpt-4.1", temperature=0)
+    llm_text = ChatOpenAI(api_key=openai_api_key, model="gpt-4o-mini", temperature=0)
+    llm_image = ChatOpenAI(api_key=openai_api_key, model="gpt-4o-mini", temperature=0)
     parser = StrOutputParser()
     chain = prompt | llm_text | parser
     # 初始化
