@@ -857,7 +857,7 @@ Select Analysis Mode
                 col1, col2 = st.columns([5, 1])
             
                 with col1:
-                    url = st.text_input("", placeholder="Enter website URL:", label_visibility="collapsed")
+                    url = st.text_input("Website URL", placeholder="Enter website URL:", label_visibility="collapsed")
             
                 with col2:
                     submitted = st.form_submit_button("確定")
