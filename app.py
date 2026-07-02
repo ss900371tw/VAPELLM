@@ -628,28 +628,25 @@ def classify_image(image_input, model):
 
 
 # -------------------- 7. Google Search --------------------
+from duckduckgo_search import DDGS
+
 def google_search(query, count=10):
-    api_key = googlesearch_api_key
-    cx = '31f38b4f083b3451a'
-    if not api_key or not cx:
-        print("❌ GOOGLE_API_KEY 或 GOOGLE_CX 沒有正確設定")
-        return []
+    """
+    使用 DuckDuckGo 替代 Google 搜尋，免 API Key、免設定環境
+    """
+    print(f"🔍 正在搜尋：{query}...")
+    results = []
     try:
-        service = build("customsearch", "v1", developerKey=api_key)
-        results = []
-        fetched = 0
-        while fetched < count:
-            num = min(10, count - fetched)
-            start = fetched + 1
-            res = service.cse().list(q=query, cx=cx, num=num, start=start).execute()
-            items = res.get("items", [])
-            results.extend([item["link"] for item in items])
-            fetched += len(items)
-            if len(items) < num:
-                break
+        # 使用 context manager 呼叫 DuckDuckGo 搜尋
+        with DDGS() as ddgs:
+            # text() 會回傳搜尋結果，max_results 控制數量
+            ddgs_gen = ddgs.text(query, max_results=count)
+            if ddgs_gen:
+                for r in ddgs_gen:
+                    results.append(r['href']) # 'href' 就是網頁連結
         return results
     except Exception as e:
-        print(f"❌ Google 搜尋錯誤：{e}")
+        print(f"❌ 搜尋發生錯誤：{e}")
         return []
 
 # -------------------- 8. 黑名單 --------------------
