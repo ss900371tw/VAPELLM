@@ -307,7 +307,8 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
 def upload_image_to_imgbb(image_path):
     with open(image_path, "rb") as f:
-        IMGBB_API_KEY = 'fa40a979a6f06931252ecd6f51f03e2b'
+        
+        IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
         res = requests.post(
             "https://api.imgbb.com/1/upload",
             params={"key": IMGBB_API_KEY},
