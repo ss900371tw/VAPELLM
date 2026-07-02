@@ -321,52 +321,73 @@ def upload_image_to_imgbb(image_path):
     return res.json()["data"]["url"]
 
 
+
+
+import streamlit as st
+from playwright.sync_api import sync_playwright
+import urllib.parse
+
 def search_similar_images_via_serpapi(image_url):
-    SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
-    params = {
-        "engine": "google_reverse_image",
-        "api_key": SERPAPI_API_KEY,
-        "image_url": image_url,
-    }
+    """
+    不需要 SerpAPI Key 的替代方案！
+    直接利用 Playwright 模擬開啟 Google Lens 頁面並抓取視覺匹配的網頁連結。
+    """
+    st.write("🔍 正在透過 Google Lens 進行免 Key 以圖搜圖...")
+    
+    urls = []
+    
+    try:
+        # 1. 建立 Google Lens 的免登入上傳網址 (將圖片網址編碼進去)
+        encoded_url = urllib.parse.quote(image_url, safe='')
+        lens_url = f"https://lens.google.com/uploadbyurl?url={encoded_url}"
+        
+        # 2. 啟動 Playwright 無頭瀏覽器
+        with sync_playwright() as p:
+            # 啟動 Chromium 瀏覽器
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            
+            # 前往 Google Lens 頁面，等待網路閒置 (確保結果載入完成)
+            page.goto(lens_url, wait_until="networkidle")
+            
+            # 3. 擷取頁面中所有符合視覺匹配結果的網頁連結
+            # Google Lens 的結果連結通常帶有 data-bookmark-url 或者是一般的 a 標籤
+            # 我們這裡撈取所有含有 href 的<a>標籤，並篩選出真正外部網站的連結
+            hrefs = page.locator('a[href]').all_javascript_urls() or []
+            
+            # 另一種更精準的方式是直接抓取 a 標籤的屬性值
+            elements = page.locator('a').all()
+            for el in elements:
+                link = el.get_attribute("href")
+                if link and link.startswith("http") and "google.com" not in link:
+                    if link not in urls:
+                        urls.append(link)
+                        
+            browser.close()
+            
+    except Exception as e:
+        st.error(f"❌ Playwright 圖片搜尋發生錯誤：{e}")
+        return []
 
-    search = GoogleSearch(params)
-    results = search.get_dict()
+    # 模擬原本你寫的樣式與收合元件（讓畫面不突兀）
     st.markdown("""
-<style>
-/* Expander 標題（用 summary 明確指定並強制覆蓋） */
-details > summary {
-    background-color: #3b4a6b !important;   /* 比原本亮，偏藍灰 */
-    color: white !important;
-    font-weight: bold !important;
-    border: 1px solid #4da6ff !important;  /* 淺藍邊框 */
-    border-radius: 8px !important;
-    padding: 10px !important;
-    transition: background-color 0.2s ease;
-}
+    <style>
+    details > summary {
+        background-color: #3b4a6b !important;
+        color: white !important;
+        font-weight: bold !important;
+        border: 1px solid #4da6ff !important;
+        border-radius: 8px !important;
+        padding: 10px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-/* Hover 更亮一點 */
-details > summary:hover {
-    background-color: #4b5d88 !important;
-    cursor: pointer;
-}
+    with st.expander("📦 點我查看免 Key 搜尋結果清單"):
+        st.write(f"成功找到 {len(urls)} 個相關網頁連結：")
+        st.json(urls)
 
-/* 展開內容顏色 */
-div[data-testid="stExpander"] .streamlit-expanderContent {
-    color: #f0f0f0 !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
-    # ✅ 使用收合元件顯示回傳內容
-    with st.expander("📦 點我查看 SerpAPI 回傳內容"):
-        st.json(results)
-
-    image_results = results.get("image_results", [])
-    urls = [item.get("link") for item in image_results if "link" in item]
     return urls
-
-
 
 
     
