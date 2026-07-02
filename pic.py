@@ -325,7 +325,7 @@ def search_similar_images_via_serpapi(image_url):
     SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
     params = {
         "engine": "google_reverse_image",
-        "api_key": 'b522166f42603b2bd376722f95f83375aa9594271ca9aa338c886a1f0f558a21',
+        "api_key": SERPAPI_API_KEY,
         "image_url": image_url,
     }
 
