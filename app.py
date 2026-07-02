@@ -37,8 +37,8 @@ import undetected_chromedriver as uc
 from serpapi import GoogleSearch
 
 
-load_dotenv()
-openai_api_key = os.getenv("OPENAI_API_KEY","")
+from langchain_google_genai import ChatGoogleGenerativeAI
+gemini_api_key = os.getenv("GOOGLE_API_KEY", "")
 
 
 # -------------------- 2. Prompt --------------------
@@ -700,8 +700,17 @@ def main():
     st.markdown("""
     <p style='text-align:center; font-size: 24px; color: white;'>🧠 Leverage OpenAI and image recognition to automatically classify websites related to e-cigarettes.</p>
     """, unsafe_allow_html=True)
-    llm_text = ChatOpenAI(api_key=openai_api_key, model="gpt-4o-mini", temperature=0)
-    llm_image = ChatOpenAI(api_key=openai_api_key, model="gpt-4o-mini", temperature=0)
+    llm_text = ChatGoogleGenerativeAI(
+    google_api_key=gemini_api_key, 
+    model="gemini-1.5-pro",  # 或使用 "gemini-pro"
+    temperature=0
+    )
+
+    llm_image = ChatGoogleGenerativeAI(
+    google_api_key=gemini_api_key, 
+    model="gemini-1.5-pro",  # 具備強大圖片分析能力的多模態模型
+    temperature=0
+    )
     parser = StrOutputParser()
     chain = prompt | llm_text | parser
     # 初始化
