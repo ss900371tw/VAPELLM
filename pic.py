@@ -329,7 +329,7 @@ import urllib.parse
 
 from playwright.sync_api import sync_playwright
 
-def search_similar_images_via_playwright(image_url):
+def search_similar_images_via_serpapi(image_url):
     urls = []
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
