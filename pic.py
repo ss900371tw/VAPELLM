@@ -39,7 +39,7 @@ from serpapi import GoogleSearch
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 gemini_api_key = os.getenv("GOOGLE_API_KEY", "")
-
+GOOGLE_SEARCH_API_KEY = os.getenv("GOOGLE_SEARCH_API_KEY", "") 
 # -------------------- 2. Prompt --------------------
 text_template = """
 作為一位專業的電子菸交易網站分類器，
@@ -627,7 +627,7 @@ def classify_image(image_input, model):
 
 # -------------------- 7. Google Search --------------------
 def google_search(query, count=10):
-    api_key = os.getenv("GOOGLE_SEARCH_API_KEY", "") 
+    api_key = GOOGLE_SEARCH_API_KEY
     cx = '31f38b4f083b3451a'
     if not api_key or not cx:
         print("❌ GOOGLE_API_KEY 或 GOOGLE_CX 沒有正確設定")
