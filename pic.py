@@ -633,22 +633,29 @@ def classify_image(image_input, model):
 
 
 # -------------------- 7. Google Search --------------------
+
 from duckduckgo_search import DDGS
 
-def google_search(query, count=10):
+def google_search(query, count=10, taiwan_only=True):
     """
-    使用 DuckDuckGo 替代 Google 搜尋，免 API Key、免設定環境
+    使用 DuckDuckGo 替代 Google 搜尋。
+    taiwan_only: 若為 True，會自動限定在 .tw 網域
     """
-    print(f"🔍 正在搜尋：{query}...")
+    # 如果啟用台灣限定，自動幫關鍵字加上 site:.tw
+    if taiwan_only and "site:.tw" not in query:
+        actual_query = f"{query} site:.tw"
+    else:
+        actual_query = query
+
+    print(f"🔍 正在搜尋：{actual_query}...")
     results = []
     try:
-        # 使用 context manager 呼叫 DuckDuckGo 搜尋
         with DDGS() as ddgs:
-            # text() 會回傳搜尋結果，max_results 控制數量
-            ddgs_gen = ddgs.text(query, max_results=count)
+            # 傳入加工後的 actual_query
+            ddgs_gen = ddgs.text(actual_query, max_results=count)
             if ddgs_gen:
                 for r in ddgs_gen:
-                    results.append(r['href']) # 'href' 就是網頁連結
+                    results.append(r['href'])
         return results
     except Exception as e:
         print(f"❌ 搜尋發生錯誤：{e}")
