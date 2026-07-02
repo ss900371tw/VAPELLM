@@ -636,7 +636,6 @@ def classify_image(image_input, model):
 
 from duckduckgo_search import DDGS
 
-from duckduckgo_search import DDGS
 
 def google_search(query, count=10):
     """
@@ -656,6 +655,27 @@ def google_search(query, count=10):
     except Exception as e:
         print(f"❌ 搜尋發生錯誤：{e}")
         return []
+
+from duckduckgo_search import DDGS
+
+def google_search(query, count=10):
+    print(f"🔍 正在搜尋（限定台灣地區）：{query}...")
+    results = []
+    try:
+        with DDGS() as ddgs:
+            # 加入 region="tw-tz"，讓搜尋引擎自動辨識台灣區內容
+            # timelimit='y' 可以順便限定一年內的最新資料（可加可不加）
+            ddgs_gen = ddgs.text(query, region="tw-tz", max_results=count)
+            
+            if ddgs_gen:
+                for r in ddgs_gen:
+                    results.append(r['href'])
+        return results
+    except Exception as e:
+        print(f"❌ 搜尋發生錯誤：{e}")
+        return []
+
+
 
 
 # -------------------- 8. 黑名單 --------------------
