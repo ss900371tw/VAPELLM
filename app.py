@@ -39,7 +39,7 @@ from serpapi import GoogleSearch
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 gemini_api_key = os.getenv("GOOGLE_API_KEY", "")
-
+googlesearch_api_key = os.getenv("GOOGLE_SEARCH_API_KEY", "") 
 
 # -------------------- 2. Prompt --------------------
 text_template = """
@@ -305,9 +305,9 @@ def crawl_all_text(url: str, cookie_file: str = "cookies.pkl"):
 
 
 
+
 def upload_image_to_imgbb(image_path):
     with open(image_path, "rb") as f:
-        
         IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
         res = requests.post(
             "https://api.imgbb.com/1/upload",
@@ -322,7 +322,7 @@ def search_similar_images_via_serpapi(image_url):
     SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
     params = {
         "engine": "google_reverse_image",
-        "api_key": 'b522166f42603b2bd376722f95f83375aa9594271ca9aa338c886a1f0f558a21',
+        "api_key": SERPAPI_API_KEY,
         "image_url": image_url,
     }
 
