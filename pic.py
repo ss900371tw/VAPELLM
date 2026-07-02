@@ -329,27 +329,52 @@ import urllib.parse
 
 from playwright.sync_api import sync_playwright
 
-def search_similar_images_via_serpapi(image_url):
-    urls = []
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        page.goto(f"https://lens.google.com/uploadbyurl?url={image_url}")
 
-        # 正確的方法是先定位到 locator
-        locator = page.locator('a[href]')
-        
-        # 然後呼叫 .all() 來獲取所有的 Elements
-        elements = locator.all()
-        
-        # 遍歷每個 Element 並獲取其 'href' 屬性
-        for element in elements:
-            url = element.get_attribute('href')
-            if url and url.startswith('http'):
-                urls.append(url)
-                
-        browser.close()
+def search_similar_images_via_serpapi(image_url):
+    SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
+    params = {
+        "engine": "google_reverse_image",
+        "api_key": SERPAPI_API_KEY,
+        "image_url": image_url,
+    }
+
+    search = GoogleSearch(params)
+    results = search.get_dict()
+    st.markdown("""
+<style>
+/* Expander 標題（用 summary 明確指定並強制覆蓋） */
+details > summary {
+    background-color: #3b4a6b !important;   /* 比原本亮，偏藍灰 */
+    color: white !important;
+    font-weight: bold !important;
+    border: 1px solid #4da6ff !important;  /* 淺藍邊框 */
+    border-radius: 8px !important;
+    padding: 10px !important;
+    transition: background-color 0.2s ease;
+}
+
+/* Hover 更亮一點 */
+details > summary:hover {
+    background-color: #4b5d88 !important;
+    cursor: pointer;
+}
+
+/* 展開內容顏色 */
+div[data-testid="stExpander"] .streamlit-expanderContent {
+    color: #f0f0f0 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+    # ✅ 使用收合元件顯示回傳內容
+    with st.expander("📦 Click to view SerpAPI response content"):
+        st.json(results)
+
+    image_results = results.get("image_results", [])
+    urls = [item.get("link") for item in image_results if "link" in item]
     return urls
+
 
     
 import requests
