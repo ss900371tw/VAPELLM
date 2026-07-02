@@ -21,4 +21,4 @@ seleniumbase
 langchain
 google-search-results
 serpapi
-
+duckduckgo_search
