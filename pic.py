@@ -628,7 +628,7 @@ def classify_image(image_input, model):
 # -------------------- 7. Google Search --------------------
 def google_search(query, count=10):
     api_key = os.getenv("GOOGLE_SEARCH_API_KEY", "") 
-    cx = '67ad640c105724e6f'
+    cx = '6668602ac6ec5401d'
     if not api_key or not cx:
         print("❌ GOOGLE_API_KEY 或 GOOGLE_CX 沒有正確設定")
         return []
