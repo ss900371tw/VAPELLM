@@ -37,10 +37,8 @@ import time
 import undetected_chromedriver as uc
 from serpapi import GoogleSearch
 
-
-load_dotenv()
-openai_api_key = os.getenv("OPENAI_API_KEY","")
-
+from langchain_google_genai import ChatGoogleGenerativeAI
+gemini_api_key = os.getenv("GOOGLE_API_KEY", "")
 
 # -------------------- 2. Prompt --------------------
 text_template = """
