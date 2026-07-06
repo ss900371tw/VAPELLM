@@ -632,25 +632,40 @@ def classify_image(image_input, model):
         return f"⚠️ 圖片分析失敗：{e}", None
 
 # -------------------- 7. Google Search --------------------
-from duckduckgo_search import DDGS
+from serpapi import GoogleSearch
 
 def google_search(query, count=10):
     """
-    使用 DuckDuckGo 替代 Google 搜尋，免 API Key、免設定環境
+    使用 SerpApi 抓取真正的 Google 搜尋結果 (免受防爬蟲阻擋)
     """
-    print(f"🔍 正在搜尋：{query}...")
+    print(f"🔍 正在透過 SerpApi 搜尋 Google：{query}...")
     results = []
+    
+    # ⚠️ 請在下方填入你從 SerpApi 後台拿到的 API Key
+    api_key = os.getenv("SERPAPI_API_KEY")
+    # 建立搜尋參數
+    params = {
+        "q": query,          # 搜尋關鍵字
+        "hl": "zh-tw",       # 介面語言：繁體中文
+        "gl": "tw",          # 地區：台灣 (讓結果更符合在地需求)
+        "num": count,        # 回傳筆數
+        "api_key": api_key
+    }
+    
     try:
-        # 使用 context manager 呼叫 DuckDuckGo 搜尋
-        with DDGS() as ddgs:
-            # text() 會回傳搜尋結果，max_results 控制數量
-            ddgs_gen = ddgs.text(query, max_results=count, backend="html")
-            if ddgs_gen:
-                for r in ddgs_gen:
-                    results.append(r['href']) # 'href' 就是網頁連結
+        # 執行搜尋
+        search = GoogleSearch(params)
+        dict_results = search.get_dict()
+        
+        # 確保有拿到自然搜尋結果 (Organic Results)
+        if "organic_results" in dict_results:
+            for r in dict_results["organic_results"]:
+                results.append(r["link"]) # SerpApi 的網頁連結欄位名稱是 'link'
+                
         return results
+        
     except Exception as e:
-        print(f"❌ 搜尋發生錯誤：{e}")
+        print(f"❌ SerpApi 搜尋發生錯誤：{e}")
         return []
 
 
