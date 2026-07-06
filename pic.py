@@ -644,7 +644,7 @@ def google_search(query, count=10):
         # 使用 context manager 呼叫 DuckDuckGo 搜尋
         with DDGS() as ddgs:
             # text() 會回傳搜尋結果，max_results 控制數量
-            ddgs_gen = ddgs.text(query, max_results=count, backend="html", region='tw-tzh')
+            ddgs_gen = ddgs.text(query, max_results=count, backend="html")
             if ddgs_gen:
                 for r in ddgs_gen:
                     results.append(r['href']) # 'href' 就是網頁連結
