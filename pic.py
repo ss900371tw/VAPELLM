@@ -631,10 +631,8 @@ def classify_image(image_input, model):
     except Exception as e:
         return f"⚠️ 圖片分析失敗：{e}", None
 
-
-
 # -------------------- 7. Google Search --------------------
-import ddgs
+from duckduckgo_search import DDGS
 
 def google_search(query, count=10):
     """
@@ -654,8 +652,6 @@ def google_search(query, count=10):
     except Exception as e:
         print(f"❌ 搜尋發生錯誤：{e}")
         return []
-
-
 
 
 # -------------------- 8. 黑名單 --------------------
