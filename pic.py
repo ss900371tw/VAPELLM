@@ -658,24 +658,6 @@ def google_search(query, count=10):
 
 
 
-from googlesearch import search
-
-def google_search(query, count=10):
-    """
-    直接抓取 Google 搜尋結果，免 API Key
-    """
-    print(f"🔍 正在 Google 搜尋：{query}...")
-    results = []
-    try:
-        # advanced=True 可以拿到更詳細的標題與描述，這裡我們只拿 url
-        # num_results 控制回傳數量
-        for url in search(query, num_results=count):
-            results.append(url)
-        return results
-    except Exception as e:
-        print(f"❌ 搜尋發生錯誤：{e}")
-        return []
-
 
 
 # -------------------- 8. 黑名單 --------------------
