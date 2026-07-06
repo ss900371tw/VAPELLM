@@ -671,16 +671,10 @@ def google_search(query, count=10):
 
 # -------------------- 8. 黑名單 --------------------
 blacklist_domains = [
-    ".edu", ".gov", ".ac.", ".org", ".wiki", "usask.ca", "su.se", "article",
-    "researchgate", "sciencedirect", "osf.io", "digitalcommons",
-    "escholarship", "openai.com", "archive.org", "wiktionary",
-    "urbandictionary", "dictionary", "bjc-r", "ecprice", "adamrose"
+
 ]
 blacklist_keywords_in_url = [
-    "slang", "street-names", "code-words", "download", "vocab", "wordlist",
-    "unigrams", "passphrases", "pdf", "xml", "djvu.txt", "txt", "books",
-    "raw/main", "viewcontent.cgi", "novel.pdf", "API/docs", "textfiles",
-    "publications"
+    
 ]
 
 def is_blacklisted_url(url: str) -> bool:
