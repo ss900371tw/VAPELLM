@@ -634,7 +634,7 @@ def classify_image(image_input, model):
 
 
 # -------------------- 7. Google Search --------------------
-from duckduckgo_search import DDGS
+import ddgs
 
 def google_search(query, count=10):
     """
