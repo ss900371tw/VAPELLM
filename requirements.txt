@@ -22,4 +22,3 @@ langchain
 google-search-results
 serpapi
 duckduckgo_search
-googlesearch-python
