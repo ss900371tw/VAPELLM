@@ -22,4 +22,4 @@ langchain
 google-search-results
 serpapi
 duckduckgo_search
-ddgs
+ddgs==9.14.4
